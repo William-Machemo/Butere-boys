@@ -1,0 +1,12 @@
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: black;
+  border-radius: 50%;
+  padding: 15px;
+}
+
+.dorm-img {
+  height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+}
