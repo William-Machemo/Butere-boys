@@ -1,41 +1,62 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+// Import all subject components
 
+// Products
 const products = [
-  { name: "Wood Technology End Term Assessment", subject: "Wood Technology", price: 100 },
-  { name: "Theatre and Film Technology End Term Assessment", subject: "Theatre and Film", price: 100 },
-  { name: "Sports and Recreation End Term Assessment", subject: "Sports and Recreation", price: 100 },
-  { name: "Power Mechanics End Term Assessment", subject: "Power Mechanics", price: 100 },
-  { name: "Physics End Term Assessment", subject: "Physics", price: 100 },
-  { name: "Physical Education End Term Assessment", subject: "Physical Education", price: 100 },
-  { name: "Music and Dance End Term Assessment", subject: "Music and Dance", price: 100 },
-  { name: "Metal Technology End Term Assessment", subject: "Metal Technology", price: 100 },
-  { name: "Media Technology End Term Assessment", subject: "Media Technology", price: 100 },
-  { name: "Marine Technology End Term Assessment", subject: "Marine and Fisheries", price: 100 },
-  { name: "Mandarin End Term Assessment", subject: "Mandarin Chinese", price: 100 },
-  { name: "Kiswahili End Term Assessment", subject: "Kiswahili", price: 100 },
-  { name: "ICT End Term Assessment", subject: "ICT", price: 100 },
-  { name: "Home Science End Term Assessment", subject: "Home Science", price: 100 },
-  { name: "History and Citizenship End Term Assessment", subject: "History and Citizenship", price: 100 },
-  { name: "Geography End Term Assessment", subject: "Geography", price: 100 },
-  { name: "General Science End Term Assessment", subject: "General Science", price: 100 },
-  { name: "French End Term Assessment", subject: "French", price: 100 },
-  { name: "Fine Arts End Term Assessment", subject: "Fine Arts", price: 100 },
-  { name: "Mathematics End Term Assessment", subject: "Mathematics", price: 100 },
-  { name: "English End Term Assessment", subject: "English", price: 100 }
+  { name: "Wood Technology End Term Assessment", subject: "Wood Technology"},
+  { name: "Theatre and Film Technology End Term Assessment", subject: "Theatre and Film"},
+  { name: "Sports and Recreation End Term Assessment", subject: "Sports and Recreation"},
+  { name: "Power Mechanics End Term Assessment", subject: "Power Mechanics"},
+  { name: "Physics End Term Assessment", subject: "Physics"},
+  { name: "Physical Education End Term Assessment", subject: "Physical Education"},
+  { name: "Music and Dance End Term Assessment", subject: "Music and Dance" },
+
+  { name: "Media Technology End Term Assessment", subject: "Media Technology" },
+  { name: "Marine Technology End Term Assessment", subject: "Marine Technology" },
+  { name: "Mandarin End Term Assessment", subject: "Mandarin Chinese"},
+  { name: "Kiswahili End Term Assessment", subject: "Kiswahili"},
+  { name: "ICT End Term Assessment", subject: "ICT"},
+  { name: "Home Science End Term Assessment", subject: "Home Science" },
+  { name: "History and Citizenship End Term Assessment", subject: "History and Citizenship" },
+  { name: "Geography End Term Assessment", subject: "Geography"},
+  { name: "General Science End Term Assessment", subject: "General Science" },
+  { name: "French End Term Assessment", subject: "French"},
+  { name: "Fine Arts End Term Assessment", subject: "Fine Arts"},
+  { name: "Mathematics End Term Assessment", subject: "Mathematics"},
+  { name: "English End Term Assessment", subject: "English"}
 ];
 
-const categories = [
-  "Parents",
-  "Teachers",
-  "Students",
-  "Financials",
-  "Academics",
-  "Sports",
-  "Default"
-];
+// Mapping subjects to routes
+const subjectRoutes = {
+  "Wood Technology": "/wood-technology",
+  "Theatre and Film": "/theatre-film",
+  "Sports and Recreation": "/sports-recreation",
+  "Power Mechanics": "/power-mechanics",
+  "Physics": "/physics",
+  "Physical Education": "/physical-education",
+  "Music and Dance": "/music-dance",
+  "Metal Technology": "/metal-technology",
+  "Media Technology": "/media-technology",
+  "Marine Technology": "/marine-technology",
+  "Mandarin Chinese": "/mandarin",
+  "Kiswahili": "/kiswahili",
+  "ICT": "/ict",
+  "Home Science": "/home-science",
+  "History and Citizenship": "/history-citizenship",
+  "Geography": "/geography",
+  "General Science": "/general-science",
+  "French": "/french",
+  "Fine Arts": "/fine-arts",
+  "Mathematics": "/mathematics",
+  "English": "/english"
+};
 
+// Categories for sidebar
+const categories = ["Parents", "Teachers", "Students", "Financials", "Academics", "Sports", "Default"];
+
+// Pages grid
 const pages = [
   { title: "Vision and Mission", desc: "Vision to become a leading and most preferred National School...", img: "/images/1769612383841.jpg" },
   { title: "KCSE Exam analysis", desc: "Butere Boys' High School results since 1989...", img: "/images/1769612383841.jpg" },
@@ -47,74 +68,47 @@ const pages = [
 
 function Page() {
   return (
-    <div>
+<div>
+ {/* Academics Section */}
+ <div className="container mt-4">
+ <h1 className="text-success mb-4">Academics</h1>
+ <p> Butere Boys High School offers a strong academic curriculum designed
+ to prepare students for KCSE and beyond.  </p>
+ <div className="row mt-4">
+ <div className="col-md-6 mb-3">
+ <div className="card p-3 shadow-sm">
+  <h5>Subjects Offered</h5>
+   <ul>
+  <li>Mathematics</li>
+  <li>English & Kiswahili</li>
+   <li>Sciences (Physics, Chemistry, Biology)</li>
+   <li>Humanities</li>
+  </ul>
+  </div>
+ </div>
+ <div className="col-md-6 mb-3">
+  <div className="card p-3 shadow-sm">
+  <h5>Performance</h5>
+  <p> The school has consistently achieved excellent KCSE results
+   with many students joining top universities. </p>
+   </div>
+   </div>
+ </div>
+ </div>
 
-      {/* HEADER */}
-      <div style={styles.topBar}>
-        <span>education@elimu.co.ke</span>
-        <span>+254 700 663 000</span>
-        <span>Mpesa Till: 323253</span>
-      </div>
-
-      {/* NAVBAR */}
-      <div style={styles.navbar}>
-        <span>Home</span>
-        <span>Senior School Exams</span>
-        <span>Notes & Booklets</span>
-        <span style={{ marginLeft: "auto" }}>🛒 Cart</span>
-      </div>
-
-      {/* Academics Section */}
-      <div className="container mt-4">
-        <h1 className="text-success mb-4">Academics</h1>
-        <p>
-          Butere Boys High School offers a strong academic curriculum designed
-          to prepare students for KCSE and beyond.
-        </p>
-
-        <div className="row mt-4">
-          <div className="col-md-6 mb-3">
-            <div className="card p-3 shadow-sm">
-              <h5>Subjects Offered</h5>
-              <ul>
-                <li>Mathematics</li>
-                <li>English & Kiswahili</li>
-                <li>Sciences (Physics, Chemistry, Biology)</li>
-                <li>Humanities</li>
-              </ul>
-            </div>
-          </div>
-          <div className="col-md-6 mb-3">
-            <div className="card p-3 shadow-sm">
-              <h5>Performance</h5>
-              <p>
-                The school has consistently achieved excellent KCSE results
-                with many students joining top universities.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* School Analytics Sidebar + Pages */}
-      <div style={styles.container}>
-        {/* Sidebar */}
-        <div style={styles.sidebar}>
-          <h3>Categories</h3>
-          {categories.map((cat, i) => (
-            <Link
-              key={i}
-              to={`/category/${cat.toLowerCase()}`}
-              style={styles.categoryLink}
-            >
-              {cat} →
-            </Link>
-          ))}
-          <div style={styles.promo}>
-            <p>Get lesson plans, exams notes & schemes of work</p>
-            <button style={styles.learnBtn}>Learn online</button>
-          </div>
-        </div>
+ {/* School Analytics Sidebar + Pages */}
+ <div style={styles.container}>
+   {/* Sidebar */}
+  <div style={styles.sidebar}>
+   <h3>Categories</h3>
+  {categories.map((cat, i) => (
+   <Link key={i} to={`/category/${cat.toLowerCase()}`} style={styles.categoryLink} > {cat} → </Link>
+    ))}
+   <div style={styles.promo}>
+ <p>Get lesson plans, exams notes & schemes of work</p>
+   <button style={styles.learnBtn}>Learn online</button>
+ </div>
+   </div>
 
         {/* Pages Grid */}
         <div style={styles.grid}>
@@ -148,12 +142,18 @@ function Page() {
                 </h4>
                 <p style={styles.meta}>
                   Senior School Exams - Grade 10
-                  <span style={styles.price}>KES {p.price}</span>
+                  <span style={styles.price}> {p.price}</span>
                 </p>
                 <p style={styles.subject}>{p.subject}</p>
                 <div style={styles.actions}>
-                  <button style={styles.payBtn}>View</button>
-                  <button style={styles.cartBtn}>Add to favourite</button>
+                  {/* Link to specific subject page */}
+                  <Link
+                    className="btn btn-success w-100 p-3"
+                    to={subjectRoutes[p.subject]}
+                  >
+                    View
+                  </Link>
+
                 </div>
               </div>
             ))}
@@ -169,23 +169,6 @@ function Page() {
         </div>
       </div>
 
-      {/* FOOTER */}
-      <div style={styles.footer}>
-        <div>
-          <h3>Elimu Library</h3>
-          <p>Educational materials for students and teachers.</p>
-        </div>
-        <div>
-          <h4>Contact</h4>
-          <p>+254 700 663 000</p>
-          <p>education@elimu.co.ke</p>
-        </div>
-        <div>
-          <h4>Policies</h4>
-          <p>Terms & Conditions</p>
-          <p>Privacy Policy</p>
-        </div>
-      </div>
     </div>
   );
 }
@@ -289,13 +272,6 @@ const styles = {
     display: "flex",
     justifyContent: "space-between"
   },
-  payBtn: {
-    background: "#e0e0e0",
-    border: "none",
-    padding: "8px",
-    borderRadius: "5px",
-    cursor: "pointer"
-  },
   cartBtn: {
     background: "#198754",
     color: "#fff",
@@ -318,6 +294,8 @@ const styles = {
     marginTop: "40px",
     flexWrap: "wrap"
   }
+
+  
 };
 
 export default Page;

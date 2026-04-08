@@ -15,7 +15,7 @@ const announcements = [
 
 const HomePage = () => {
   return (
-    <div className="container">
+    <div className="container-fluid">
       <h1><b>Butere Boys High School</b></h1>
 
       {/* HERO SECTION */}
@@ -65,6 +65,7 @@ const HomePage = () => {
         </div>
 
       </div>
+
 
       {/* CAROUSEL + SIDEBAR */}
       <section className="row my-4">
@@ -137,10 +138,12 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* QUICK LINKS */}
+      {/* Links */}
+      <marquee behavior="" direction="">
       <section className="pb-5">
+         
         <div className="row text-center">
-
+            
           <div className="col-md-3 mb-3">
             <Link className="btn btn-success w-100 p-3" to="/Admissions">Admission</Link>
           </div>
@@ -152,13 +155,15 @@ const HomePage = () => {
           <div className="col-md-3 mb-3">
             <Link className="btn btn-success w-100 p-3" to="/StudentLife">Student Life</Link>
           </div>
-
+           
           <div className="col-md-3 mb-3">
             <Link className="btn btn-success w-100 p-3" to="/Alumni">Alumni</Link>
           </div>
+          
 
         </div>
       </section>
+        </marquee>
 
       {/* NEWS */}
       <section className="bg-light py-5">
@@ -168,36 +173,36 @@ const HomePage = () => {
           <div className="row">
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/sports-day" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/Sports" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1770395995199.jpg" className="card-img-top" alt="news1" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
                     <h5 className="card-title">Sports Day Highlights</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
             </div>
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/academics" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/Academics" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1770395360975.jpg" className="card-img-top" alt="news2" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
                     <h5 className="card-title">Academic Excellence</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
             </div>
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/facilities" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/NewFacilities" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1769613169909.jpg" className="card-img-top" alt="news3" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
                     <h5 className="card-title">New Facilities</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
@@ -216,36 +221,36 @@ const HomePage = () => {
           <div className="row">
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/sports-day" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/KcsePredictions" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1770395995199.jpg" className="card-img-top" alt="news1" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
                     <h5 className="card-title">KCSE Prediction Questions</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
             </div>
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/academics" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/OpeningRequirements" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1770395360975.jpg" className="card-img-top" alt="news2" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
-                    <h5 className="card-title">Term opening date and requirements</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <h5 className="card-title">Opening Date & Requirements</h5>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
             </div>
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/facilities" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/GetFiles" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1769613169909.jpg" className="card-img-top" alt="news3" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
-                    <h5 className="card-title">New Facilities</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <h5 className="card-title"> Holiday Assignment</h5>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
@@ -262,36 +267,36 @@ const HomePage = () => {
           <div className="row">
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/sports-day" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/Admissions" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1770395995199.jpg" className="card-img-top" alt="news1" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
                     <h5 className="card-title">Admission open for 2026</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
             </div>
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/academics" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
+              <Link to="/NewsLetter" style={{ textDecoration: "none", color: "inherit" }}>
+ <div className="card shadow-sm h-100">
                   <img src="/images/1770395360975.jpg" className="card-img-top" alt="news2" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
                     <h5 className="card-title">End Term NewsLetter</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
             </div>
 
             <div className="col-md-4 mb-3">
-              <Link to="/news/facilities" style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to="/UpcomingEvents" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card shadow-sm h-100">
                   <img src="/images/1769613169909.jpg" className="card-img-top" alt="news3" style={{ height: "200px", objectFit: "cover" }} />
                   <div className="card-body">
                     <h5 className="card-title">Upcoming school events</h5>
-                    <p className="card-text">Click to read more...</p>
+                    <p className="card-text text-bg-success p-2">Click to read more...</p>
                   </div>
                 </div>
               </Link>
