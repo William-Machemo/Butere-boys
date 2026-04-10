@@ -130,3 +130,24 @@ body {
   object-fit: cover;
   border-radius: 10px;
 }
+
+.navbar .nav-link:hover {
+  color: #198754 !important; /* Bootstrap success color */
+  transition: color 0.3s ease;
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.marquee-content {
+  display: inline-flex;
+  animation: scroll-left 12s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}

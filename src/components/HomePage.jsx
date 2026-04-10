@@ -9,9 +9,7 @@ const announcements = [
   "Upcoming School Events",
   "Term Reopening Dates Announced",
   "End Term Newsletter"
-  
 ];
-
 
 const HomePage = () => {
   return (
@@ -20,45 +18,61 @@ const HomePage = () => {
 
       {/* HERO SECTION */}
       <div
-        className="text-white d-flex align-items-center justify-content-center text-center mb-4"
+        className="text-white d-flex align-items-center justify-content-center text-center mb-4 flex-wrap overflow-hidden"
         style={{
           backgroundImage: "url('/images/imageE.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          height: "500px",
+          minHeight: "400px",
           borderRadius: "5px",
-          gap: "20px"
+          gap: "20px",
+          padding: "20px",
+          position: "relative"
         }}
       >
 
-        {/* SCHOOL ANTHEM */}
-        <div className="bg-dark bg-opacity-50 p-3 rounded text-white">
+        <div
+          className="bg-dark bg-opacity-50 p-3 rounded text-white"
+          style={{
+            maxWidth: "500px",
+            width: "100%",
+            maxHeight: "300px",
+            overflowY: "auto"
+          }}
+        >
           <h4 className="text-danger"><b>SCHOOL ANTHEM</b></h4>
           <p>
             <b>
               <i>
-                In the tower of a strong ambition, we take a flight with a precious education, 
-                success breeds success in succession high the sky, our reputation shield, 
-                raising competent and responsible citizens, through quality education our mission, 
-                to be exemplary school, all round the vision, ooh Lord lead us to our destination, 
-                glory Butere boys, we're conquerors, purposeful, and diligent leaders, 
-                ever shine in confident leaders, strive to, our future ever bright, 
-                by discipline for excellence we're driven, through Exodus we be fasten, 
+                In the tower of a strong ambition, we take a flight with a precious education,
+                success breeds success in succession high the sky, our reputation shield,
+                raising competent and responsible citizens, through quality education our mission,
+                to be exemplary school, all round the vision, ooh Lord lead us to our destination,
+                glory Butere boys, we're conquerors, purposeful, and diligent leaders,
+                ever shine in confident leaders, strive to, our future ever bright,
+                by discipline for excellence we're driven, through Exodus we be fasten,
                 we store in courage our golden anchor, we stand never to be beaten.
               </i>
             </b>
           </p>
         </div>
 
-        {/* IMPORTANT NOTE */}
-        <div className="bg-dark bg-opacity-50 p-3 rounded text-white">
+        <div
+          className="bg-dark bg-opacity-50 p-3 rounded text-white"
+          style={{
+            maxWidth: "500px",
+            width: "100%",
+            maxHeight: "300px",
+            overflowY: "auto"
+          }}
+        >
           <h4 className="text-warning"><b>IMPORTANT NOTE</b></h4>
           <p>
             <b>
-              The school aims to prepare students to make a positive contribution to society and acquire values such as 
-              national patriotism, self-respect, self-reliance, cooperation, adaptability, a sense of purpose, and self-discipline. 
-              News Promote the school as a leading institution dedicated to empowering young students through quality education, 
-              discipline, and leadership development. Highlight the school's commitment to nurturing academic excellence and 
+              The school aims to prepare students to make a positive contribution to society and acquire values such as
+              national patriotism, self-respect, self-reliance, cooperation, adaptability, a sense of purpose, and self-discipline.
+              News Promote the school as a leading institution dedicated to empowering young students through quality education,
+              discipline, and leadership development. Highlight the school's commitment to nurturing academic excellence and
               strong moral values to prepare students for future success.
             </b>
           </p>
@@ -66,30 +80,29 @@ const HomePage = () => {
 
       </div>
 
-
       {/* CAROUSEL + SIDEBAR */}
       <section className="row my-4">
 
-        {/* CAROUSEL */}
         <div className="col-md-9">
-          <div id="mycarousel" className="carousel slide" data-bs-ride="carousel">
+          <div
+            id="mycarousel"
+            className="carousel slide"
+            data-bs-ride="carousel"
+            data-bs-interval="2500"
+            data-bs-pause="false"
+          >
             <div className="carousel-inner">
 
-              <div className="carousel-item active">
-                <img src="images/1743963068160~2.jpg" className="d-block w-100 rounded" height="400" alt="slide1" />
-              </div>
-
-              <div className="carousel-item">
-                <img src="images/imageB.jpg" className="d-block w-100 rounded" height="400" alt="slide2" />
-              </div>
-
-              <div className="carousel-item">
-                <img src="images/imageC.jpg" className="d-block w-100 rounded" height="400" alt="slide3" />
-              </div>
-
-              <div className="carousel-item">
-                <img src="images/imageE.jpg" className="d-block w-100 rounded" height="400" alt="slide4" />
-              </div>
+              {["1743963068160~2.jpg", "imageB.jpg", "imageC.jpg", "imageE.jpg"].map((img, index) => (
+                <div className={`carousel-item ${index === 0 ? "active" : ""}`} key={index}>
+                  <img
+                    src={`images/${img}`}
+                    className="d-block w-100 rounded img-fluid"
+                    style={{ height: "200px", objectFit: "cover" }}
+                    alt={`slide${index + 1}`}
+                  />
+                </div>
+              ))}
 
             </div>
 
@@ -103,7 +116,6 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* SIDEBAR */}
         <div className="col-md-3 bg-light p-4 rounded">
           <h5 className="fw-bold border-bottom pb-2">Announcements</h5>
           <ul className="list-unstyled mt-3">
@@ -138,32 +150,17 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Links */}
-      <marquee behavior="" direction="">
-      <section className="pb-5">
-         
-        <div className="row text-center">
-            
-          <div className="col-md-3 mb-3">
-            <Link className="btn btn-success w-100 p-3" to="/Admissions">Admission</Link>
-          </div>
+      {/* SAFE MARQUEE REPLACEMENT */}
+      <div className="marquee-container">
+        <div className="marquee-content d-inline-flex gap-3 px-3">
 
-          <div className="col-md-3 mb-3">
-            <Link className="btn btn-success w-100 p-3" to="/academics">Academics</Link>
-          </div>
-
-          <div className="col-md-3 mb-3">
-            <Link className="btn btn-success w-100 p-3" to="/StudentLife">Student Life</Link>
-          </div>
-           
-          <div className="col-md-3 mb-3">
-            <Link className="btn btn-success w-100 p-3" to="/Alumni">Alumni</Link>
-          </div>
-          
+          <Link className="btn btn-success px-3" to="/Admissions">Admission</Link>
+          <Link className="btn btn-success px-3" to="/academics">Academics</Link>
+          <Link className="btn btn-success px-3" to="/StudentLife">Student Life</Link>
+          <Link className="btn btn-success px-3" to="/Alumni">Alumni</Link>
 
         </div>
-      </section>
-        </marquee>
+      </div>
 
       {/* NEWS */}
       <section className="bg-light py-5">
@@ -172,135 +169,28 @@ const HomePage = () => {
 
           <div className="row">
 
-            <div className="col-md-4 mb-3">
-              <Link to="/Sports" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1770395995199.jpg" className="card-img-top" alt="news1" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">Sports Day Highlights</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
+            {[
+              { img: "1770395995199.jpg", title: "Sports Day Highlights", link: "/Sports" },
+              { img: "1770395360975.jpg", title: "Academic Excellence", link: "/Academics" },
+              { img: "1769613169909.jpg", title: "New Facilities", link: "/NewFacilities" }
+            ].map((news, idx) => (
+              <div className="col-md-4 mb-3" key={idx}>
+                <Link to={news.link} style={{ textDecoration: "none", color: "inherit" }}>
+                  <div className="card shadow-sm h-100">
+                    <img
+                      src={`/images/${news.img}`}
+                      className="card-img-top"
+                      alt={`news${idx + 1}`}
+                      style={{ height: "200px", objectFit: "cover" }}
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title">{news.title}</h5>
+                      <p className="card-text text-bg-success p-2">Click to read more...</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="col-md-4 mb-3">
-              <Link to="/Academics" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1770395360975.jpg" className="card-img-top" alt="news2" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">Academic Excellence</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="col-md-4 mb-3">
-              <Link to="/NewFacilities" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1769613169909.jpg" className="card-img-top" alt="news3" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">New Facilities</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-
-      
-      <section className="bg-light py-5">
-        <div className="container">
-        
-
-          <div className="row">
-
-            <div className="col-md-4 mb-3">
-              <Link to="/KcsePredictions" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1770395995199.jpg" className="card-img-top" alt="news1" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">KCSE Prediction Questions</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="col-md-4 mb-3">
-              <Link to="/OpeningRequirements" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1770395360975.jpg" className="card-img-top" alt="news2" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">Opening Date & Requirements</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="col-md-4 mb-3">
-              <Link to="/GetFiles" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1769613169909.jpg" className="card-img-top" alt="news3" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title"> Holiday Assignment</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-          </div>
-        </div>
-      </section>
-      
-      <section className="bg-light py-5">
-        <div className="container">
-        
-
-          <div className="row">
-
-            <div className="col-md-4 mb-3">
-              <Link to="/Admissions" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1770395995199.jpg" className="card-img-top" alt="news1" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">Admission open for 2026</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="col-md-4 mb-3">
-              <Link to="/NewsLetter" style={{ textDecoration: "none", color: "inherit" }}>
- <div className="card shadow-sm h-100">
-                  <img src="/images/1770395360975.jpg" className="card-img-top" alt="news2" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">End Term NewsLetter</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="col-md-4 mb-3">
-              <Link to="/UpcomingEvents" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="card shadow-sm h-100">
-                  <img src="/images/1769613169909.jpg" className="card-img-top" alt="news3" style={{ height: "200px", objectFit: "cover" }} />
-                  <div className="card-body">
-                    <h5 className="card-title">Upcoming school events</h5>
-                    <p className="card-text text-bg-success p-2">Click to read more...</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
+                </Link>
+              </div>
+            ))}
 
           </div>
         </div>

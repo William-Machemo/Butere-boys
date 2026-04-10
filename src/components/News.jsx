@@ -89,9 +89,12 @@ const NewsPage = () => {
                 <p className="card-text" style={{ whiteSpace: "pre-line" }}>
                   {news.description}
                 </p>
-                <a href="#" className="btn btn-primary mt-auto">
+
+                {/* FIXED BUTTON */}
+                <button className="btn btn-primary mt-auto">
                   Read More
-                </a>
+                </button>
+
               </div>
             </div>
           </div>
@@ -152,11 +155,7 @@ const NewsPage = () => {
       </footer>
 
     </div>
-    
   );
-
-
-  
 };
 
 export default NewsPage;

@@ -374,12 +374,20 @@ def get_chat_rooms():
 # ---------------- PRINCIPAL LOGIN ----------------
 @app.route("/api/principal_login", methods=["POST"])
 def principal_login():
-    data = request.get_json()
+    try:
+        data = request.get_json(force=True)
 
-    if data.get("password") != PRINCIPAL_PASSWORD:
+        password = data.get("password")
+
+        print("DEBUG PASSWORD RECEIVED:", password)
+
+        if password == PRINCIPAL_PASSWORD:
+            return jsonify({"message": "Login successful"}), 200
+
         return jsonify({"message": "Wrong password"}), 403
 
-    return jsonify({"message": "Login successful"})
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
 
 
 # ---------------- RUN SERVER ----------------

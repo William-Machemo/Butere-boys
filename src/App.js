@@ -1,10 +1,10 @@
 // src/App.js
-import './App.css'; 
+import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 
@@ -35,12 +35,6 @@ import OpeningRequirements from './components/OpeningRequirements';
 import KcsePredictions from './components/KcsePredictions';
 import NewFacilities from './components/NewFacilities';
 import HolidayAssignment from './components/HolidayAssignment';
-import Grade10 from './components/Grade10';
-import Grade11 from './components/Grade11';
-import Grade12 from './components/Grade12';
-import Grade13 from './components/Grade13';
-import Form3 from './components/Form3';
-import Form4 from './components/Form4';
 import MainMenu from './components/MainMenu';
 import GetFiles from './components/GetFiles';
 import AddFiles from './components/AddFiles';
@@ -72,48 +66,78 @@ import Mathematics from "./components/Mathematics";
 import English from "./components/English";
 import GeneralScience from "./components/GeneralScience";
 
-// ---------------- CHAT SOCKET.IO ----------------
-const socket = io("http://127.0.0.1:5000");
+/**
+ * 🔥 CHANGE THIS WHEN YOU DEPLOY BACKEND
+ */
+const API_BASE_URL = "http://127.0.0.1:5000";
 
+// Socket connection (safe for dev)
+const socket = io(process.env.REACT_APP_API_URL || "http://127.0.0.1:5000");
+
+// Rooms moved OUTSIDE component (fixes ESLint + prevents re-render issues)
+const ALL_ROOMS = ["General", "Classes", "Announcements", "Teachers Only"];
 function Chat({ username, role }) {
   const [currentRoom, setCurrentRoom] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [rooms, setRooms] = useState([]);
 
-  const ALL_ROOMS = ["General", "Classes", "Announcements", "Teachers Only"];
-
+  // assign rooms based on role
   useEffect(() => {
-    if (role === "teacher") setRooms(ALL_ROOMS);
-    else if (role === "parent") setRooms(["General", "Announcements"]);
+    if (role === "teacher") {
+      setRooms(ALL_ROOMS);
+    } else if (role === "parent") {
+      setRooms(["General", "Announcements"]);
+    } else {
+      setRooms(["General"]);
+    }
   }, [role]);
 
+  // socket listener (FIXED: proper cleanup)
   useEffect(() => {
-    socket.on("message", (msg) => {
+    const handleMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
-    });
-    return () => socket.off("message");
+    };
+
+    socket.on("message", handleMessage);
+
+    return () => {
+      socket.off("message", handleMessage);
+    };
   }, []);
 
   const joinRoom = (room) => {
-    if (currentRoom) socket.emit("leave_room", { username });
+    if (!username) return;
+
+    if (currentRoom) {
+      socket.emit("leave_room", { username, room: currentRoom });
+    }
+
     setCurrentRoom(room);
     setMessages([]);
+
     socket.emit("join_room", { username, room });
   };
 
   const sendMessage = (e) => {
     e.preventDefault();
+
     if (!message.trim() || !currentRoom) return;
 
     const prefix = role === "teacher" ? "(Teacher)" : "(Parent)";
-    const formattedMessage = `${username} ${prefix}: ${message}`;
 
-    setMessages((prev) => [...prev, formattedMessage]);
+    const formattedMessage = {
+      text: `${username} ${prefix}: ${message}`,
+      sender: username,
+      room: currentRoom,
+    };
+
+    setMessages((prev) => [...prev, formattedMessage.text]);
+
     socket.emit("send_message", {
       username,
       room: currentRoom,
-      message: formattedMessage
+      message: formattedMessage.text,
     });
 
     setMessage("");
@@ -123,11 +147,13 @@ function Chat({ username, role }) {
     <div className="card p-3 mb-3">
       <h4>Chat Rooms</h4>
 
-      <div className="d-flex mb-3 flex-wrap">
+      <div className="d-flex flex-wrap mb-3">
         {rooms.map((room, idx) => (
           <button
             key={idx}
-            className={`btn me-2 mb-2 ${currentRoom === room ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn me-2 mb-2 ${
+              currentRoom === room ? "btn-primary" : "btn-outline-primary"
+            }`}
             onClick={() => joinRoom(room)}
           >
             {room}
@@ -139,54 +165,100 @@ function Chat({ username, role }) {
         <>
           <h5>Room: {currentRoom}</h5>
 
-          <div className="border p-3 mb-3" style={{ height: "300px", overflowY: "scroll" }}>
-            {messages.map((msg, i) => <div key={i}>{msg}</div>)}
+          <div
+            className="border p-3 mb-3"
+            style={{ height: "300px", overflowY: "scroll" }}
+          >
+            {messages.map((msg, i) => (
+              <div key={i}>{msg}</div>
+            ))}
           </div>
 
           <form className="d-flex" onSubmit={sendMessage}>
             <input
               className="form-control me-2"
-              placeholder="Type your message..."
               value={message}
+              placeholder="Type your message..."
               onChange={(e) => setMessage(e.target.value)}
             />
-            <button className="btn btn-success" type="submit">Send</button>
+
+            <button className="btn btn-success" type="submit">
+              Send
+            </button>
           </form>
         </>
       )}
     </div>
   );
 }
-
-// ---------------- APP ----------------
 function App() {
   const [chatLoginVisible, setChatLoginVisible] = useState(true);
   const [role, setRole] = useState("");
   const [username, setUsername] = useState("");
   const [chatActive, setChatActive] = useState(false);
+
+  const [loginData, setLoginData] = useState({
+    usernameInput: "",
+    password: ""
+  });
+
   const [message, setMessage] = useState("");
 
   const STUDENT_PASSWORD = "student";
   const TEACHER_PASSWORD = "teacher";
 
+  // ---------------- LOGIN ----------------
   const loginToChat = () => {
-    const passwordInput = document.getElementById("chat-password").value;
-    const nameInput = document.getElementById("chat-username").value.trim();
+    if (!loginData.usernameInput.trim()) {
+      alert("Enter username");
+      return;
+    }
 
-    if (!nameInput) return alert("Enter a username");
+    if (!role) {
+      alert("Select role");
+      return;
+    }
 
-    setUsername(nameInput);
+    const password = loginData.password;
 
-    if (role === "parent" && passwordInput === STUDENT_PASSWORD) {
+    setUsername(loginData.usernameInput);
+
+    if (role === "parent" && password === STUDENT_PASSWORD) {
+      setChatActive(true);
+      setChatLoginVisible(false);
       alert("Parent login successful!");
-      setChatLoginVisible(false);
+    } else if (role === "teacher" && password === TEACHER_PASSWORD) {
       setChatActive(true);
-    } else if (role === "teacher" && passwordInput === TEACHER_PASSWORD) {
+      setChatLoginVisible(false);
       alert("Teacher login successful!");
-      setChatLoginVisible(false);
-      setChatActive(true);
     } else {
       alert("Invalid password for selected role!");
+    }
+  };
+
+  // ---------------- CONTACT FORM ----------------
+  const sendContactMessage = async (e) => {
+    e.preventDefault();
+
+    if (!username.trim()) {
+      alert("Please enter username");
+      return;
+    }
+
+    if (!message.trim()) {
+      alert("Message cannot be empty");
+      return;
+    }
+
+    try {
+      await axios.post(`${API_BASE_URL}/api/contact`, {
+        message: `${username}: ${message}`,
+      });
+
+      alert("Message sent successfully!");
+      setMessage("");
+    } catch (err) {
+      alert("Failed to send message");
     }
   };
 
@@ -195,122 +267,129 @@ function App() {
       <div className="App d-flex flex-column min-vh-100 container-fluid p-0">
 
         {/* NAVBAR */}
-        <header className="bg-danger text-white shadow">
+        <header className="bg-danger text-success">
           <nav className="navbar navbar-expand-lg navbar-dark container py-2">
 
             <Link className="navbar-brand d-flex align-items-center" to="/homepage">
               <img
                 src="/images/Logo.jpg"
                 alt="Logo"
+                style={{ height: "60px", width: "100px" }}
                 className="me-2"
-                style={{ height: '60px', width: '50px' }}
               />
               Butere Boys
             </Link>
 
-            {/* TOGGLE BUTTON */}
             <button
               className="navbar-toggler"
-              type="button"
               data-bs-toggle="collapse"
               data-bs-target="#navbarContent"
-              aria-controls="navbarContent"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
             >
               <span className="navbar-toggler-icon"></span>
             </button>
 
-            {/* COLLAPSIBLE NAV */}
             <div className="collapse navbar-collapse" id="navbarContent">
               <div className="navbar-nav ms-auto flex-wrap">
-                <Link className="nav-link" to="/homepage">Home</Link>
-                <Link className="nav-link" to="/AddFiles">Upload</Link>
-                <Link className="nav-link" to="/PrincipalDashboard">Principal Dashboard</Link>
-                <Link className="nav-link" to="/signup">Signup</Link>
-                <Link className="nav-link" to="/classes">Classes</Link>
-                <a className='nav-link' href='#contact-form'>Contact</a>
-                <Link className="nav-link" to="/news">News</Link>
-                <Link className="nav-link" to="/Chat" onClick={()=>setChatLoginVisible(true)}>Chat</Link>
-                <Link className="nav-link" to="/gallery">Gallery</Link>
-                <Link className="nav-link" to="/sports">Sports</Link>
-                <Link className="nav-link" to="/curriculum">Academics</Link>
+                <Link className="nav-link text-white" to="/homepage">Home</Link>
+                <Link className="nav-link text-white" to="/AddFiles">Upload</Link>
+                <Link className="nav-link text-white" to="/PrincipalDashboard">Principal</Link>
+                <Link className="nav-link text-white" to="/signup">Signup</Link>
+                <Link className="nav-link text-white" to="/classes">Classes</Link>
+                <Link className="nav-link text-white" to="/news">News</Link>
+                <Link className="nav-link text-white" to="/Chat" onClick={() => setChatLoginVisible(true)}>Chat</Link>
+                <Link className="nav-link text-white" to="/gallery">Gallery</Link>
+                <Link className="nav-link text-white" to="/sports">Sports</Link>
+                <Link className="nav-link text-white" to="/curriculum">Academics</Link>
               </div>
             </div>
-
           </nav>
         </header>
 
-        <h3 className='text-start p-2'>Butere Boys(<i> EXODUS</i>)</h3>
-
+        {/* ROUTES */}
         <div className="container mt-4 flex-grow-1">
+        <Routes>
 
-          <Routes>
-            <Route path="/OpeningRequirements" element={<OpeningRequirements />} />
-            <Route path="/NewFacilities" element={<NewFacilities/>} />
-            <Route path="/KcsePredictions" element={<KcsePredictions />} />
-            <Route path="/Parents" element={<Parents />} />
-            <Route path="/Academics" element={<Academics />} />
-            <Route path="/homepage" element={<HomePage />} />
-            <Route path="/HolidayAssignment" element={<HolidayAssignment/>} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/Sidebar" element={<Sidebar />} />
-            <Route path="/Navbar" element={<Navbar />} />
-            <Route path="/StudentDashboard" element={<StudentDashboard />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/boarding" element={<Boarding />} />
-            <Route path="/contactus" element={<ContactUs />} />
-            <Route path="/AddFiles" element={<AddFiles/>} />
-            <Route path="/GetFiles" element={<GetFiles />} />
-            <Route path="/classes" element={<Classes />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/Grade10" element={<Grade10 />} />
-            <Route path="/sports" element={<Sports />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/Layout" element={<Layout />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/admissions" element={<Admissions />} />
-            <Route path="/studentlife" element={<StudentLife />} />
-            <Route path="/alumni" element={<Alumni />} />
-            <Route path="/teachers" element={<Teachers />} />
-            <Route path="/MainMenu" element={<MainMenu/>} />
-            <Route path="/newsletter" element={<NewsLetter />} />
-            <Route path="/upcomingevents" element={<UpcomingEvents />} />
-            <Route path="/schoolevents" element={<SchoolEvents />} />
-            <Route path="/pay" element={<MpesaPayment />} />
-            <Route path="/Grade11" element={<Grade11 />} />
-            <Route path="/Grade12" element={<Grade12 />} />
-            <Route path="/Grade13" element={<Grade13 />} />
-            <Route path="/Form3" element={<Form3 />} />
-            <Route path="/Form4" element={<Form4 />} />
-            <Route path="/TeacherDashboard" element={<TeacherDashboard />} />
-            <Route path="/TeacherSignUp" element={<TeacherSignUp />} />
-            <Route path="/PrincipalDashboard" element={<PrincipalDashboard/>} />
-            <Route path="/curriculum" element={<Curriculum />} />
-            <Route path="/wood-technology" element={<WoodTechnology />} />
-            <Route path="/theatre-film" element={<TheatreFilm />} />
-            <Route path="/sports-recreation" element={<SportsRecreation />} />
-            <Route path="/power-mechanics" element={<PowerMechanics />} />
-            <Route path="/physics" element={<PhysicsPage />} />
-            <Route path="/chemistry" element={<Chemistry />} />
-            <Route path="/physical-education" element={<PhysicalEducation />} />
-            <Route path="/music-dance" element={<MusicDance />} />
-            <Route path="/media-technology" element={<MediaTechnology />} />
-            <Route path="/marine-technology" element={<MarineTechnology />} />
-            <Route path="/mandarine" element={<Mandarine />} />
-            <Route path="/kiswahili" element={<Kiswahili />} />
-            <Route path="/ict" element={<Ict />} />
-            <Route path="/home-science" element={<HomeScience />} />
-            <Route path="/history-citizenship" element={<HistoryCitizenship />} />
-            <Route path="/geography" element={<GeographyPage />} />
-            <Route path="/general-science" element={<GeneralScience />} />
-            <Route path="/french" element={<FrenchPage />} />
-            <Route path="/fine-arts" element={<FineArts />} />
-            <Route path="/mathematics" element={<Mathematics />} />
-            <Route path="/Chat" element={chatActive ? <Chat username={username} role={role}/> : null} />
-            <Route path="/english" element={<English />} />
+  {/* MAIN */}
+  <Route path="/homepage" element={<HomePage />} />
+  <Route path="/signup" element={<SignUp />} />
+  <Route path="/signin" element={<SignIn />} />
+
+  {/* CORE PAGES */}
+  <Route path="/news" element={<News />} />
+  <Route path="/gallery" element={<Gallery />} />
+  <Route path="/boarding" element={<Boarding />} />
+  <Route path="/classes" element={<Classes />} />
+  <Route path="/contactus" element={<ContactUs />} />
+  <Route path="/curriculum" element={<Curriculum />} />
+  <Route path="/services" element={<Services />} />
+  <Route path="/sports" element={<Sports />} />
+  <Route path="/studentdashboard" element={<StudentDashboard />} />
+  <Route path="/studentlife" element={<StudentLife />} />
+  <Route path="/admissions" element={<Admissions />} />
+  <Route path="/alumni" element={<Alumni />} />
+  <Route path="/academics" element={<Academics />} />
+  <Route path="/teachers" element={<Teachers />} />
+  <Route path="/newsletter" element={<NewsLetter />} />
+  <Route path="/upcomingevents" element={<UpcomingEvents />} />
+  <Route path="/schoolevents" element={<SchoolEvents />} />
+  <Route path="/parents" element={<Parents />} />
+  <Route path="/ict" element={<Ict />} />
+  <Route path="/MpesaPayment" element={<MpesaPayment />} />
+
+  {/* SCHOOL INFO */}
+  <Route path="/openingrequirements" element={<OpeningRequirements />} />
+  <Route path="/kcsepredictions" element={<KcsePredictions />} />
+  <Route path="/newfacilities" element={<NewFacilities />} />
+  <Route path="/holidayassignment" element={<HolidayAssignment />} />
+
+  
+
+  {/* ADMIN / SYSTEM */}
+  <Route path="/mainmenu" element={<MainMenu />} />
+  <Route path="/getfiles" element={<GetFiles />} />
+  <Route path="/addfiles" element={<AddFiles />} />
+  <Route path="/navbar" element={<Navbar />} />
+  <Route path="/sidebar" element={<Sidebar />} />
+  <Route path="/layout" element={<Layout />} />
+
+  {/* DASHBOARDS */}
+  <Route path="/teacherdashboard" element={<TeacherDashboard />} />
+  <Route path="/teachersignup" element={<TeacherSignUp />} />
+  <Route path="/principaldashboard" element={<PrincipalDashboard />} />
+
+  {/* SCIENCE */}
+  <Route path="/physics" element={<PhysicsPage />} />
+  <Route path="/chemistry" element={<Chemistry />} />
+  <Route path="/generalscience" element={<GeneralScience />} />
+
+  {/* TECHNICAL SUBJECTS */}
+  <Route path="/wood-technology" element={<WoodTechnology />} />
+  <Route path="/theatre-film" element={<TheatreFilm />} />
+  <Route path="/power-mechanics" element={<PowerMechanics />} />
+  <Route path="/sports-recreation" element={<SportsRecreation />} />
+  <Route path="/physical-education" element={<PhysicalEducation />} />
+  <Route path="/music-dance" element={<MusicDance />} />
+  <Route path="/media-technology" element={<MediaTechnology />} />
+  <Route path="/marine-technology" element={<MarineTechnology />} />
+
+  {/* LANGUAGES */}
+  <Route path="/mandarine" element={<Mandarine />} />
+  <Route path="/kiswahili" element={<Kiswahili />} />
+  <Route path="/french" element={<FrenchPage />} />
+  <Route path="/english" element={<English />} />
+
+  {/* HUMANITIES / ARTS */}
+  <Route path="/home-science" element={<HomeScience />} />
+  <Route path="/history-citizenship" element={<HistoryCitizenship />} />
+  <Route path="/geography" element={<GeographyPage />} />
+  <Route path="/fine-arts" element={<FineArts />} />
+  <Route path="/mathematics" element={<Mathematics />} />
+
+
+            <Route path="/Chat" element={chatActive ? <Chat username={username} role={role} /> : null} />
           </Routes>
 
+          {/* LOGIN UI */}
           {chatLoginVisible && !chatActive && (
             <div className="card p-3 border border-primary mb-3">
               <h4>Login to Chat</h4>
@@ -318,7 +397,10 @@ function App() {
               <input
                 className="form-control mb-2"
                 placeholder="Enter username"
-                id="chat-username"
+                value={loginData.usernameInput}
+                onChange={(e) =>
+                  setLoginData({ ...loginData, usernameInput: e.target.value })
+                }
               />
 
               <select
@@ -334,8 +416,11 @@ function App() {
               <input
                 type="password"
                 className="form-control mb-2"
-                placeholder="Enter shared password"
-                id="chat-password"
+                placeholder="Enter password"
+                value={loginData.password}
+                onChange={(e) =>
+                  setLoginData({ ...loginData, password: e.target.value })
+                }
               />
 
               <button className="btn btn-primary" onClick={loginToChat}>
@@ -343,11 +428,11 @@ function App() {
               </button>
             </div>
           )}
-
         </div>
 
-        {/* FOOTER */}
+        {/* FOOTER + CONTACT */}
         <section className="row bg-success p-3 mt-4">
+
           <div className="col-md-4 text-center text-white">
             <h3>About Us</h3>
             <p className="text-dark">
@@ -357,46 +442,20 @@ function App() {
 
           <div className="col-md-4 text-center text-white">
             <h3>Contact Us</h3>
-            <form
-              id="contact-form"
-              onSubmit={async (e) => {
-                e.preventDefault();
 
-                if (!username?.trim()) {
-                  alert("Please enter your username before sending the message.");
-                  return;
-                }
-
-                if (!message?.trim()) {
-                  alert("Message cannot be empty.");
-                  return;
-                }
-
-                try {
-                  await axios.post("http://127.0.0.1:5000/api/contact", {
-                    message: `${username}: ${message}`,
-                  });
-
-                  alert("Message sent successfully!");
-                  setMessage("");
-                } catch (err) {
-                  alert("Failed to send message. Try again.");
-                }
-              }}
-            >
+            <form onSubmit={sendContactMessage}>
               <input
-                type="text"
-                placeholder="Your Username"
                 className="form-control mb-2"
                 value={username}
+                placeholder="Your username"
                 onChange={(e) => setUsername(e.target.value)}
               />
 
               <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
                 className="form-control mb-2"
-                placeholder="Type your message..."
+                value={message}
+                placeholder="Type message..."
+                onChange={(e) => setMessage(e.target.value)}
               />
 
               <button className="btn btn-dark w-100">Send</button>
@@ -405,16 +464,13 @@ function App() {
 
           <div className="col-md-4 text-center text-white">
             <h3>Stay Connected</h3>
-            <p>Facebook</p>
-            <p>Instagram</p>
-            <p>Twitter</p>
+            <p>Visit our social media</p>
           </div>
+
         </section>
 
-        <footer className="bg-dark p-3 mt-auto">
-          <p className="text-white text-center">
-            Developed by Butere Boys High School © 2026
-          </p>
+        <footer className="bg-dark p-3 text-center text-white">
+          Developed by Butere Boys High School © 2026
         </footer>
 
       </div>
