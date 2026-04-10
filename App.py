@@ -13,7 +13,7 @@ UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-PRINCIPAL_PASSWORD = "principal@123"
+PRINCIPAL_PASSWORD = "1234"
 TEACHER_UPLOAD_PASSWORD = "butere123"
 
 
