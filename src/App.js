@@ -69,10 +69,10 @@ import GeneralScience from "./components/GeneralScience";
 /**
  * 🔥 CHANGE THIS WHEN YOU DEPLOY BACKEND
  */
-const API_BASE_URL = "http://127.0.0.1:5000";
+const API_BASE_URL = "https://william9605.pythonanywhere.com";
 
 // Socket connection (safe for dev)
-const socket = io(process.env.REACT_APP_API_URL || "http://127.0.0.1:5000");
+const socket = io(process.env.REACT_APP_API_URL || "https://william9605.pythonanywhere.com");
 
 // Rooms moved OUTSIDE component (fixes ESLint + prevents re-render issues)
 const ALL_ROOMS = ["General", "Classes", "Announcements", "Teachers Only"];
@@ -464,7 +464,27 @@ function App() {
 
           <div className="col-md-4 text-center text-white">
             <h3>Stay Connected</h3>
-            <p>Visit our social media</p>
+            <h4>Visit our websites @</h4>
+
+<div className="d-flex justify-content-center align-items-center gap-3 flex-wrap mt-3">
+  
+  <a href="https://www.facebook.com" target="_blank" rel="noreferrer">
+    <img src="/images/fb.webp" alt="Facebook" width="40" />
+  </a>
+
+  <a href="https://www.instagram.com" target="_blank" rel="noreferrer">
+    <img src="/images/IG.webp" alt="Instagram" width="40" />
+  </a>
+
+  <a href="https://www.x.com" target="_blank" rel="noreferrer">
+    <img src="/images/Twitter.webp" alt="Twitter / X" width="40" height="40" />
+  </a>
+
+  <a href="https://www.youtube.com" target="_blank" rel="noreferrer">
+    <img src="/images/utube.webp" alt="YouTube" width="40" />
+  </a>
+
+</div>
           </div>
 
         </section>

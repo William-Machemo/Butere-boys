@@ -11,7 +11,7 @@ function SignUp() {
 
     // Send only username, password, and phone
     axios
-      .post("http://127.0.0.1:5000/api/signup", { username, password, phone })
+      .post("https://william9605.pythonanywhere.com/api/signup", { username, password, phone })
       .then((res) => alert(res.data.message))
       .catch((err) => {
         console.error(err);

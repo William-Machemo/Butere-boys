@@ -42,7 +42,7 @@ const AddFiles = () => {
       data.append("password", password);
 
       const response = await axios.post(
-        "http://127.0.0.1:5000/api/addfiles",
+        "https://william9605.pythonanywhere.com/api/addfiles",
         data,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -61,7 +61,7 @@ const AddFiles = () => {
       // 🔥 optional safe download
       if (file_photo && file_photo.name) {
         const downloadLink = document.createElement("a");
-        downloadLink.href = `http://127.0.0.1:5000/download/${file_photo.name}`;
+        downloadLink.href = `https://william9605.pythonanywhere.com/download/${file_photo.name}`;
         downloadLink.download = file_photo.name;
         document.body.appendChild(downloadLink);
         downloadLink.click();

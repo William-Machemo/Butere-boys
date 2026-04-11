@@ -393,3 +393,7 @@ def principal_login():
 # ---------------- RUN SERVER ----------------
 if __name__ == "__main__":
     socketio.run(app, debug=True)
+
+@app.route("/")
+def home():
+    return "Backend is running successfully"

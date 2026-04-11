@@ -8,7 +8,7 @@ function TeacherSignup() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://127.0.0.1:5000/api/teacher_signup", { username, password, phone })
+    axios.post("https://william9605.pythonanywhere.com/api/teacher_signup", { username, password, phone })
       .then(res => alert(res.data.message))
       .catch(err => {
         console.log(err.response?.data);

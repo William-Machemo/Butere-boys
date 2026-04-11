@@ -11,7 +11,7 @@ const GetFiles = () => {
 
   const fetchFiles = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/getfiles");
+      const res = await axios.get("https://william9605.pythonanywhere.com/api/getfiles");
       setFiles(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching files:", err);
@@ -24,7 +24,7 @@ const GetFiles = () => {
 
   const downloadFile = async (filename) => {
     try {
-      const res = await axios.get(`http://127.0.0.1:5000/download/${filename}`, {
+      const res = await axios.get(`https://william9605.pythonanywhere.com/download/${filename}`, {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -69,7 +69,7 @@ const GetFiles = () => {
 
           {selectedFile.file_photo.toLowerCase().endsWith("pdf") ? (
             <iframe
-              src={`http://127.0.0.1:5000/static/images/${selectedFile.file_photo}`}
+              src={`https://william9605.pythonanywhere.com/static/images/${selectedFile.file_photo}`}
               width="100%"
               height="600px"
               title={selectedFile.file_name}
@@ -77,7 +77,7 @@ const GetFiles = () => {
             />
           ) : (
             <img
-              src={`http://127.0.0.1:5000/static/images/${selectedFile.file_photo}`}
+              src={`https://william9605.pythonanywhere.com/static/images/${selectedFile.file_photo}`}
               alt={selectedFile.file_name}
               className="img-fluid"
             />
@@ -112,7 +112,7 @@ const GetFiles = () => {
                               </div>
                             ) : (
                               <img
-                                src={`http://127.0.0.1:5000/static/images/${file.file_photo}`}
+                                src={`https://william9605.pythonanywhere.com/static/images/${file.file_photo}`}
                                 alt={file.file_name}
                                 className="card-img-top"
                                 style={{ height: "150px", objectFit: "cover" }}

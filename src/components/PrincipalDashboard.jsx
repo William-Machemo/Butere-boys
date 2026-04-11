@@ -21,7 +21,7 @@ const PrincipalDashboard = () => {
 
   const fetchCounts = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:5000/api/dashboard_counts");
+      const response = await axios.get("https://william9605.pythonanywhere.com/api/dashboard_counts");
       setCounts(response.data);
     } catch (error) {
       console.error("Error fetching dashboard counts:", error);
@@ -30,7 +30,7 @@ const PrincipalDashboard = () => {
 
   const fetchMessages = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:5000/api/get_messages");
+      const res = await axios.get("https://william9605.pythonanywhere.com/api/get_messages");
       setMessages(res.data);
     } catch (error) {
       console.error("Error fetching messages:", error);
@@ -40,7 +40,7 @@ const PrincipalDashboard = () => {
   // 🔐 Handle principal login
   const handleLogin = async () => {
     try {
-      await axios.post("http://127.0.0.1:5000/api/principal_login", { password });
+      await axios.post("https://william9605.pythonanywhere.com/api/principal_login", { password });
       setIsAuthenticated(true);
       setError("");
     } catch (err) {
