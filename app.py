@@ -3,6 +3,7 @@ from flask_cors import CORS
 import pymysql
 import os
 import time
+from flask_socketio import SocketIO
 from datetime import datetime
 
 app = Flask(__name__)
@@ -10,8 +11,10 @@ CORS(app)
 
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 PRINCIPAL_PASSWORD = "1234"
 TEACHER_UPLOAD_PASSWORD = "butere123"
 
@@ -305,6 +308,7 @@ def home():
     return "Backend is running successfully"
 
 
-# ---------------- RUN ----------------
+# -------------- RUN ----------------
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get("PORT", 10000))
+    socketio.run(app, host="0.0.0.0", port=port, debug=False)
