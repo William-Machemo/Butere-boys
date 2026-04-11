@@ -168,7 +168,6 @@ def get_chat():
 # ---------------- DASHBOARD COUNTS ----------------
 @app.route("/api/dashboard_counts", methods=["GET"])
 def dashboard_counts():
-    import time
     start = time.time()
 
     conn = None
@@ -207,6 +206,12 @@ def dashboard_counts():
             "teachers": int(teachers_count),
             "assignments": int(assignments_count)
         })
+
+
+
+        cursor.execute("SELECT * FROM users")
+        users = cursor.fetchall()
+        print("🔥 USERS IN DB:", users)
 
     except Exception as e:
         print("❌ DASHBOARD ERROR:", str(e))
