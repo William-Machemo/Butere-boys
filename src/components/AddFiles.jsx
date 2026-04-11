@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
+
+const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
 const AddFiles = () => {
   const [file_name, setFilename] = useState("");
@@ -9,25 +11,28 @@ const AddFiles = () => {
   const [file_photo, setPhoto] = useState(null);
   const [password, setPassword] = useState("");
 
-  const [loading, setLoading] = useState("");
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
+  const fileRef = useRef(null);
+
   const submit = async (e) => {
     e.preventDefault();
-    setLoading("Uploading...");
+
+    setLoading(true);
     setSuccess("");
     setError("");
 
-    // 🔒 validations
+    // validations
     if (!password) {
-      setLoading("");
+      setLoading(false);
       setError("Password is required to upload files!");
       return;
     }
 
     if (!file_photo) {
-      setLoading("");
+      setLoading(false);
       setError("Please select a file!");
       return;
     }
@@ -42,15 +47,14 @@ const AddFiles = () => {
       data.append("password", password);
 
       const response = await axios.post(
-        "https://william9605.pythonanywhere.com/api/addfiles",
+        `${API_BASE_URL}/api/addfiles`,
         data,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      setLoading("");
       setSuccess(response.data.message || "Uploaded successfully!");
 
-      // ✅ reset fields
+      // reset form
       setFilename("");
       setFiledescription("");
       setGrade("");
@@ -58,23 +62,30 @@ const AddFiles = () => {
       setPhoto(null);
       setPassword("");
 
-      // 🔥 optional safe download
-      if (file_photo && file_photo.name) {
+      // clear file input visually
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+
+      // optional safe download using backend filename
+      const filename = response.data.filename;
+      if (filename) {
         const downloadLink = document.createElement("a");
-        downloadLink.href = `https://william9605.pythonanywhere.com/download/${file_photo.name}`;
-        downloadLink.download = file_photo.name;
+        downloadLink.href = `${API_BASE_URL}/download/${filename}`;
+        downloadLink.download = filename;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
       }
 
     } catch (err) {
-      setLoading("");
       setError(
-        err.response?.data?.detail ||  // FastAPI style
-        err.response?.data?.message || // Flask style
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
         "Upload failed"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,7 +93,7 @@ const AddFiles = () => {
     <div className="container mt-4">
       <h2>Upload Assignment</h2>
 
-      {loading && <p className="text-warning">{loading}</p>}
+      {loading && <p className="text-warning">Uploading...</p>}
       {success && <p className="text-success">{success}</p>}
       {error && <p className="text-danger">{error}</p>}
 
@@ -91,24 +102,24 @@ const AddFiles = () => {
           type="text"
           placeholder="File Name"
           className="form-control mb-2"
-          required
           value={file_name}
           onChange={(e) => setFilename(e.target.value)}
+          required
         />
 
         <textarea
           placeholder="File Description"
           className="form-control mb-2"
-          required
           value={file_description}
           onChange={(e) => setFiledescription(e.target.value)}
+          required
         />
 
         <select
           className="form-control mb-2"
-          required
           value={grade}
           onChange={(e) => setGrade(e.target.value)}
+          required
         >
           <option value="">Select Grade</option>
           <option value="Grade 10">Grade 10</option>
@@ -121,9 +132,9 @@ const AddFiles = () => {
 
         <select
           className="form-control mb-2"
-          required
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
+          required
         >
           <option value="">Select Subject</option>
           <option value="Math">Math</option>
@@ -160,17 +171,18 @@ const AddFiles = () => {
         <input
           type="file"
           className="form-control mb-2"
-          required
           onChange={(e) => setPhoto(e.target.files[0])}
+          ref={fileRef}
+          required
         />
 
         <input
           type="password"
           placeholder="Enter Teacher Password"
           className="form-control mb-2"
-          required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
 
         <button

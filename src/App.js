@@ -67,13 +67,15 @@ import English from "./components/English";
 import GeneralScience from "./components/GeneralScience";
 
 /* ================= API ================= */
-const API_BASE_URL = "https://william9605.pythonanywhere.com";
+const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
 /* ================= SOCKET FIX (PRODUCTION SAFE) ================= */
-const socket = io(API_BASE_URL, {
-  transports: ["websocket", "polling"],
+const socket = io("https://butere-boys-flask-j2x3.onrender.com", {
+  transports: ["polling", "websocket"],
   withCredentials: true,
-  reconnection: true
+  reconnection: true,
+  reconnectionAttempts: 5,
+  timeout: 10000
 });
 
 const ALL_ROOMS = ["General", "Classes", "Announcements", "Teachers Only"];

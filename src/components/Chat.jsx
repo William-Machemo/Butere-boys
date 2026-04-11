@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 
 // ⚠️ Connect safely
-const socket = io("https://william9605.pythonanywhere.com", {
+const socket = io("https://butere-boys-flask-j2x3.onrender.com", {
   transports: ["websocket", "polling"], // fallback support
 });
 

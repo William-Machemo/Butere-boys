@@ -20,7 +20,7 @@ function TeacherSignup() {
 
     try {
       const res = await axios.post(
-        "https://william9605.pythonanywhere.com/api/teacher_signup",
+        "https://butere-boys-flask-j2x3.onrender.com/api/teacher_signup",
         { username, password, phone },
         { timeout: 10000 }
       );

@@ -63,33 +63,46 @@ def signup():
         return jsonify({"message": "Signup failed"}), 500
 
 # ---------------- TEACHER SIGNUP ----------------
-@app.route("/api/signup", methods=["POST"])
-def teachersignup():
+@app.route("/api/teacher_signup", methods=["POST"])
+def teacher_signup():
     start = time.time()
 
     try:
         data = request.get_json()
 
+        username = data.get("username")
+        password = data.get("password")
+        phone = data.get("phone")
+
+        if not username or not password or not phone:
+            return jsonify({"message": "All fields are required"}), 400
+
         conn = get_connection()
         cursor = conn.cursor()
 
+        cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
+        existing = cursor.fetchone()
+
+        if existing:
+            return jsonify({"message": "Username already exists"}), 400
+
         cursor.execute(
-            "INSERT INTO users(username, password, phone, role) VALUES(%s,%s,%s,%s)",
-            (data["username"], data["password"], data["phone"], "student")
+            "INSERT INTO users (username, password, phone, role) VALUES (%s, %s, %s, %s)",
+            (username, password, phone, "teacher")
         )
 
         conn.commit()
+
         cursor.close()
         conn.close()
 
-        print("SIGNUP TIME:", time.time() - start)  # 👈 ADD THIS
+        print("TEACHER SIGNUP TIME:", time.time() - start)
 
-        return jsonify({"message": "Signup successful"})
+        return jsonify({"message": "Teacher registered successfully"})
 
     except Exception as e:
-        print("SIGNUP ERROR:", e)
+        print("TEACHER SIGNUP ERROR:", e)
         return jsonify({"message": "Signup failed"}), 500
-
 # ---------------- SIGNIN ----------------
 @app.route("/api/signin", methods=["POST"])
 def signin():
@@ -152,68 +165,62 @@ def get_chat():
     return jsonify(chat_messages)
 
 
-# ---------------- GET STUDENTS ----------------
-@app.route("/api/students", methods=["GET"])
-def get_students():
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE role='student'")
-    students = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    return jsonify({"students": students})
-
-
-# ---------------- GET TEACHERS ----------------
-@app.route("/api/teachers", methods=["GET"])
-def get_teachers():
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM users WHERE role='teacher'")
-    teachers = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    return jsonify({"teachers": teachers})
-
-
 # ---------------- DASHBOARD COUNTS ----------------
 @app.route("/api/dashboard_counts", methods=["GET"])
 def dashboard_counts():
+    import time
     start = time.time()
+
+    conn = None
+    cursor = None
 
     try:
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT COUNT(*) FROM users WHERE role='student'")
+        print("✅ CONNECTED TO DATABASE")
+
+        # 🔥 DEBUG: show ALL users
+        cursor.execute("SELECT * FROM users")
+        all_users = cursor.fetchall()
+        print("🔥 ALL USERS:", all_users)
+
+        # 🔥 DEBUG: show ALL assignments
+        cursor.execute("SELECT * FROM file_details")
+        all_files = cursor.fetchall()
+        print("🔥 ALL FILES:", all_files)
+
+        # COUNTS
+        cursor.execute("SELECT COUNT(*) FROM users WHERE role=%s", ("student",))
         students_count = cursor.fetchone()[0]
 
-        cursor.execute("SELECT COUNT(*) FROM users WHERE role='teacher'")
+        cursor.execute("SELECT COUNT(*) FROM users WHERE role=%s", ("teacher",))
         teachers_count = cursor.fetchone()[0]
 
         cursor.execute("SELECT COUNT(*) FROM file_details")
         assignments_count = cursor.fetchone()[0]
 
-        cursor.close()
-        conn.close()
-
-        print("DASHBOARD TIME:", time.time() - start)  # 👈 ADD THIS
+        print("✅ COUNTS:", students_count, teachers_count, assignments_count)
 
         return jsonify({
-            "students": students_count,
-            "teachers": teachers_count,
-            "assignments": assignments_count
+            "students": int(students_count),
+            "teachers": int(teachers_count),
+            "assignments": int(assignments_count)
         })
 
     except Exception as e:
-        print("DASHBOARD ERROR:", e)
-        return jsonify({"students": 0, "teachers": 0, "assignments": 0}), 500
+        print("❌ DASHBOARD ERROR:", str(e))
+        return jsonify({
+            "students": 0,
+            "teachers": 0,
+            "assignments": 0
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 # ---------------- UPLOAD FILES ----------------
 @app.route("/api/addfiles", methods=["POST"])
