@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from flask_socketio import SocketIO, join_room, leave_room, emit
 import pymysql
 import os
+import time
 from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -25,9 +24,9 @@ def get_connection():
         password="modcom1234",
         database="williammachemo_sokogarden",
         cursorclass=pymysql.cursors.DictCursor,
-        connect_timeout=5,
-        read_timeout=5,
-        write_timeout=5,
+        connect_timeout=20,
+        read_timeout=20,
+        write_timeout=20,
         autocommit=True
     )
 
@@ -35,72 +34,58 @@ def get_connection():
 # ---------------- STUDENT SIGNUP ----------------
 @app.route("/api/signup", methods=["POST"])
 def signup():
+    start = time.time()
+
     try:
         data = request.get_json()
-
-        username = data.get("username")
-        password = data.get("password")
-        phone = data.get("phone")
-
-        if not username or not password or not phone:
-            return jsonify({"message": "All fields are required"}), 400
 
         conn = get_connection()
         cursor = conn.cursor()
 
-        sql = """
-        INSERT INTO users(username, password, phone, role)
-        VALUES(%s, %s, %s, %s)
-        """
-
-        cursor.execute(sql, (username, password, phone, "student"))
+        cursor.execute(
+            "INSERT INTO users(username, password, phone, role) VALUES(%s,%s,%s,%s)",
+            (data["username"], data["password"], data["phone"], "student")
+        )
 
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "Student registered successfully"})
+        print("SIGNUP TIME:", time.time() - start)  # 👈 ADD THIS
+
+        return jsonify({"message": "Signup successful"})
 
     except Exception as e:
         print("SIGNUP ERROR:", e)
-        return jsonify({"message": str(e)}), 500
-    
-    
-
+        return jsonify({"message": "Signup failed"}), 500
 
 # ---------------- TEACHER SIGNUP ----------------
-@app.route("/api/teacher_signup", methods=["POST"])
-def teacher_signup():
+@app.route("/api/signup", methods=["POST"])
+def teachersignup():
+    start = time.time()
+
     try:
         data = request.get_json()
-
-        username = data.get("username")
-        password = data.get("password")
-        phone = data.get("phone")
-
-        if not username or not password or not phone:
-            return jsonify({"message": "All fields are required"}), 400
 
         conn = get_connection()
         cursor = conn.cursor()
 
-        sql = """
-        INSERT INTO users(username, password, phone, role)
-        VALUES(%s, %s, %s, %s)
-        """
-
-        cursor.execute(sql, (username, password, phone, "teacher"))
+        cursor.execute(
+            "INSERT INTO users(username, password, phone, role) VALUES(%s,%s,%s,%s)",
+            (data["username"], data["password"], data["phone"], "student")
+        )
 
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "Teacher registered successfully"})
+        print("SIGNUP TIME:", time.time() - start)  # 👈 ADD THIS
+
+        return jsonify({"message": "Signup successful"})
 
     except Exception as e:
-        print("TEACHER SIGNUP ERROR:", e)
-        return jsonify({"message": str(e)}), 500
-
+        print("SIGNUP ERROR:", e)
+        return jsonify({"message": "Signup failed"}), 500
 
 # ---------------- SIGNIN ----------------
 @app.route("/api/signin", methods=["POST"])
@@ -112,10 +97,11 @@ def signin():
         password = data.get("password")
 
         conn = get_connection()
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor = conn.cursor()
 
-        sql = "SELECT * FROM users WHERE username=%s AND password=%s"
-        cursor.execute(sql, (username, password))
+        cursor.execute("""
+            SELECT * FROM users WHERE username=%s AND password=%s
+        """, (username, password))
 
         user = cursor.fetchone()
 
@@ -135,45 +121,39 @@ def signin():
         return jsonify({"message": str(e)}), 500
 
 
-# ---------------- CHAT LOGIN ----------------
-@app.route("/api/chat_login", methods=["POST"])
-def chat_login():
+# ---------------- CHAT (HTTP VERSION) ----------------
+chat_messages = []
+
+@app.route("/api/chat", methods=["POST"])
+def send_chat():
     try:
         data = request.get_json()
-        username = data.get("username")
 
-        conn = get_connection()
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        msg = {
+            "username": data.get("username"),
+            "role": data.get("role"),
+            "text": data.get("text"),
+            "time": datetime.now().isoformat()
+        }
 
-        cursor.execute(
-            "SELECT username, role FROM users WHERE username=%s",
-            (username,)
-        )
+        chat_messages.append(msg)
 
-        user = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
-
-        if not user:
-            return jsonify({"message": "User not found"}), 404
-
-        role = "parent" if user["role"] == "student" else user["role"]
-
-        return jsonify({
-            "username": user["username"],
-            "role": role
-        })
+        return jsonify({"message": "sent", "data": msg})
 
     except Exception as e:
         return jsonify({"message": str(e)}), 500
+
+
+@app.route("/api/chat", methods=["GET"])
+def get_chat():
+    return jsonify(chat_messages)
 
 
 # ---------------- GET STUDENTS ----------------
 @app.route("/api/students", methods=["GET"])
 def get_students():
     conn = get_connection()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM users WHERE role='student'")
     students = cursor.fetchall()
@@ -188,7 +168,7 @@ def get_students():
 @app.route("/api/teachers", methods=["GET"])
 def get_teachers():
     conn = get_connection()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM users WHERE role='teacher'")
     teachers = cursor.fetchall()
@@ -202,27 +182,35 @@ def get_teachers():
 # ---------------- DASHBOARD COUNTS ----------------
 @app.route("/api/dashboard_counts", methods=["GET"])
 def dashboard_counts():
-    conn = get_connection()
-    cursor = conn.cursor()
+    start = time.time()
 
-    cursor.execute("SELECT COUNT(*) FROM users WHERE role='student'")
-    students_count = cursor.fetchone()[0]
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) FROM users WHERE role='teacher'")
-    teachers_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM users WHERE role='student'")
+        students_count = cursor.fetchone()[0]
 
-    cursor.execute("SELECT COUNT(*) FROM file_details")
-    assignments_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM users WHERE role='teacher'")
+        teachers_count = cursor.fetchone()[0]
 
-    cursor.close()
-    conn.close()
+        cursor.execute("SELECT COUNT(*) FROM file_details")
+        assignments_count = cursor.fetchone()[0]
 
-    return jsonify({
-        "students": students_count,
-        "teachers": teachers_count,
-        "assignments": assignments_count
-    })
+        cursor.close()
+        conn.close()
 
+        print("DASHBOARD TIME:", time.time() - start)  # 👈 ADD THIS
+
+        return jsonify({
+            "students": students_count,
+            "teachers": teachers_count,
+            "assignments": assignments_count
+        })
+
+    except Exception as e:
+        print("DASHBOARD ERROR:", e)
+        return jsonify({"students": 0, "teachers": 0, "assignments": 0}), 500
 
 # ---------------- UPLOAD FILES ----------------
 @app.route("/api/addfiles", methods=["POST"])
@@ -245,8 +233,7 @@ def add_files():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO file_details
-            (file_name, file_description, grade, subject, file_photo)
+            INSERT INTO file_details(file_name, file_description, grade, subject, file_photo)
             VALUES(%s,%s,%s,%s,%s)
         """, (file_name, file_description, grade, subject, filename))
 
@@ -264,7 +251,7 @@ def add_files():
 @app.route("/api/getfiles", methods=["GET"])
 def get_files():
     conn = get_connection()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM file_details")
     files = cursor.fetchall()
@@ -285,12 +272,9 @@ def download_file(filename):
 messages_store = []
 
 @app.route("/api/contact", methods=["POST"])
-def contact_principal():
+def contact():
     data = request.get_json()
-    message = data.get("message")
-
-    messages_store.append(message)
-
+    messages_store.append(data.get("message"))
     return jsonify({"message": "Message sent successfully"})
 
 
@@ -299,97 +283,15 @@ def get_messages():
     return jsonify(messages_store)
 
 
-# ---------------- CHAT SYSTEM ----------------
-active_users = {}
-
-CHAT_ROOMS = [
-    "Classes Chat",
-    "General Chat",
-    "Announcement Chat",
-    "Teachers & Parents",
-    "Teachers Only"
-]
-
-ROOM_HISTORY = {room: [] for room in CHAT_ROOMS}
-
-
-@socketio.on("join_room")
-def handle_join(data):
-    username = data.get("username")
-    room = data.get("room")
-    role = data.get("role")
-
-    if role == "parent" and room == "Teachers Only":
-        emit("message", {"text": "Access denied", "system": True})
-        return
-
-    join_room(room)
-    active_users[username] = room
-
-    for msg in ROOM_HISTORY[room]:
-        emit("message", msg)
-
-    join_msg = {
-        "text": f"{username} has joined the room.",
-        "system": True,
-        "time": datetime.now().isoformat()
-    }
-
-    ROOM_HISTORY[room].append(join_msg)
-
-    emit("message", join_msg, room=room)
-    emit("online_users", list(active_users.keys()), broadcast=True)
-
-
-@socketio.on("send_message")
-def handle_message(data):
-    room = data.get("room")
-
-    ROOM_HISTORY[room].append(data)
-
-    emit("message", data, room=room)
-
-
-@socketio.on("leave_room")
-def handle_leave(data):
-    username = data.get("username")
-    room = active_users.get(username)
-
-    if room:
-        leave_room(room)
-
-        leave_msg = {
-            "text": f"{username} has left the room.",
-            "system": True,
-            "time": datetime.now().isoformat()
-        }
-
-        ROOM_HISTORY[room].append(leave_msg)
-
-        emit("message", leave_msg, room=room)
-
-        active_users.pop(username, None)
-
-        emit("online_users", list(active_users.keys()), broadcast=True)
-
-
-@app.route("/api/chat_rooms")
-def get_chat_rooms():
-    return jsonify(CHAT_ROOMS)
-
-
 # ---------------- PRINCIPAL LOGIN ----------------
 @app.route("/api/principal_login", methods=["POST"])
 def principal_login():
     try:
-        data = request.get_json(force=True)
-
+        data = request.get_json()
         password = data.get("password")
 
-        print("DEBUG PASSWORD RECEIVED:", password)
-
         if password == PRINCIPAL_PASSWORD:
-            return jsonify({"message": "Login successful"}), 200
+            return jsonify({"message": "Login successful"})
 
         return jsonify({"message": "Wrong password"}), 403
 
@@ -397,10 +299,12 @@ def principal_login():
         return jsonify({"message": str(e)}), 500
 
 
-# ---------------- RUN SERVER ----------------
-if __name__ == "__main__":
-    socketio.run(app, debug=True)
-
+# ---------------- HOME ----------------
 @app.route("/")
 def home():
     return "Backend is running successfully"
+
+
+# ---------------- RUN ----------------
+if __name__ == "__main__":
+    app.run()
