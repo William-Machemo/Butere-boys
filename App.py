@@ -20,10 +20,15 @@ TEACHER_UPLOAD_PASSWORD = "butere123"
 # ---------------- DATABASE ----------------
 def get_connection():
     return pymysql.connect(
-        user="williammachemo",
         host="mysql-williammachemo.alwaysdata.net",
+        user="williammachemo",
         password="modcom1234",
-        database="williammachemo_sokogarden"
+        database="williammachemo_sokogarden",
+        cursorclass=pymysql.cursors.DictCursor,
+        connect_timeout=5,
+        read_timeout=5,
+        write_timeout=5,
+        autocommit=True
     )
 
 
@@ -59,6 +64,8 @@ def signup():
     except Exception as e:
         print("SIGNUP ERROR:", e)
         return jsonify({"message": str(e)}), 500
+    
+    
 
 
 # ---------------- TEACHER SIGNUP ----------------
