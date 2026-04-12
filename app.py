@@ -201,6 +201,43 @@ def dashboard_counts():
             "assignments": 0,
             "error": str(e)
         }), 500
+
+# get teachers
+@app.route("/api/teachers", methods=["GET"])
+def get_teachers():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT user_id AS id, username, phone, role FROM users WHERE role='teacher'")
+        teachers = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(teachers)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+            # get students
+@app.route("/api/students", methods=["GET"])
+def get_students():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT user_id AS id, username, phone, role FROM users  WHERE role='student'")
+        students = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(students)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
         
 # ---------------- UPLOAD FILES ----------------
 @app.route("/api/addfiles", methods=["POST"])

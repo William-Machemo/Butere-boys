@@ -21,16 +21,10 @@ function TeacherDashboard() {
         timeout: 15000,
       });
 
-      const data = res.data;
+      console.log("TEACHERS API:", res.data);
 
-      // SAFE parsing (handles different backend formats)
-      if (Array.isArray(data)) {
-        setTeachers(data);
-      } else if (Array.isArray(data?.teachers)) {
-        setTeachers(data.teachers);
-      } else {
-        setTeachers([]);
-      }
+      // backend returns {teachers: []}
+      setTeachers(res.data.teachers || []);
 
     } catch (err) {
       console.error("Error fetching teachers:", err);
@@ -65,20 +59,18 @@ function TeacherDashboard() {
               <tr>
                 <th>ID</th>
                 <th>Username</th>
-                <th>Email</th>
                 <th>Phone</th>
                 <th>Role</th>
               </tr>
             </thead>
 
             <tbody>
-              {teachers.map((teacher, index) => (
-                <tr key={teacher.id || index}>
-                  <td>{teacher.id || "N/A"}</td>
-                  <td>{teacher.username || "N/A"}</td>
-                  <td>{teacher.email || "N/A"}</td>
-                  <td>{teacher.phone || "N/A"}</td>
-                  <td>{teacher.role || "teacher"}</td>
+              {teachers.map((teacher) => (
+                <tr key={teacher.user_id}>
+                  <td>{teacher.user_id}</td>
+                  <td>{teacher.username}</td>
+                  <td>{teacher.phone}</td>
+                  <td>{teacher.role}</td>
                 </tr>
               ))}
             </tbody>

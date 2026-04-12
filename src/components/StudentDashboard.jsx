@@ -3,43 +3,65 @@ import axios from "axios";
 
 function StudentDashboard() {
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // Fetch all students from backend
-    axios.get("https://butere-boys-flask-j2x3.onrender.com/api/students")
-      .then(res => {
-        if (res.data.students) {
-          setStudents(res.data.students);
-        } else {
-          setStudents([]);
-        }
-      })
-      .catch(err => console.error("Error fetching students:", err));
+    fetchStudents();
   }, []);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await axios.get(
+        "https://butere-boys-flask-j2x3.onrender.com/api/students",
+        { timeout: 15000 }
+      );
+
+      console.log("STUDENTS API:", res.data);
+
+      // SAFE handling (backend returns {students: []})
+      setStudents(res.data.students || []);
+
+    } catch (err) {
+      console.error("Error fetching students:", err);
+      setError("Failed to load students");
+      setStudents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container mt-4">
       <h1>All Students 🎓</h1>
-      {students.length === 0 ? (
+
+      {loading && <p className="text-primary">Loading students...</p>}
+      {error && <p className="text-danger">{error}</p>}
+
+      {!loading && students.length === 0 && !error && (
         <p>No students found.</p>
-      ) : (
+      )}
+
+      {!loading && students.length > 0 && (
         <div className="table-responsive">
           <table className="table table-bordered table-striped">
             <thead className="table-dark">
               <tr>
                 <th>ID</th>
                 <th>Username</th>
-                <th>Email</th>
                 <th>Phone</th>
                 <th>Role</th>
               </tr>
             </thead>
+
             <tbody>
-              {students.map(student => (
-                <tr key={student.id}>
-                  <td>{student.id}</td>
+              {students.map((student) => (
+                <tr key={student.user_id}>
+                  <td>{student.user_id}</td>
                   <td>{student.username}</td>
-                  <td>{student.email}</td>
                   <td>{student.phone}</td>
                   <td>{student.role}</td>
                 </tr>
