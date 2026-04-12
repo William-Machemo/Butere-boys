@@ -7,7 +7,7 @@ from flask_socketio import SocketIO
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)
+
 
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -166,66 +166,24 @@ def get_chat():
 
 
 # ---------------- DASHBOARD COUNTS ----------------
-@app.route("/api/dashboard_counts", methods=["GET"])
+@app.route("/api/dashboard_counts")
 def dashboard_counts():
-    start = time.time()
+    conn = get_connection()
+    cursor = conn.cursor()
 
-    conn = None
-    cursor = None
+    cursor.execute("SELECT * FROM users")
+    users = cursor.fetchall()
 
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
+    cursor.execute("SELECT * FROM file_details")
+    files = cursor.fetchall()
 
-        print("✅ CONNECTED TO DATABASE")
+    print("🔥 USERS:", users)
+    print("🔥 FILES:", files)
 
-        # 🔥 DEBUG: show ALL users
-        cursor.execute("SELECT * FROM users")
-        all_users = cursor.fetchall()
-        print("🔥 ALL USERS:", all_users)
-
-        # 🔥 DEBUG: show ALL assignments
-        cursor.execute("SELECT * FROM file_details")
-        all_files = cursor.fetchall()
-        print("🔥 ALL FILES:", all_files)
-
-        # COUNTS
-        cursor.execute("SELECT COUNT(*) FROM users WHERE role=%s", ("student",))
-        students_count = cursor.fetchone()[0]
-
-        cursor.execute("SELECT COUNT(*) FROM users WHERE role=%s", ("teacher",))
-        teachers_count = cursor.fetchone()[0]
-
-        cursor.execute("SELECT COUNT(*) FROM file_details")
-        assignments_count = cursor.fetchone()[0]
-
-        print("✅ COUNTS:", students_count, teachers_count, assignments_count)
-
-        return jsonify({
-            "students": int(students_count),
-            "teachers": int(teachers_count),
-            "assignments": int(assignments_count)
-        })
-
-
-
-        cursor.execute("SELECT * FROM users")
-        users = cursor.fetchall()
-        print("🔥 USERS IN DB:", users)
-
-    except Exception as e:
-        print("❌ DASHBOARD ERROR:", str(e))
-        return jsonify({
-            "students": 0,
-            "teachers": 0,
-            "assignments": 0
-        }), 500
-
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+    return jsonify({
+        "debug_users": len(users),
+        "debug_files": len(files)
+    })
 
 # ---------------- UPLOAD FILES ----------------
 @app.route("/api/addfiles", methods=["POST"])

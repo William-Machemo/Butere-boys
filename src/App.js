@@ -244,6 +244,9 @@ function App() {
               <Link className="nav-link text-white" to="/signup">Signup</Link>
               <Link className="nav-link text-white" to="/classes">Classes</Link>
               <Link className="nav-link text-white" to="/news">News</Link>
+                <Link className="nav-link text-white" to="/GetFiles">GetFiles</Link>
+                  <Link className="nav-link text-white" to="/TeacherDashboard">Teacher</Link>
+                    <Link className="nav-link text-white" to="/StudentDashboard">student</Link>
               <Link className="nav-link text-white" to="/Chat" onClick={() => setChatLoginVisible(true)}>Chat</Link>
               <Link className="nav-link text-white" to="/gallery">Gallery</Link>
               <Link className="nav-link text-white" to="/sports">Sports</Link>
