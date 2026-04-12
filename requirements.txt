@@ -11,6 +11,7 @@ flask-cors==6.0.2
 Flask-SocketIO==5.6.1
 Flask-SQLAlchemy==3.1.1
 greenlet==3.3.2
+gevent==24.2.1
 h11==0.16.0
 idna==3.11
 itsdangerous==2.2.0

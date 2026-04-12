@@ -8,6 +8,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+CORS(app)
 
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -19,7 +20,6 @@ PRINCIPAL_PASSWORD = "1234"
 TEACHER_UPLOAD_PASSWORD = "butere123"
 
 
-# ---------------- DATABASE ----------------
 def get_connection():
     return pymysql.connect(
         host="mysql-williammachemo.alwaysdata.net",
@@ -27,9 +27,9 @@ def get_connection():
         password="modcom1234",
         database="williammachemo_sokogarden",
         cursorclass=pymysql.cursors.DictCursor,
-        connect_timeout=20,
-        read_timeout=20,
-        write_timeout=20,
+        connect_timeout=60,
+        read_timeout=60,
+        write_timeout=60,
         autocommit=True
     )
 
@@ -165,26 +165,43 @@ def get_chat():
     return jsonify(chat_messages)
 
 
-# ---------------- DASHBOARD COUNTS ----------------
-@app.route("/api/dashboard_counts")
+# ---------------- DASHBOARD COUNTS (FIXED STABLE VERSION) ----------------
+@app.route("/api/dashboard_counts", methods=["GET"])
 def dashboard_counts():
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM users")
-    users = cursor.fetchall()
+        # students
+        cursor.execute("SELECT COUNT(*) FROM users WHERE role=%s", ("student",))
+        students = cursor.fetchone()["COUNT(*)"]
 
-    cursor.execute("SELECT * FROM file_details")
-    files = cursor.fetchall()
+        # teachers
+        cursor.execute("SELECT COUNT(*) FROM users WHERE role=%s", ("teacher",))
+        teachers = cursor.fetchone()["COUNT(*)"]
 
-    print("🔥 USERS:", users)
-    print("🔥 FILES:", files)
+        # assignments
+        cursor.execute("SELECT COUNT(*) FROM file_details")
+        assignments = cursor.fetchone()["COUNT(*)"]
 
-    return jsonify({
-        "debug_users": len(users),
-        "debug_files": len(files)
-    })
+        cursor.close()
+        conn.close()
 
+        return jsonify({
+            "students": int(students),
+            "teachers": int(teachers),
+            "assignments": int(assignments)
+        }), 200
+
+    except Exception as e:
+        print("DASHBOARD ERROR:", str(e))
+        return jsonify({
+            "students": 0,
+            "teachers": 0,
+            "assignments": 0,
+            "error": str(e)
+        }), 500
+        
 # ---------------- UPLOAD FILES ----------------
 @app.route("/api/addfiles", methods=["POST"])
 def add_files():
