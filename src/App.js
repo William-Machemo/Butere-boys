@@ -429,7 +429,7 @@ function App() {
         </section>
 
         <footer className="bg-dark text-white text-center p-3">
-          Developed by Butere Boys High School © 2026
+          Developed by William @ Sanny Jones © 2026
         </footer>
 
       </div>
