@@ -1,5 +1,6 @@
 // src/App.js
 import './App.css';
+import { Navigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
@@ -291,6 +292,7 @@ function App() {
         {/* ROUTES (🔥 ALL YOUR ORIGINAL ROUTES KEPT) */}
         <div className="container mt-4 flex-grow-1">
           <Routes>
+            <Route path="/" element={<Navigate to="/homepage" />} />
 
             <Route path="/homepage" element={<HomePage />} />
             <Route path="/signup" element={<SignUp />} />
