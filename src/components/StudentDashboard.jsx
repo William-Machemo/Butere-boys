@@ -17,16 +17,23 @@ function StudentDashboard() {
 
       const res = await axios.get(
         "https://butere-boys-flask-j2x3.onrender.com/api/students",
-        { timeout: 15000 }
+        { timeout: 20000 }
       );
 
-      console.log("STUDENTS API:", res.data);
+      console.log("STUDENTS RAW:", res.data);
 
-      // SAFE handling (backend returns {students: []})
-      setStudents(res.data.students || []);
+      const data = res.data;
+
+      if (Array.isArray(data)) {
+        setStudents(data);
+      } else if (Array.isArray(data.students)) {
+        setStudents(data.students);
+      } else {
+        setStudents([]);
+      }
 
     } catch (err) {
-      console.error("Error fetching students:", err);
+      console.error("STUDENTS ERROR:", err);
       setError("Failed to load students");
       setStudents([]);
     } finally {

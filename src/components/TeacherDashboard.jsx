@@ -17,14 +17,25 @@ function TeacherDashboard() {
       setLoading(true);
       setError("");
 
-      const res = await axios.get(`${API_BASE_URL}/api/teachers`, {
-        timeout: 15000,
-      });
+      const res = await axios.get(
+        `${API_BASE_URL}/api/teachers`,
+        { timeout: 20000 }
+      );
 
-      console.log("TEACHERS API:", res.data);
+      console.log("TEACHERS API RAW:", res.data);
 
-      // backend returns {teachers: []}
-      setTeachers(res.data.teachers || []);
+      const data = res.data;
+
+      // ✅ SAFE parsing (handles all backend formats)
+      if (Array.isArray(data)) {
+        setTeachers(data);
+      } 
+      else if (Array.isArray(data.teachers)) {
+        setTeachers(data.teachers);
+      } 
+      else {
+        setTeachers([]);
+      }
 
     } catch (err) {
       console.error("Error fetching teachers:", err);

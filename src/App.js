@@ -229,33 +229,65 @@ function App() {
       <div className="App d-flex flex-column min-vh-100 container-fluid p-0">
 
         {/* NAVBAR (UNCHANGED) */}
-        <header className="bg-danger text-success">
-          <nav className="navbar navbar-expand-lg navbar-dark container py-2">
+<header className="bg-danger text-success">
+  <nav className="navbar navbar-expand-lg navbar-dark container py-2">
 
-            <Link className="navbar-brand d-flex align-items-center" to="/homepage">
-              <img src="/images/Logo.jpg" alt="Logo" style={{ height: "60px", width: "100px" }} className="me-2" />
-              Butere Boys
-            </Link>
+    {/* Brand */}
+    <Link className="navbar-brand d-flex align-items-center" to="/homepage">
+      <img
+        src="/images/Logo.jpg"
+        alt="Logo"
+        style={{ height: "40px", width: "60px" }}
+        className="me-2"
+      />
+      Butere Boys
+    </Link>
 
-            <div className="navbar-nav ms-auto flex-wrap">
-              <Link className="nav-link text-white" to="/homepage">Home</Link>
-              <Link className="nav-link text-white" to="/AddFiles">Upload</Link>
-              <Link className="nav-link text-white" to="/PrincipalDashboard">Principal</Link>
-              <Link className="nav-link text-white" to="/signup">Signup</Link>
-              <Link className="nav-link text-white" to="/classes">Classes</Link>
-              <Link className="nav-link text-white" to="/news">News</Link>
-                <Link className="nav-link text-white" to="/GetFiles">GetFiles</Link>
-                  <Link className="nav-link text-white" to="/TeacherDashboard">Teacher</Link>
-                    <Link className="nav-link text-white" to="/StudentDashboard">student</Link>
-              <Link className="nav-link text-white" to="/Chat" onClick={() => setChatLoginVisible(true)}>Chat</Link>
-              <Link className="nav-link text-white" to="/gallery">Gallery</Link>
-              <Link className="nav-link text-white" to="/sports">Sports</Link>
-              <Link className="nav-link text-white" to="/curriculum">Academics</Link>
-            </div>
+    {/* Toggler (MOBILE BUTTON) */}
+    <button
+      className="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#mainNavbar"
+      aria-controls="mainNavbar"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span className="navbar-toggler-icon"></span>
+    </button>
 
-          </nav>
-        </header>
+    {/* COLLAPSIBLE MENU */}
+    <div className="collapse navbar-collapse" id="mainNavbar">
 
+      <div className="navbar-nav ms-auto flex-wrap">
+
+        <Link className="nav-link text-white" to="/homepage">Home</Link>
+        <Link className="nav-link text-white" to="/AddFiles">Upload</Link>
+        <Link className="nav-link text-white" to="/PrincipalDashboard">Principal</Link>
+        <Link className="nav-link text-white" to="/signup">Signup</Link>
+        <Link className="nav-link text-white" to="/classes">Classes</Link>
+        <Link className="nav-link text-white" to="/news">News</Link>
+        <Link className="nav-link text-white" to="/GetFiles">Assignments</Link>
+        
+        <Link className="nav-link text-white" to="/StudentDashboard">Students</Link>
+
+        <Link
+          className="nav-link text-white"
+          to="/Chat"
+          onClick={() => setChatLoginVisible(true)}
+        >
+          Chat
+        </Link>
+            <Link className="nav-link text-white" to="/Admissions">Admission</Link>
+        <Link className="nav-link text-white" to="/gallery">Gallery</Link>
+        <Link className="nav-link text-white" to="/curriculum">Academics</Link>
+
+      </div>
+    </div>
+
+  </nav>
+</header>
+<h5>Butere Boys National School</h5>
         {/* ROUTES (🔥 ALL YOUR ORIGINAL ROUTES KEPT) */}
         <div className="container mt-4 flex-grow-1">
           <Routes>
@@ -376,19 +408,19 @@ function App() {
 
 <div className="d-flex justify-content-center gap-3 flex-wrap mt-3">
   <a href="https://www.facebook.com" target="_blank" rel="noreferrer noopener">
-    <img src="/images/fb.webp" alt="Facebook" width="40" />
+    <img src="/images/fb.webp" alt="Facebook" width="40" height="40" />
   </a>
 
   <a href="https://www.instagram.com" target="_blank" rel="noreferrer noopener">
-    <img src="/images/IG.webp" alt="Instagram" width="40" />
+    <img src="/images/IG.webp" alt="Instagram" width="40" height="40" />
   </a>
 
   <a href="https://www.x.com" target="_blank" rel="noreferrer noopener">
-    <img src="/images/Twitter.webp" alt="X (Twitter)" width="40" />
+    <img src="/images/Twitter.webp" alt="X (Twitter)" width="40" height="40" />
   </a>
 
   <a href="https://www.youtube.com" target="_blank" rel="noreferrer noopener">
-    <img src="/images/utube.webp" alt="YouTube" width="40" />
+    <img src="/images/utube.webp" alt="YouTube" width="40" height="40" />
   </a>
 </div>
           </div>
