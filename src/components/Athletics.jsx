@@ -27,7 +27,7 @@ function Athletics() {
       {/* HERO */}
       <img
         src="/images/athletics-main.jpg"
-        alt="Athletics"
+        alt="Athletics team training at Butere Boys High School"
         className="img-fluid rounded shadow mb-4"
       />
 
@@ -46,7 +46,7 @@ function Athletics() {
           <div className="col-md-4 mb-3" key={i}>
             <img
               src={img}
-              alt=""
+              alt={`Athletics training session ${i + 1}`}
               className="img-fluid rounded shadow"
               style={{ cursor: "pointer" }}
               onClick={() => setSelectedImage(img)}
@@ -71,7 +71,11 @@ function Athletics() {
             alignItems: "center"
           }}
         >
-          <img src={selectedImage} style={{ maxWidth: "90%" }} />
+          <img
+            src={selectedImage}
+            alt="Full athletics view"
+            style={{ maxWidth: "90%", maxHeight: "90%" }}
+          />
         </div>
       )}
 
