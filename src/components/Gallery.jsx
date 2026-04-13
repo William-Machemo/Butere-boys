@@ -32,7 +32,7 @@ const Gallery = () => {
                   src="images/1743963068160~2.jpg"
                   alt="slide1"
                   className="w-100 d-block"
-                  height="300"
+                  height="150"
                 />
               </div>
               <div className="carousel-item">
@@ -40,7 +40,7 @@ const Gallery = () => {
                   src="images/imageB.jpg"
                   alt="slide2"
                   className="w-100 d-block"
-                  height="300"
+                  height="150"
                 />
               </div>
               <div className="carousel-item">
@@ -48,7 +48,7 @@ const Gallery = () => {
                   src="images/imageC.jpg"
                   alt="slide3"
                   className="w-100 d-block"
-                  height="300"
+                  height="150"
                 />
               </div>
               <div className="carousel-item">
@@ -56,7 +56,7 @@ const Gallery = () => {
                   src="images/imageE.jpg"
                   alt="slide4"
                   className="w-100 d-block"
-                  height="300"
+                  height="150"
                 />
               </div>
             </div>

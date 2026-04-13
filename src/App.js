@@ -3,6 +3,16 @@ import './App.css';
 import { Navigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import VolleyBall from './components/VolleyBall';
+import TableTennis from './components/TableTennis';
+import Rugby from './components/Rugby';
+import NetBall from './components/NetBall';
+import Hockey from './components/Hockey';
+import HandBall from './components/HandBall';
+import FootBall from './components/FootBall';
+import BasketBall from './components/BasketBall';
+import Badminton from './components/Badminton';
+import Athletics from './components/Athletics';
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -269,6 +279,7 @@ function App() {
         <Link className="nav-link text-white" to="/classes">Classes</Link>
         <Link className="nav-link text-white" to="/news">News</Link>
         <Link className="nav-link text-white" to="/GetFiles">Assignments</Link>
+          <Link className="nav-link text-white" to="/Sports">Sports</Link>
         
         <Link className="nav-link text-white" to="/StudentDashboard">Students</Link>
 
@@ -309,6 +320,19 @@ function App() {
             <Route path="/studentlife" element={<StudentLife />} />
             <Route path="/admissions" element={<Admissions />} />
             <Route path="/alumni" element={<Alumni />} />
+
+             <Route path="/rugby" element={<Rugby/>} />
+               <Route path="/football" element={<FootBall />} />
+                 <Route path="/handball" element={<HandBall/>} />
+               <Route path="/hockey" element={<Hockey/>} />
+               <Route path="/netball" element={<NetBall />} />
+                 <Route path="/tabletennis" element={<TableTennis />} />
+                   <Route path="/volleyball" element={<VolleyBall />} />
+                   <Route path="/basketball" element={<BasketBall />} />
+                 <Route path="/athletics" element={<Athletics/>} />
+               <Route path="/badminton" element={<Badminton/>} />
+
+
             <Route path="/academics" element={<Academics />} />
             <Route path="/teachers" element={<Teachers />} />
             <Route path="/newsletter" element={<NewsLetter />} />
