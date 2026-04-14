@@ -173,3 +173,70 @@ body {
 .auto-scroll::-webkit-scrollbar {
   display: none;
 }
+/* Container hides overflow */
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Moving content */
+.marquee-content {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 10s linear infinite;
+}
+
+/* Prevent wrapping */
+.marquee-content a {
+  white-space: nowrap;
+}
+
+/* Smooth infinite loop */
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.principal-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%; /* makes it circular */
+}
+
+/* Smaller screens */
+@media (max-width: 576px) {
+  .principal-img {
+    width: 80px;
+    height: 80px;
+  }
+}
+/* Make carousel fully smooth */
+#mycarousel {
+  overflow: hidden;
+}
+
+/* Remove any default transition pauses */
+#mycarousel .carousel-item {
+  transition: transform 0.8s ease-in-out !important;
+}
+
+/* Force images to stay clean and responsive */
+#mycarousel img {
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* REMOVE ALL PAUSING BEHAVIOR */
+#mycarousel {
+  pointer-events: auto;
+}
+
+#mycarousel:hover {
+  pointer-events: auto;
+}

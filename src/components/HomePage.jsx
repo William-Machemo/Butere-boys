@@ -15,7 +15,73 @@ const announcements = [
 const HomePage = () => {
   return (
     <div className="container-fluid">
-      <h1><b>Butere Boys High School</b></h1>
+      <h3><b>Welcome to Butere Boys High School</b></h3>
+      
+
+      {/* ABOUT */}
+      <section className="py-5 px-3">
+        <div className="row">
+      
+        <div className="col-md-6">
+  <div className="bg-light p-3 p-md-4 shadow-sm rounded">
+
+    <div className="d-flex flex-column flex-md-row align-items-center">
+
+      {/* Principal Image */}
+      <img
+        src="images/principal.pg.jpg"  
+        alt="Principal"
+        className="principal-img me-md-3 mb-3 mb-md-0"
+      />
+
+      {/* Text Content */}
+      <div>
+        <h5 className="text-center text-danger">HABIL MALIKA</h5>
+        <h5 className="fw-bold text-center text-md-start">Chief
+          Principal's Message
+        </h5>
+        <p className="text-center text-md-start mb-0">
+          We nurture academic excellence and strong moral values to
+          prepare students for future success.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+   <div className="col-md-6">
+  <div className="bg-light p-3 p-md-4 shadow-sm rounded">
+
+    <div className="d-flex flex-column flex-md-row align-items-center">
+
+      {/* Deputy Principal Image */}
+      <img
+        src="images/muhati.jpg"  
+        alt="Deputy Principal"
+        className="principal-img me-md-3 mb-3 mb-md-0"
+      />
+
+      {/* Text Content */}
+      <div>
+        <h5 className="text-danger">Mr. Wanzetse</h5>
+        <h5 className="fw-bold text-center text-md-start">
+          Deputy Principal (Academics)
+        </h5>
+
+        <p className="text-center text-md-start mb-0">Butere Boys is
+          a leading institution dedicated to empowering young students through
+          quality education, discipline, and leadership development.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+        </div>
+      </section>
 
       {/* HERO SECTION */}
       <div
@@ -86,12 +152,12 @@ const HomePage = () => {
 
         <div className="col-md-9">
           <div
-            id="mycarousel"
-            className="carousel slide"
-            data-bs-ride="carousel"
-            data-bs-interval="2500"
-            data-bs-pause="false"
-          >
+  id="mycarousel"
+  className="carousel slide"
+  data-bs-ride="carousel"
+  data-bs-interval="2000"
+  data-bs-pause="false"
+>
             <div className="carousel-inner">
 
               {["1743963068160~2.jpg", "imageB.jpg", "imageC.jpg", "imageE.jpg"].map((img, index) => (
@@ -128,40 +194,114 @@ const HomePage = () => {
 
       </section>
 
+            <h3 className="text-center text-bg-danger w-100 ">View Our Sports Activities</h3>
+    <div className="marquee-container">
+  <div className="marquee-content d-inline-flex gap-3 px-3">
+
+    
+    <Link className="btn btn-success px-3" to="/FootBall">Football</Link>
+    <Link className="btn btn-success px-3" to="/NetBall">Netball</Link>
+    <Link className="btn btn-success px-3" to="/VolleyBll">Volleyball</Link>
+    <Link className="btn btn-success px-3" to="/Hockey">Hockey</Link>
+    <Link className="btn btn-success px-3" to="/Rugby">Rugby</Link>
+
+    
+    <Link className="btn btn-success px-3" to="/HandBall">Handball</Link>
+    <Link className="btn btn-success px-3" to="/Badminton">Badminton</Link>
+    <Link className="btn btn-success px-3" to="/Athletics">Athletics</Link>
+    <Link className="btn btn-success px-3" to="/BaketBall">Basketball</Link>
+    <Link className="btn btn-success px-3" to="/TableTennis">Table Tennis</Link>
+
+  </div>
+</div>
+
+
+
+
       {/* ABOUT */}
       <section className="py-5 px-3">
         <div className="row">
-          <div className="col-md-6">
-            <h2 className="fw-bold mb-3">About Us</h2>
-            <p>
-              A leading institution dedicated to empowering young students through
-              quality education, discipline, and leadership development.
-            </p>
-          </div>
+         <div className="col-md-6">
+  <div className="bg-light p-3 p-md-4 shadow-sm rounded">
 
-          <div className="col-md-6">
-            <div className="bg-light p-4 shadow-sm rounded">
-              <h5 className="fw-bold">Principal's Message</h5>
-              <p>
-                We nurture academic excellence and strong moral values to
-                prepare students for future success.
-              </p>
-            </div>
-          </div>
+    <div className="d-flex flex-column flex-md-row align-items-center">
+
+      {/* Deputy Principal Image */}
+      <img
+        src="images/muhati.jpg"  
+        alt="Deputy Principal"
+        className="principal-img me-md-3 mb-3 mb-md-0"
+      />
+
+      {/* Text Content */}
+      <div>
+        <h5 className="text-danger">Mr. Wanzetse</h5>
+        <h5 className="fw-bold text-center text-md-start">
+          Deputy Principal (Academics)
+        </h5>
+
+        <p className="text-center text-md-start mb-0">Butere Boys is
+          a leading institution dedicated to empowering young students through
+          quality education, discipline, and leadership development.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+        <div className="col-md-6">
+  <div className="bg-light p-3 p-md-4 shadow-sm rounded">
+
+    <div className="d-flex flex-column flex-md-row align-items-center">
+
+      {/* Principal Image */}
+      <img
+        src="images/principal.pg.jpg"  
+        alt="Principal"
+        className="principal-img me-md-3 mb-3 mb-md-0"
+      />
+
+      {/* Text Content */}
+      <div>
+        <h5 className="text-center text-danger">HABIL MALIKA</h5>
+        <h5 className="fw-bold text-center text-md-start">Chief
+          Principal's Message
+        </h5>
+        <p className="text-center text-md-start mb-0">
+          We nurture academic excellence and strong moral values to
+          prepare students for future success.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
         </div>
       </section>
 
-      {/* SAFE MARQUEE REPLACEMENT */}
-      <div className="marquee-container">
-        <div className="marquee-content d-inline-flex gap-3 px-3">
+            <h3 className="text-center text-bg-danger">View Our Top Pages</h3>
+    <div className="marquee-container">
+  <div className="marquee-content d-inline-flex gap-3 px-3">
 
-          <Link className="btn btn-success px-3" to="/Admissions">Admission</Link>
-          <Link className="btn btn-success px-3" to="/academics">Academics</Link>
-          <Link className="btn btn-success px-3" to="/StudentLife">Student Life</Link>
-          <Link className="btn btn-success px-3" to="/Alumni">Alumni</Link>
+    {/* ORIGINAL */}
+    <Link className="btn btn-success px-3" to="/Admissions">Admission</Link>
+    <Link className="btn btn-success px-3" to="/academics">Academics</Link>
+    <Link className="btn btn-success px-3" to="/StudentLife">Student Life</Link>
+    <Link className="btn btn-success px-3" to="/Alumni">Alumni</Link>
+    <Link className="btn btn-success px-3" to="/Sports">Sports</Link>
 
-        </div>
-      </div>
+    
+    <Link className="btn btn-success px-3" to="/Admissions">Admission</Link>
+    <Link className="btn btn-success px-3" to="/academics">Academics</Link>
+    <Link className="btn btn-success px-3" to="/StudentLife">Student Life</Link>
+    <Link className="btn btn-success px-3" to="/Alumni">Alumni</Link>
+    <Link className="btn btn-success px-3" to="/Sports">Sports</Link>
+
+  </div>
+</div>
 
       {/* NEWS */}
       <section className="bg-light py-5">
@@ -171,8 +311,8 @@ const HomePage = () => {
           <div className="row">
 
             {[
-              { img: "1770395995199.jpg", title: "Sports Day Highlights", link: "/Sports" },
-              { img: "1770395360975.jpg", title: "Academic Excellence", link: "/Academics" },
+              { img: "sports news.jpg", title: "Sports Day Highlights", link: "/Sports" },
+              { img: "1770395360975.jpg", title: "Academic Excellence", link: "/Curriculum" },
               { img: "1769613169909.jpg", title: "New Facilities", link: "/NewFacilities" }
             ].map((news, idx) => (
               <div className="col-md-4 mb-3" key={idx}>
