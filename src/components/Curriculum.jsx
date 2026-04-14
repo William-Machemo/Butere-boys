@@ -81,7 +81,7 @@ function Academics() {
       {/* Opening Term Exams */}
       <section className="mt-4">
         <div className="card p-4 shadow-sm">
-          <h3 className="text-success">Opening Term Exams</h3>
+          <h3 className="text-success">Opening Term Exam Timetable</h3>
           <p>
             The school has introduced opening exams for all students to assess
             their readiness after holidays.
@@ -94,7 +94,7 @@ function Academics() {
             <div className="col-md-4 col-12 mb-3">
               <div style={{ position: "relative" }}>
                 <img
-                  src="images/kcse.jpg"
+                  src="images/grade10exam.png"
                   alt="Grade 10 Exam"
                   className="img-fluid rounded"
                   style={{
@@ -111,7 +111,7 @@ function Academics() {
                     left: "50%",
                     transform: "translateX(-50%)"
                   }}
-                  onClick={() => setSelectedImage("images/kcse.jpg")}
+                  onClick={() => setSelectedImage("images/grade10exam.png")}
                 >
                   Click to View
                 </button>
@@ -123,7 +123,7 @@ function Academics() {
             <div className="col-md-4 col-12 mb-3">
               <div style={{ position: "relative" }}>
                 <img
-                  src="images/form3-exam.jpg"
+                  src="images/form3exam.png"
                   alt="Form 3 Exam"
                   className="img-fluid rounded"
                   style={{
@@ -140,7 +140,7 @@ function Academics() {
                     left: "50%",
                     transform: "translateX(-50%)"
                   }}
-                  onClick={() => setSelectedImage("images/form3-exam.jpg")}
+                  onClick={() => setSelectedImage("images/form3exam.png")}
                 >
                   Click to View
                 </button>
@@ -152,7 +152,7 @@ function Academics() {
             <div className="col-md-4 col-12 mb-3">
               <div style={{ position: "relative" }}>
                 <img
-                  src="images/kcse.jpg"
+                  src="images/form4exam.jpg"
                   alt="Form 4 Exam Timetable"
                   className="img-fluid rounded"
                   style={{
@@ -169,7 +169,7 @@ function Academics() {
                     left: "50%",
                     transform: "translateX(-50%)"
                   }}
-                  onClick={() => setSelectedImage("images/kcse.jpg")}
+                  onClick={() => setSelectedImage("images/form4exam.jpg")}
                 >
                   Click to View
                 </button>

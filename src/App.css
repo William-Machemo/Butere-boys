@@ -141,13 +141,35 @@ body {
   white-space: nowrap;
   width: 100%;
 }
-
-.marquee-content {
-  display: inline-flex;
-  animation: scroll-left 12s linear infinite;
+/* Smooth infinite scrolling */
+.auto-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  animation: scrollLoop 20s linear infinite;
 }
 
-@keyframes scroll-left {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+/* KEYFRAME: only move half (because content is duplicated) */
+@keyframes scrollLoop {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Prevent wrapping */
+.auto-scroll .nav-link {
+  white-space: nowrap;
+}
+
+/* Hide overflow from parent */
+.overflow-hidden {
+  overflow: hidden;
+}
+
+/* Optional: remove scrollbar completely */
+.auto-scroll::-webkit-scrollbar {
+  display: none;
 }

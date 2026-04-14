@@ -238,8 +238,6 @@ function App() {
   return (
     <Router>
       <div className="App d-flex flex-column min-vh-100 container-fluid p-0">
-
-        {/* NAVBAR (UNCHANGED) */}
 <header className="bg-danger text-success">
   <nav className="navbar navbar-expand-lg navbar-dark container py-2">
 
@@ -254,15 +252,12 @@ function App() {
       Butere Boys
     </Link>
 
-    {/* Toggler (MOBILE BUTTON) */}
+    {/* Toggler */}
     <button
       className="navbar-toggler"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#mainNavbar"
-      aria-controls="mainNavbar"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
     >
       <span className="navbar-toggler-icon"></span>
     </button>
@@ -270,29 +265,49 @@ function App() {
     {/* COLLAPSIBLE MENU */}
     <div className="collapse navbar-collapse" id="mainNavbar">
 
-      <div className="navbar-nav ms-auto flex-wrap">
+      {/* Wrapper to hide overflow */}
+      <div className="overflow-hidden w-100">
 
-        <Link className="nav-link text-white" to="/homepage">Home</Link>
-        <Link className="nav-link text-white" to="/AddFiles">Upload</Link>
-        <Link className="nav-link text-white" to="/PrincipalDashboard">Principal</Link>
-        <Link className="nav-link text-white" to="/signup">Signup</Link>
-        <Link className="nav-link text-white" to="/classes">Classes</Link>
-        <Link className="nav-link text-white" to="/news">News</Link>
-        <Link className="nav-link text-white" to="/GetFiles">Assignments</Link>
-          <Link className="nav-link text-white" to="/Sports">Sports</Link>
-        
-        <Link className="nav-link text-white" to="/StudentDashboard">Students</Link>
+        {/* Auto scrolling nav */}
+        <div className="navbar-nav flex-row auto-scroll">
 
-        <Link
-          className="nav-link text-white"
-          to="/Chat"
-          onClick={() => setChatLoginVisible(true)}
-        >
-          Chat
-        </Link>
-            <Link className="nav-link text-white" to="/Admissions">Admission</Link>
-        <Link className="nav-link text-white" to="/gallery">Gallery</Link>
-        <Link className="nav-link text-white" to="/curriculum">Academics</Link>
+          <Link className="nav-link text-white px-3" to="/homepage">Home</Link>
+          <Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
+          <Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
+          <Link className="nav-link text-white px-3" to="/signup">Signup</Link>
+          <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
+          <Link className="nav-link text-white px-3" to="/news">News</Link>
+          <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
+          <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
+          <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
+
+          <Link
+            className="nav-link text-white px-3"
+            to="/Chat"
+            onClick={() => setChatLoginVisible(true)}
+          >
+            Chat
+          </Link>
+
+          <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
+          <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
+          <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
+
+          {/* 🔁 Duplicate links for smooth continuous scroll */}
+          <Link className="nav-link text-white px-3" to="/homepage">Home</Link>
+          <Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
+          <Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
+          <Link className="nav-link text-white px-3" to="/signup">Signup</Link>
+          <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
+          <Link className="nav-link text-white px-3" to="/news">News</Link>
+          <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
+          <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
+          <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
+          <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
+          <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
+          <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
+
+        </div>
 
       </div>
     </div>
