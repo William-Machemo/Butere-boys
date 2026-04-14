@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+ 
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const announcements = [
@@ -82,6 +82,99 @@ const HomePage = () => {
 
         </div>
       </section>
+
+     <section className="container my-5">
+  <h2 className="fw-bold text-center mb-4">School Talent Day</h2>
+
+  <div className="row g-4">
+
+    {/* VIDEO 1 */}
+    <div className="col-md-4">
+      <div className="video-card">
+        <div className="video-wrapper">
+
+          <div
+            className="video-overlay"
+            onClick={(e) => {
+              const iframe = e.currentTarget.nextSibling;
+              iframe.src += "?autoplay=1&mute=1";
+              e.currentTarget.style.display = "none";
+            }}
+          >
+            <div className="play-btn">▶</div>
+          </div>
+
+          <iframe
+            src="https://www.youtube.com/embed/1woAAkQKqqw"
+            title="Candidates Dedication Service"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+
+        </div>
+        
+      </div>
+    </div>
+
+    {/* VIDEO 2 */}
+    <div className="col-md-4">
+      <div className="video-card">
+        <div className="video-wrapper">
+
+          <div
+            className="video-overlay"
+            onClick={(e) => {
+              const iframe = e.currentTarget.nextSibling;
+              iframe.src += "?autoplay=1&mute=1";
+              e.currentTarget.style.display = "none";
+            }}
+          >
+            <div className="play-btn">▶</div>
+          </div>
+
+          <iframe
+            src="https://www.youtube.com/embed/iWHuX_8WwIU"
+            title="Talent Day"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+
+        </div>
+        
+      </div>
+    </div>
+
+    {/* VIDEO 3 */}
+    <div className="col-md-4">
+      <div className="video-card">
+        <div className="video-wrapper">
+
+          <div
+            className="video-overlay"
+            onClick={(e) => {
+              const iframe = e.currentTarget.nextSibling;
+              iframe.src += "?autoplay=1&mute=1";
+              e.currentTarget.style.display = "none";
+            }}
+          >
+            <div className="play-btn">▶</div>
+          </div>
+
+          {/* ⚠️ Google share links won't work in iframe */}
+          <iframe
+            src="https://www.youtube.com/embed/leQLTGOUaEc"
+            title="Academic Excellence"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+
+        </div>
+        
+      </div>
+    </div>
+
+  </div>
+</section>
 
       {/* HERO SECTION */}
       <div
@@ -194,7 +287,7 @@ const HomePage = () => {
 
       </section>
 
-            <h3 className="text-center text-bg-danger w-100 ">View Our Sports Activities</h3>
+            <h3 className="text-center text-bg-danger">View Our Sports Activities</h3>
     <div className="marquee-container">
   <div className="marquee-content d-inline-flex gap-3 px-3">
 
@@ -337,8 +430,103 @@ const HomePage = () => {
         </div>
       </section>
 
+  {/* VIDEO SECTION */}
+<section className="container my-5">
+  <h2 className="fw-bold text-center mb-4"> Butere Boys High School Videos</h2>
+
+  <div className="row g-4">
+
+    {/* VIDEO 1 */}
+    <div className="col-md-4">
+      <div className="video-card">
+        <div className="video-wrapper">
+
+          <div
+            className="video-overlay"
+            onClick={(e) => {
+              const iframe = e.currentTarget.nextSibling;
+              iframe.src += "&autoplay=1&mute=1";
+              e.currentTarget.style.display = "none";
+            }}
+          >
+            <div className="play-btn">▶</div>
+          </div>
+
+          <iframe
+            src="https://www.youtube.com/embed/suE0g_SpaoM"
+            title="Candidates Dedication Service"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+
+        </div>
+        <h6 className="mt-2 text-center">Sports Day</h6>
+      </div>
     </div>
+
+    {/* VIDEO 2 */}
+    <div className="col-md-4">
+      <div className="video-card">
+        <div className="video-wrapper">
+
+          <div
+            className="video-overlay"
+            onClick={(e) => {
+              const iframe = e.currentTarget.nextSibling;
+              iframe.src += "&autoplay=1&mute=1";
+              e.currentTarget.style.display = "none";
+            }}
+          >
+            <div className="play-btn">▶</div>
+          </div>
+
+          <iframe
+            src="https://www.youtube.com/embed/IbpM7KaVDFg"
+            title="Chief Principal's Speech"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+
+        </div>
+        <h6 className="mt-2 text-center">Chief Principal's Speech</h6>
+      </div>
+    </div>
+
+    {/* VIDEO 3 */}
+    <div className="col-md-4">
+      <div className="video-card">
+        <div className="video-wrapper">
+
+          <div
+            className="video-overlay"
+            onClick={(e) => {
+              const iframe = e.currentTarget.nextSibling;
+              iframe.src += "&autoplay=1&mute=1";
+              e.currentTarget.style.display = "none";
+            }}
+          >
+            <div className="play-btn">▶</div>
+          </div>
+
+          <iframe
+            src="https://www.youtube.com/embed/leQLTGOUaEc"
+            title="Academic Excellence"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+
+        </div>
+        <h6 className="mt-2 text-center">Talent Day</h6>
+      </div>
+    </div>
+
+  </div>
+</section>
+    </div>
+    
   );
+  
 };
+
 
 export default HomePage;
