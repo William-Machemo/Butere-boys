@@ -281,7 +281,7 @@ function Academics() {
         className="btn btn-outline-danger"
         style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
       >
-        Explore Academics
+        View non-teaching Staff
       </Link>
 
     </div>

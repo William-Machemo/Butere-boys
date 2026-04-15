@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 const Alumni = () => {
 
-  // ================= ALUMNI DATA =================
   const alumniData = [
     {
       id: 1,
@@ -42,17 +41,14 @@ const Alumni = () => {
     }
   ];
 
-  // ================= STATE =================
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
 
-  // ================= FILTER =================
   const filtered = alumniData.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase()) ||
     a.profession.toLowerCase().includes(search.toLowerCase())
   );
 
-  // ================= SORT (PIONEER FIRST ALWAYS) =================
   const sorted = [
     ...filtered.filter(a => a.id === 1),
     ...filtered.filter(a => a.id !== 1)
@@ -71,7 +67,7 @@ const Alumni = () => {
 
       <div className="container py-4">
 
-        {/* SEARCH BAR */}
+        {/* SEARCH */}
         <input
           type="text"
           className="form-control mb-4"
@@ -80,7 +76,7 @@ const Alumni = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        {/* ALUMNI LIST */}
+        {/* LIST */}
         {sorted.map((alumni) => (
           <div
             key={alumni.id}
@@ -89,17 +85,21 @@ const Alumni = () => {
             onClick={() => setSelected(alumni)}
           >
 
-            {/* IMAGE LEFT */}
+            {/* IMAGE */}
             <div className="col-md-3 text-center">
               <img
                 src={alumni.image}
                 alt={alumni.name}
                 className="img-fluid rounded"
-                style={{ width: "140px", height: "140px", objectFit: "cover" }}
+                style={{
+                  width: "140px",
+                  height: "140px",
+                  objectFit: "cover"
+                }}
               />
             </div>
 
-            {/* INFO RIGHT */}
+            {/* INFO */}
             <div className="col-md-9">
               <h5 className="fw-bold">{alumni.name}</h5>
               <p className="text-success mb-1">{alumni.profession}</p>
@@ -111,7 +111,7 @@ const Alumni = () => {
 
       </div>
 
-      {/* ================= MODAL ================= */}
+      {/* MODAL (SAFE VERSION) */}
       {selected && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
@@ -125,15 +125,22 @@ const Alumni = () => {
             onClick={(e) => e.stopPropagation()}
           >
 
-            <img
-              src={selected.image}
-              className="img-fluid rounded mb-3"
-              style={{ height: "200px", objectFit: "cover", width: "100%" }}
-            />
+            {selected?.image && (
+              <img
+                src={selected.image}
+                alt={selected.name}
+                className="img-fluid rounded mb-3"
+                style={{
+                  height: "200px",
+                  objectFit: "cover",
+                  width: "100%"
+                }}
+              />
+            )}
 
-            <h4>{selected.name}</h4>
-            <p className="text-success">{selected.profession}</p>
-            <p className="text-muted">{selected.description}</p>
+            <h4>{selected?.name}</h4>
+            <p className="text-success">{selected?.profession}</p>
+            <p className="text-muted">{selected?.description}</p>
 
             <button
               className="btn btn-danger w-100"
