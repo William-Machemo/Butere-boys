@@ -1,74 +1,120 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function CBCForm4Admission() {
-  const [showDetails, setShowDetails] = useState(false);
-
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", maxWidth: "900px", margin: "auto", padding: "25px", lineHeight: "1.7" }}>
-      
-      <h1 style={{ textAlign: "center", color: "#1e88e5" }}>Form 4 Admission Requirements</h1>
-      <h3 style={{ textAlign: "center", color: "#555" }}>From CBC Junior Secondary to High School</h3>
+    <div className="container py-5">
 
-      <hr />
+      <h1 className="text-center text-primary fw-bold">
+        Form 4 Return to School Requirements
+      </h1>
 
-      <h2>✅ Eligibility Criteria</h2>
-      <ul>
-        <li>Successful completion of **Grade 10 (CBC)** curriculum.</li>
-        <li>Demonstrated competency in **core subjects**: English, Kiswahili, Mathematics, Sciences, Social Studies, ICT, Physical Education, and electives.</li>
-        <li>Typical age range: **15–17 years**.</li>
-      </ul>
+      <p className="text-center text-muted mb-5">
+        Requirements for students reporting back from home to continue Form 4 studies
+      </p>
 
-      <h2>📄 Required Documents</h2>
-      <ul>
-        <li>Grade 10 **End-of-Year Report Card**.</li>
-        <li>Recommendation letter from previous school.</li>
-        <li>Birth Certificate or proof of age.</li>
-        <li>Medical Form / Health Check certificate.</li>
-        <li>Proof of school fees payment or sponsorship.</li>
-      </ul>
+      {/* ================= CARDS GRID ================= */}
+      <div className="row g-4">
 
-      <h2>📝 Subject Selection</h2>
-      <ul>
-        <li>All students take **core subjects**: English, Kiswahili, Mathematics, Sciences.</li>
-        <li>Electives depend on the school: ICT, Home Science, Music & Dance, Technical Subjects, Fine Arts, etc.</li>
-        <li>Students must select subjects that align with their career pathway or interests.</li>
-      </ul>
-
-      <h2>⚠️ Other Considerations</h2>
-      <ul>
-        <li>Compliance with school rules and regulations.</li>
-        <li>Boarding students must provide **boarding requirements** such as bedding and personal items.</li>
-        <li>Day students must have **transport arrangements** and follow school attendance guidelines.</li>
-      </ul>
-
-      <button
-        onClick={() => setShowDetails(!showDetails)}
-        style={{
-          padding: "12px 20px",
-          backgroundColor: "#1e88e5",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          marginTop: "20px",
-          fontSize: "16px",
-          borderRadius: "5px"
-        }}
-      >
-        {showDetails ? "Hide Notes" : "Show Notes & Recommendations"}
-      </button>
-
-      {showDetails && (
-        <div style={{ marginTop: "20px", background: "#e3f2fd", padding: "20px", borderRadius: "8px" }}>
-          <h3>Additional Notes</h3>
-          <ul>
-            <li>Schools may have specific cut-off marks or performance requirements.</li>
-            <li>Electives chosen in Form 4 may affect career pathways in tertiary education.</li>
-            <li>Parents/guardians should consult the school for orientation schedules and induction programs.</li>
-            <li>Some schools may require interviews or aptitude tests for specialized programs (e.g., ICT, Music, Marine Technology).</li>
-          </ul>
+        {/* ================= ACADEMIC REQUIREMENTS ================= */}
+        <div className="col-md-6">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h4 className="text-success fw-bold">Academic Requirements</h4>
+              <p>
+                Students must return with all academic documents and be ready for final year learning.
+              </p>
+              <ul>
+                <li>Previous term report forms</li>
+                <li>Completed assignments from home</li>
+                <li>Revision books for Form 4 syllabus</li>
+                <li>Writing materials and calculators</li>
+                <li>Updated timetable and subject notes</li>
+              </ul>
+            </div>
+          </div>
         </div>
-      )}
 
+        {/* ================= BEDDINGS ================= */}
+        <div className="col-md-6">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h4 className="text-success fw-bold">Beddings & Personal Items</h4>
+              <p>
+                Boarding students must come fully prepared for hostel accommodation.
+              </p>
+              <ul>
+                <li>Mattress (standard school size)</li>
+                <li>Blankets (at least 2)</li>
+                <li>Bedsheets and pillowcases</li>
+                <li>Toiletries (soap, towel, toothbrush)</li>
+                <li>Bucket and washing basin</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= SCHOOL SUPPLIES ================= */}
+        <div className="col-md-6">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h4 className="text-success fw-bold">School Supplies</h4>
+              <p>
+                Students must come with essential learning materials.
+              </p>
+              <ul>
+                <li>Story books and revision guides</li>
+                <li>Exercise books (at least 10–15)</li>
+                <li>Ream papers for printing notes</li>
+                <li>Pens, pencils, rulers, and geometry set</li>
+                <li>Scientific calculator</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= FEES ================= */}
+        <div className="col-md-6">
+          <div className="card shadow-sm h-100">
+            <div className="card-body">
+              <h4 className="text-success fw-bold">School Fees & Payments</h4>
+              <p>
+                All students must clear fees before reporting.
+              </p>
+              <ul>
+                <li>School fees (term payment required)</li>
+                <li>Remedial fee for revision classes</li>
+                <li>Form 4 tea money contribution</li>
+                <li>Mpesa Till Number: <strong>323253</strong></li>
+                <li>Receipts must be presented on reporting day</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= ASSIGNMENTS ================= */}
+        <div className="col-12">
+          <div className="card shadow-sm">
+            <div className="card-body text-center">
+              <h4 className="text-success fw-bold">Finished Assignments</h4>
+              <p>
+                Students must submit all holiday assignments upon return to school.
+              </p>
+
+              <ul className="text-start d-inline-block">
+                <li>All holiday homework completed</li>
+                <li>Signed parent acknowledgment forms</li>
+                <li>Project work submissions (where applicable)</li>
+              </ul>
+
+              <Link to="/GetFiles" className="btn btn-primary mt-3">
+                Go to Assignment Page
+              </Link>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

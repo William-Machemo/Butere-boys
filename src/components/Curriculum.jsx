@@ -9,11 +9,11 @@ function Academics() {
   <div className="container" style={{ overflowX: "auto" }}>
 
     <h1 className="fw-bold mt-3">
-      View Our Sports Activities
+      View Our Academic Desk
     </h1>
 
     <p className="text-muted mt-3">
-      Discover talent, teamwork, and excellence through our vibrant Academic programs scheduled in our School.
+      Discover teamwork, and excellence through our vibrant Academic programs scheduled in our School.
     </p>
 
     {/* FIXED BUTTON ROW */}
@@ -252,8 +252,42 @@ function Academics() {
             }}
           />
         </div>
+        
       )}
+<section className="bg-light py-5 text-center">
+  <div className="container" style={{ overflowX: "auto" }}>
 
+    <h1 className="fw-bold mt-3">
+      VIEW MORE PAGES
+    </h1>
+
+    <p className="text-muted mt-2">
+      Stay updated
+    </p>
+
+    {/* FIXED BUTTON ROW */}
+    <div className="mt-4 d-flex justify-content-center align-items-center">
+
+      <Link 
+        to="/OpeningRequirements" 
+        className="btn btn-danger me-2"
+        style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
+      >
+        Opening Requirements
+      </Link>
+      <br />
+      <Link 
+        to="/Parents" 
+        className="btn btn-outline-danger"
+        style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
+      >
+        Explore Academics
+      </Link>
+
+    </div>
+
+  </div>
+</section>
     </div>
   );
 }
