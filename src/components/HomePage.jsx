@@ -16,26 +16,35 @@ const HomePage = () => {
   return (
     <div className="container-fluid">
 <section className="bg-light py-5 text-center">
-  <div className="container">
-    {/* Main Heading */}
+  <div className="container" style={{ overflowX: "auto" }}>
+
     <h1 className="fw-bold mt-3">
       View Our Sports Activities
     </h1>
 
-    {/* Subtitle */}
     <p className="text-muted mt-3">
-      Discover talent, teamwork, and excellence through our vibrant sports programs.
+      Discover talent, teamwork, and excellence through our vibrant sports and Academic programs.
     </p>
 
-    {/* Buttons */}
-    <div className="mt-4">
-      <Link to="/Sports" className="btn btn-danger me-3 px-4">
+    {/* FIXED BUTTON ROW */}
+    <div className="mt-4 d-flex justify-content-center align-items-center">
+
+      <Link 
+        to="/Sports" 
+        className="btn btn-danger me-2"
+        style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
+      >
         Explore Sports
       </Link>
-
-      <Link to="/Curriculum" className="btn btn-outline-danger px-4">
+      <br />
+      <Link 
+        to="/Curriculum" 
+        className="btn btn-outline-danger"
+        style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
+      >
         Explore Academics
       </Link>
+
     </div>
 
   </div>

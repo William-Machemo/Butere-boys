@@ -5,33 +5,40 @@ function Academics() {
 
   return (
     <div className="container mt-4">
+<section className="bg-light py-5 text-center">
+  <div className="container" style={{ overflowX: "auto" }}>
 
-      <section className="bg-light py-5 text-center">
-        <div className="container">
-          {/* Main Heading */}
-          <h1 className="fw-bold mt-3">
-            View Our Academic Desk
-          </h1>
-      
-          {/* Subtitle */}
-          <p className="text-muted mt-3">
-         Butere Boys High School provides a strong academic foundation aimed at
-        excellence in KCSE and beyond.
-          </p>
-      
-          {/* Buttons */}
-          <div className="mt-4">
-            <Link to="/GetFiles" className="btn btn-danger me-3 px-4">
-              View Assignments
-            </Link>
-      
-            <Link to="/Curriculum" className="btn btn-outline-danger px-4">
-              Explore Academics
-            </Link>
-          </div>
-      
-        </div>
-      </section>
+    <h1 className="fw-bold mt-3">
+      View Our Sports Activities
+    </h1>
+
+    <p className="text-muted mt-3">
+      Discover talent, teamwork, and excellence through our vibrant Academic programs scheduled in our School.
+    </p>
+
+    {/* FIXED BUTTON ROW */}
+    <div className="mt-4 d-flex justify-content-center align-items-center">
+
+      <Link 
+        to="/Sports" 
+        className="btn btn-danger me-2"
+        style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
+      >
+        View Assignments
+      </Link>
+      <br />
+      <Link 
+        to="/Curriculum" 
+        className="btn btn-outline-danger"
+        style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
+      >
+        Explore Academics
+      </Link>
+
+    </div>
+
+  </div>
+</section>
   
       {/* KCSE Results Release Section */}
       <section className="mt-5">
