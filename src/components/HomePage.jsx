@@ -15,7 +15,31 @@ const announcements = [
 const HomePage = () => {
   return (
     <div className="container-fluid">
-      <h3><b>Welcome to Butere Boys High School</b></h3>
+<section className="bg-light py-5 text-center">
+  <div className="container">
+    {/* Main Heading */}
+    <h1 className="fw-bold mt-3">
+      View Our Sports Activities
+    </h1>
+
+    {/* Subtitle */}
+    <p className="text-muted mt-3">
+      Discover talent, teamwork, and excellence through our vibrant sports programs.
+    </p>
+
+    {/* Buttons */}
+    <div className="mt-4">
+      <Link to="/Sports" className="btn btn-danger me-3 px-4">
+        Explore Sports
+      </Link>
+
+      <Link to="/Curriculum" className="btn btn-outline-danger px-4">
+        Explore Academics
+      </Link>
+    </div>
+
+  </div>
+</section>
       
 
       {/* ABOUT */}
@@ -84,7 +108,11 @@ const HomePage = () => {
       </section>
 
      <section className="container my-5">
-  <h2 className="fw-bold text-center mb-4">School Talent Day</h2>
+<h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    Cultural Day 
+  </span>
+</h3>
 
   <div className="row g-4">
 
@@ -287,7 +315,12 @@ const HomePage = () => {
 
       </section>
 
-            <h3 className="text-center text-bg-danger">View Our Sports Activities</h3>
+          <h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    View Sports Activities
+  </span>
+</h3>
+<br />
     <div className="marquee-container">
   <div className="marquee-content d-inline-flex gap-3 px-3">
 
@@ -374,8 +407,12 @@ const HomePage = () => {
 </div>
         </div>
       </section>
-
-            <h3 className="text-center text-bg-danger">View Our Top Pages</h3>
+<h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    View top Pages
+  </span>
+</h3>
+<br />
     <div className="marquee-container">
   <div className="marquee-content d-inline-flex gap-3 px-3">
 
@@ -432,7 +469,11 @@ const HomePage = () => {
 
   {/* VIDEO SECTION */}
 <section className="container my-5">
-  <h2 className="fw-bold text-center mb-4"> Butere Boys High School Videos</h2>
+ <h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    School Videos
+  </span>
+</h3>
 
   <div className="row g-4">
 

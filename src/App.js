@@ -314,7 +314,15 @@ function App() {
 
   </nav>
 </header>
-<h5>Butere Boys National School</h5>
+<br></br>
+<h3 className="text-center">
+  <span className="bg-success text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    Welcome to Butere Boys School
+  </span>
+</h3>
+
+
+
         {/* ROUTES (🔥 ALL YOUR ORIGINAL ROUTES KEPT) */}
         <div className="container mt-4 flex-grow-1">
           <Routes>

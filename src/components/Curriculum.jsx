@@ -1,18 +1,38 @@
 import React, { useState } from "react";
-
+import { Link } from "react-router-dom";
 function Academics() {
   const [selectedImage, setSelectedImage] = useState(null);
 
   return (
     <div className="container mt-4">
 
-      {/* Academics Header */}
-      <h1 className="text-success mb-3">Academics</h1>
-      <p>
-        Butere Boys High School provides a strong academic foundation aimed at
+      <section className="bg-light py-5 text-center">
+        <div className="container">
+          {/* Main Heading */}
+          <h1 className="fw-bold mt-3">
+            View Our Academic Desk
+          </h1>
+      
+          {/* Subtitle */}
+          <p className="text-muted mt-3">
+         Butere Boys High School provides a strong academic foundation aimed at
         excellence in KCSE and beyond.
-      </p>
-
+          </p>
+      
+          {/* Buttons */}
+          <div className="mt-4">
+            <Link to="/GetFiles" className="btn btn-danger me-3 px-4">
+              View Assignments
+            </Link>
+      
+            <Link to="/Curriculum" className="btn btn-outline-danger px-4">
+              Explore Academics
+            </Link>
+          </div>
+      
+        </div>
+      </section>
+  
       {/* KCSE Results Release Section */}
       <section className="mt-5">
         <div className="card p-4 shadow-sm">
