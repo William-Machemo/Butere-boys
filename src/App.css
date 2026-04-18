@@ -374,3 +374,12 @@ body {
 body, html {
   overflow-x: hidden;
 }
+
+.carousel-fade .carousel-item {
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.carousel-fade .carousel-item.active {
+  opacity: 1;
+}

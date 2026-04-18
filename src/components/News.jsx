@@ -1,6 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-// Sample news data
 const newsItems = [
   {
     id: 1,
@@ -8,13 +8,8 @@ const newsItems = [
     date: "March 15, 2026",
     author: "School Administration",
     img: "/images/imageD.jpg",
-    description: `
-      Butere Boys Senior School hosted its annual sports day with students
-      from all classes participating in track and field events, football,
-      basketball, and other competitions. The event highlighted teamwork,
-      discipline, and sportsmanship. Teachers, parents, and local community
-      leaders attended, applauding the students for their exceptional performances.
-    `,
+    description:
+      "Butere Boys Senior School hosted its annual sports day with students participating in various competitions including football, basketball, and athletics.",
   },
   {
     id: 2,
@@ -22,12 +17,8 @@ const newsItems = [
     date: "February 10, 2026",
     author: "Principal",
     img: "/images/imageA.jpg",
-    description: `
-      The school library was upgraded with modern books, digital resources,
-      and new study areas. Students now have access to an enhanced learning
-      environment that promotes research, reading habits, and academic
-      excellence. The library also includes quiet zones for focused study.
-    `,
+    description:
+      "The school library has been upgraded with modern books, digital resources, and improved study spaces for students.",
   },
   {
     id: 3,
@@ -35,12 +26,8 @@ const newsItems = [
     date: "January 20, 2026",
     author: "Arts Department",
     img: "/images/1770395995199.jpg",
-    description: `
-      The Drama Club represented Butere Boys Senior School at the National
-      Theatre Festival and won first place. Their performance demonstrated
-      creativity, teamwork, and artistic talent. Students received certificates
-      and trophies, and the event was covered by local media.
-    `,
+    description:
+      "The Drama Club won first place at the National Theatre Festival showcasing creativity and teamwork.",
   },
   {
     id: 4,
@@ -48,110 +35,133 @@ const newsItems = [
     date: "March 5, 2026",
     author: "Academic Office",
     img: "/images/imageC.jpg",
-    description: `
-      Butere Boys Senior School continues to implement the latest updates
-      to the CBC and 8-4-4 curricula. The school focuses on holistic
-      education that balances academics, sports, arts, and leadership
-      skills. Workshops for teachers and students are ongoing to ensure
-      smooth integration of new learning methods.
-    `,
+    description:
+      "The school continues to implement CBC and 8-4-4 curriculum updates for better learning outcomes.",
   },
 ];
+
+const InfoCard = ({ title, text, link }) => (
+  <div className="col-md-6 col-lg-4 mb-4">
+    <div className="card shadow h-100 border-0">
+
+      <div className="card-body d-flex flex-column">
+        <h5 className="fw-bold">{title}</h5>
+        <p className="text-muted small">{text}</p>
+
+        {/* 🔗 CORRECT LINK */}
+        <Link to={link} className="btn btn-danger btn-sm mt-auto">
+          View More
+        </Link>
+      </div>
+
+    </div>
+  </div>
+);
 
 const NewsPage = () => {
   return (
     <div className="container my-5">
 
-      {/* PAGE HEADER */}
-      <header className="mb-5 text-center">
-        <h1 className="fw-bold mb-3">Butere Boys Senior School News & Info</h1>
-        <p className="lead">
-          Stay updated with the latest news, events, and achievements at Butere Boys Senior School. Explore our services, boarding facilities, classes, extracurricular activities, and more.
+      {/* HEADER */}
+      <div className="text-center mb-5">
+        <h1 className="fw-bold">School News & Updates</h1>
+        <p className="text-muted">
+          Latest news, events, and updates from Butere Boys Senior School
         </p>
-      </header>
+      </div>
 
-      {/* NEWS ARTICLES */}
-      <section className="row mb-5">
+      {/* 📰 NEWS CARDS */}
+      <h3 className="mb-4 fw-bold">Latest News</h3>
+
+      <div className="row g-4 mb-5">
         {newsItems.map((news) => (
-          <div key={news.id} className="col-md-6 col-lg-4 mb-4">
-            <div className="card h-100 shadow-sm">
+          <div key={news.id} className="col-lg-6 col-md-6">
+            <div className="card shadow h-100 border-0">
+
               <img
                 src={news.img}
                 className="card-img-top"
                 alt={news.title}
                 style={{ height: "220px", objectFit: "cover" }}
               />
+
               <div className="card-body d-flex flex-column">
-                <h5 className="card-title">{news.title}</h5>
-                <p className="text-muted mb-1">
-                  {news.date} | By {news.author}
+                <h5 className="fw-bold">{news.title}</h5>
+
+                <p className="text-muted small mb-2">
+                  {news.date} | {news.author}
                 </p>
-                <p className="card-text" style={{ whiteSpace: "pre-line" }}>
+
+                <p className="text-secondary small">
                   {news.description}
                 </p>
 
-                {/* FIXED BUTTON */}
-                <button className="btn btn-primary mt-auto">
+                {/* 🔗 FIXED ROUTE */}
+                <Link
+                  to={`/news/${news.id}`}
+                  className="btn btn-primary mt-auto"
+                >
                   Read More
-                </button>
+                </Link>
 
               </div>
+
             </div>
           </div>
         ))}
-      </section>
+      </div>
 
-      {/* BOARDING SECTION */}
-      <section className="mb-5">
-        <h2 className="fw-bold mb-3">Boarding</h2>
-        <p>
-          Butere Boys Senior School offers modern boarding facilities that ensure students live comfortably while focusing on their academics. Dormitories are secure, spacious, and supervised by dedicated housemasters. Students are encouraged to maintain discipline and participate in evening study sessions.
-        </p>
-      </section>
+      {/* INFO SECTIONS WITH PROPER LINKS */}
+      <h3 className="fw-bold mb-3">Boarding</h3>
+      <div className="row">
+        <InfoCard
+          title="Modern Boarding Facilities"
+          text="Spacious dormitories and safe environment."
+          link="/Boarding"
+        />
+        <InfoCard
+          title="Discipline & Study Culture"
+          text="Evening prep and structured routines."
+          link="/boarding-discipline"
+        />
+        <InfoCard
+          title="Student Welfare"
+          text="Housemasters ensure student wellbeing."
+          link="/student-welfare"
+        />
+      </div>
 
-      {/* CLASSES SECTION */}
-      <section className="mb-5">
-        <h2 className="fw-bold mb-3">Classes & Curriculum</h2>
-        <p>
-          The school provides both CBC and 8-4-4 curriculum pathways. Classrooms are equipped with modern teaching aids, science labs, and IT labs to support effective learning. Students benefit from small class sizes and personalized attention from experienced teachers.
-        </p>
-      </section>
+      <h3 className="fw-bold mb-3 mt-4">Classes & Curriculum</h3>
+      <div className="row">
+        <InfoCard title="CBC & 8-4-4" text="Balanced academic systems." link="/Curriculum" />
+        <InfoCard title="Modern Classrooms" text="ICT enabled learning." link="/Classes" />
+        <InfoCard title="Teachers" text="Qualified teaching staff." link="/Teachers" />
+      </div>
 
-      {/* SERVICES SECTION */}
-      <section className="mb-5">
-        <h2 className="fw-bold mb-3">Services</h2>
-        <p>
-          Our school provides a range of services including counseling, career guidance, library access, ICT support, and health care. These services ensure students' holistic growth and address academic, emotional, and physical needs.
-        </p>
-      </section>
+      <h3 className="fw-bold mb-3 mt-4">Services</h3>
+      <div className="row">
+        <InfoCard title="Counseling" text="Student guidance services." link="/counseling" />
+        <InfoCard title="ICT Support" text="Digital learning tools." link="/ict" />
+        <InfoCard title="Health Care" text="Medical support services." link="/health" />
+      </div>
 
-      {/* EXTRACURRICULAR SECTION */}
-      <section className="mb-5">
-        <h2 className="fw-bold mb-3">Extracurricular Activities</h2>
-        <p>
-          Students are encouraged to participate in clubs, sports, drama, music, debate, and community service. These activities build leadership, teamwork, and creativity, complementing the academic program and developing well-rounded students.
-        </p>
-      </section>
+      <h3 className="fw-bold mb-3 mt-4">Activities</h3>
+      <div className="row">
+        <InfoCard title="Sports" text="Football, athletics, etc." link="/sports" />
+        <InfoCard title="Clubs" text="Drama, debate, scouts." link="/Clubs" />
+        <InfoCard title="Arts" text="Music and creativity." link="/arts" />
+      </div>
 
-      {/* ACHIEVEMENTS SECTION */}
-      <section className="mb-5">
-        <h2 className="fw-bold mb-3">Achievements</h2>
-        <p>
-          Butere Boys Senior School has a proud history of academic and sporting excellence. Our students consistently perform well in KCSE exams, national competitions, and extracurricular events. Awards and recognitions reflect the dedication of both staff and students.
-        </p>
-      </section>
-
-      {/* FACILITIES SECTION */}
-      <section className="mb-5">
-        <h2 className="fw-bold mb-3">Facilities</h2>
-        <p>
-          The school offers modern facilities including science and computer laboratories, a library, sports fields, dining halls, and boarding houses. These facilities are maintained to provide a safe and conducive environment for learning and personal development.
-        </p>
-      </section>
+      <h3 className="fw-bold mb-3 mt-4">Facilities</h3>
+      <div className="row">
+        <InfoCard title="Science Labs" text="Modern laboratories." link="/labs" />
+        <InfoCard title="Library" text="Digital & physical books." link="/library" />
+        <InfoCard title="Sports Fields" text="Standard play fields." link="/Sports" />
+      </div>
 
       {/* FOOTER */}
-      <footer className="mt-5 text-center text-muted">
-        <p>© 2026 Butere Boys Senior School. All rights reserved.</p>
+      <footer className="text-center text-muted mt-5">
+        © 2026 Butere Boys Senior School. All rights reserved.
       </footer>
 
     </div>

@@ -1,7 +1,7 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
- 
+import React, { useEffect } from "react";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const announcements = [
@@ -13,8 +13,129 @@ const announcements = [
 ];
 
 const HomePage = () => {
-  return (
-    <div className="container-fluid">
+  
+   useEffect(() => {
+  const bootstrap = require("bootstrap/dist/js/bootstrap.bundle.min.js");
+  const carouselEl = document.querySelector("#mycarousel");
+
+  if (carouselEl) {
+    new bootstrap.Carousel(carouselEl, {
+      interval: 3000,
+      ride: "carousel",
+      pause: false,
+      wrap: true,
+    });
+  }
+}, []);
+
+return (
+  
+  <div className="container-fluid">
+   
+<p className="text-start text-muted px-3">
+Butere Boys High School is a national school located in Butere, Kakamega County, Kenya. 
+It is one of the leading boys’ schools in the Western region, well known for its strong academic tradition, discipline, and holistic education approach.
+</p>
+
+
+    {/* Carousel + Card Section */}
+    <section className="row">
+
+      {/* CAROUSEL (LEFT) */}
+      <div className="col-lg-8 col-md-12 mb-3">
+        <div className="carousel slide carousel-fade" id="mycarousel">
+          
+          <div className="carousel-inner">
+
+            <div className="carousel-item active">
+              <img
+                src="images/1743963068160~2.jpg"
+                alt="slide1"
+                className="d-block w-100 img-fluid"
+                style={{ height: "300px", objectFit: "cover" }}
+              />
+            </div>
+
+            <div className="carousel-item">
+              <img
+                src="images/imageB.jpg"
+                alt="slide2"
+                className="d-block w-100 img-fluid"
+                style={{ height: "300px", objectFit: "cover" }}
+              />
+            </div>
+
+            <div className="carousel-item">
+              <img
+                src="images/imageC.jpg"
+                alt="slide3"
+                className="d-block w-100 img-fluid"
+                style={{ height: "300px", objectFit: "cover" }}
+              />
+            </div>
+
+            <div className="carousel-item">
+              <img
+                src="images/imageE.jpg"
+                alt="slide4"
+                className="d-block w-100 img-fluid"
+                style={{ height: "300px", objectFit: "cover" }}
+              />
+            </div>
+
+          </div>
+
+          {/* PREV BUTTON */}
+          <button
+            className="carousel-control-prev"
+            type="button"
+            data-bs-target="#mycarousel"
+            data-bs-slide="prev"
+          >
+            <span className="carousel-control-prev-icon"></span>
+          </button>
+
+          {/* NEXT BUTTON */}
+          <button
+            className="carousel-control-next"
+            type="button"
+            data-bs-target="#mycarousel"
+            data-bs-slide="next"
+          >
+            <span className="carousel-control-next-icon"></span>
+          </button>
+
+        </div>
+      </div>
+
+      {/* CARD (RIGHT) */}
+      <div className="col-lg-4 col-md-12">
+        <div className="card shadow h-100">
+          <div className="card-body">
+
+            <h5 className="text-center mb-3">Top Pages</h5>
+
+            <div className="d-grid gap-2">
+       <Link to="/Band" className="btn btn-danger">Band Festival</Link>
+            <Link to="/Teachers" className="btn btn-danger">Teachers</Link>
+           <Link to="/StudentLife" className="btn btn-danger">Students</Link>
+             <Link to="/Alumni" className="btn btn-danger">Alumni</Link>
+ <Link to="/Boarding" className="btn btn-danger">Boarding</Link>
+              <Link to="/Clubs" className="btn btn-danger">Clubs & Activities</Link>
+             
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </section>
+    <br />
+  <p className="text-start text-muted px-3">
+The school has consistently produced strong results in the Kenya Certificate of Secondary Education (KCSE) examinations and continues to strive for academic excellence through a dedicated team of teachers and a structured learning environment. 
+Students are guided to achieve their full potential through quality teaching, mentorship, and continuous assessment.
+</p>
+
 <section className="bg-light py-5 text-center">
   <div className="container" style={{ overflowX: "auto" }}>
 
@@ -39,7 +160,7 @@ const HomePage = () => {
       <br />
       <Link 
         to="/Curriculum" 
-        className="btn btn-outline-danger"
+        className="btn btn-danger"
         style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
       >
         Explore Academics
@@ -51,6 +172,10 @@ const HomePage = () => {
 </section>
       
 
+<p className="text-start text-muted px-3">
+Beyond academics, Butere Boys High School is highly active in co-curricular activities including sports, music, drama, scouting, science congress, and debate competitions. 
+These programs help learners develop leadership skills, creativity, teamwork, and confidence.
+</p>
       {/* ABOUT */}
       <section className="py-5 px-3">
         <div className="row">
@@ -416,6 +541,12 @@ const HomePage = () => {
 </div>
         </div>
       </section>
+      
+<p className="text-start text-muted px-3">
+The school is also known for its “Exodus Spirit,” symbolizing discipline, resilience, and unity among students and staff. 
+With ongoing infrastructure development, modern facilities, and a supportive environment, Butere Boys continues to grow as a center of excellence in education.
+</p>
+
 <h3 className="text-center">
   <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
     View top Pages

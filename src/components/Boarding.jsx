@@ -1,94 +1,158 @@
-import React from 'react';
-import '../App.css';
+import React from "react";
+import "../App.css";
 
 const Boarding = () => {
+  const imgStyle = {
+    height: "200px",
+    width: "100%",
+    objectFit: "cover",
+  };
+
+  const DormCard = ({ title, img, desc }) => (
+    <div className="col-md-4 mb-4">
+      <div className="card shadow h-100 border-0">
+
+        <img src={img} alt={title} className="card-img-top" style={imgStyle} />
+
+        <div className="card-body">
+          <h5 className="fw-bold text-danger">{title}</h5>
+          <p className="text-muted small">{desc}</p>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  const MasterCard = ({ name, img, role }) => (
+    <div className="col-md-4 mb-4">
+      <div className="card shadow h-100 border-0 text-center">
+
+        <img
+          src={img}
+          alt={name}
+          className="card-img-top"
+          style={{ height: "260px", objectFit: "cover" }}
+        />
+
+        <div className="card-body">
+          <h5 className="fw-bold">{name}</h5>
+          <p className="text-danger small">{role}</p>
+        </div>
+
+      </div>
+    </div>
+  );
+
   return (
-    <div className="container mt-3">
+    <div className="container my-4">
 
-      <h1 className="text-danger text-center">OVERVIEW</h1>
+      {/* 🔥 HEADER */}
+      <div className="text-center mb-4">
+        <h1 className="fw-bold text-danger">Boarding Life</h1>
+        <p className="text-muted">
+          Structured boarding environment focused on discipline and excellence.
+        </p>
+      </div>
 
-<p><b>Butere Boys High School</b>, located in Kakamega County, is addressing dormitory congestion by improving infrastructure to support its student  population. The school, known for its <i>"Exodus"</i> spirit, continues 
- to modernize its boarding facilities. </p>
+      {/* 👨‍🏫 BOARDING MASTERS SECTION */}
+      <h3 className="text-center fw-bold text-danger mb-4">
+        Boarding Masters
+      </h3>
 
- <p> The school is undergoing construction, including a multi-purpose hall, to support its growth.</p>
+      <div className="row mb-5">
 
- <h2 className="text-center text-danger mt-4"> SCHOOL DORMITORIES </h2>
+        <MasterCard
+          name="Mr. Achara"
+          img="images/master1.jpg"
+          role="Senior Boarding Master"
+        />
 
-   {/* ✅ FIRST ROW */}
- <section className="row p-3">
+        <MasterCard
+          name="Mr. Mbayo"
+          img="images/master2.jpg"
+          role="Deputy Boarding Master (Discipline)"
+        />
 
- <div className="col-md-4 dorm-card">
-   <h5>KATIBA</h5>
- <img src="images/Katiba.jpg" alt="Katiba" className="dorm-img" />
- <p className="text-success"> Students here are known for discipline and excellence in music and drama. </p>
-   </div>
+        <MasterCard
+          name="Mr. Caesar Wanyama"
+          img="images/master3.jpg"
+          role="Deputy Boarding Master (Welfare)"
+        />
 
- <div className="col-md-4 dorm-card">
-<h5>PARLIAMENT</h5>
- <img src="images/Paliament.jpg" alt="Parliament" className="dorm-img" />
- <p className="text-success"> A top academic dormitory known for discipline and leadership. </p>
-  </div>
+      </div>
 
-  <div className="col-md-4 dorm-card">
-  <h5>JAMHURI</h5>
-  <img src="images/Jamhuri.jpg" alt="Jamhuri" className="dorm-img" />
-  <p className="text-success">  Famous for athletics and football excellence. </p>
-   </div>
-
-   </section>
-
-      {/* ✅ SECOND ROW */}
-      <section className="row p-3">
-
-        <div className="col-md-4 dorm-card">
-          <h5>GATUNDU</h5>
-          <img src="images/Gatundu.jpg" alt="Gatundu" className="dorm-img" />
-          <p className="text-success">
-            One of the oldest dormitories known for discipline and cleanliness.
+      {/* 🏫 OVERVIEW */}
+      <div className="card shadow-sm border-0 mb-5">
+        <div className="card-body">
+          <h4 className="text-danger">Overview</h4>
+          <p>
+            Butere Boys High School continues to expand its boarding facilities
+            to support a growing student population under the guidance of the boarding team.
           </p>
         </div>
+      </div>
 
-        <div className="col-md-4 dorm-card">
-          <h5>LANCASTER</h5>
-          <img src="images/Lancaster.jpg" alt="Lancaster" className="dorm-img" />
-          <p className="text-success">
-            Home to footballers and the school canteen.
-          </p>
-        </div>
+      {/* 🛏️ DORMITORIES TITLE */}
+      <h3 className="text-center fw-bold text-danger mb-4">
+        School Dormitories
+      </h3>
 
-        <div className="col-md-4 dorm-card">
-          <h5>HARAMBEE</h5>
-          <img src="images/Harambee.jpg" alt="Harambee" className="dorm-img" />
-          <p className="text-success">
-            Known for rugby, leadership, and co-curricular success.
-          </p>
-        </div>
+      {/* ROW 1 */}
+      <div className="row">
+        <DormCard
+          title="Katiba"
+          img="images/Katiba.jpg"
+          desc="Known for discipline and excellence in music and drama."
+        />
+        <DormCard
+          title="Parliament"
+          img="images/Paliament.jpg"
+          desc="Strong academic culture and leadership development."
+        />
+        <DormCard
+          title="Jamhuri"
+          img="images/Jamhuri.jpg"
+          desc="Famous for athletics and football excellence."
+        />
+      </div>
 
-      </section>
+      {/* ROW 2 */}
+      <div className="row">
+        <DormCard
+          title="Gatundu"
+          img="images/Gatundu.jpg"
+          desc="Oldest dorm known for discipline and cleanliness."
+        />
+        <DormCard
+          title="Lancaster"
+          img="images/Lancaster.jpg"
+          desc="Home to sports excellence and school canteen."
+        />
+        <DormCard
+          title="Harambee"
+          img="images/Harambee.jpg"
+          desc="Known for rugby and leadership success."
+        />
+      </div>
 
-      {/* ✅ THIRD ROW */}
-      <section className="row p-3">
-
-        <div className="col-md-4 dorm-card">
-          <h5>OPARANYA ELITE (I)</h5>
-          <img src="images/Oparanya Elite(I).jpg" alt="Elite 1" className="dorm-img" />
-          <p className="text-success">
-            Reserved for top-performing students in academics.
-          </p>
-        </div>
-
-        <div className="col-md-4 dorm-card">
-          <h5>ELITE II</h5>
-          <img src="images/Elite II (1).jpg" alt="Elite 2" className="dorm-img" />
-        </div>
-
-        <div className="col-md-4 dorm-card">
-          <h5>UGATUZI</h5>
-          <img src="images/Elite II.jpg" alt="UgatuzI" className="dorm-img" />
-        </div>
-
-      </section>
-
+      {/* ROW 3 */}
+      <div className="row">
+        <DormCard
+          title="Oparanya Elite (I)"
+          img="images/Oparanya Elite(I).jpg"
+          desc="Reserved for top academic performers."
+        />
+        <DormCard
+          title="Elite II"
+          img="images/Elite II (1).jpg"
+          desc="Focuses on academic excellence and discipline."
+        />
+        <DormCard
+          title="UgatuzI"
+          img="images/Elite II.jpg"
+          desc="Balanced dorm promoting unity and discipline."
+        />
+      </div>
 
     </div>
   );

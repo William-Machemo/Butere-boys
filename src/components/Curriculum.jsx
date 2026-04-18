@@ -20,7 +20,7 @@ function Academics() {
     <div className="mt-4 d-flex justify-content-center align-items-center">
 
       <Link 
-        to="/Sports" 
+        to="/GetFiles" 
         className="btn btn-danger me-2"
         style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
       >
@@ -28,11 +28,11 @@ function Academics() {
       </Link>
       <br />
       <Link 
-        to="/Curriculum" 
-        className="btn btn-outline-danger"
+        to="/NewsLetter" 
+        className="btn btn-danger"
         style={{ whiteSpace: "nowrap", fontSize: "14px", padding: "5px 9px" }}
       >
-        Explore Academics
+        View News Letter
       </Link>
 
     </div>

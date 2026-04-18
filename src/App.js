@@ -13,6 +13,9 @@ import FootBall from './components/FootBall';
 import BasketBall from './components/BasketBall';
 import Badminton from './components/Badminton';
 import Athletics from './components/Athletics';
+import Band from './components/Band';
+import Scouts from './components/Scouts';
+import Clubs from './components/Clubs';
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -334,7 +337,10 @@ function App() {
             <Route path="/news" element={<News />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/boarding" element={<Boarding />} />
+              <Route path="/scouts" element={<Scouts/>} />
+               <Route path="/clubs" element={<Clubs/>} />
             <Route path="/classes" element={<Classes />} />
+            <Route path="/band" element={<Band />} />
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/curriculum" element={<Curriculum />} />
             <Route path="/services" element={<Services />} />
