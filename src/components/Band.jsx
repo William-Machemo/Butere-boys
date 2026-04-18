@@ -92,10 +92,10 @@ export default function BandFestivalPage() {
             {[
               "Band1.jpg",
               "Band2.jpg",
-              "band3.jpg",
-              "band4.jpg",
-              "band5.jpg",
-              "band6.jpg"
+              "Band3.jpg",
+              "Band4.jpg",
+              "Band5.jpg",
+              "Band6.jpg"
             ].map((img, index) => (
               <div className="col-lg-4 col-md-6" key={index}>
                 <img
