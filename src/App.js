@@ -311,6 +311,8 @@ function App() {
           <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
           <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
           <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
+          <Link className="nav-link text-white px-3" to="/SchoolVideos">School Videos</Link>
+
 
         </div>
 
