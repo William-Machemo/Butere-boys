@@ -63,19 +63,19 @@ const Boarding = () => {
 
         <MasterCard
           name="Mr. Achara"
-          img="images/master1.jpg"
+          img="images/Achara.jpg"
           role="Senior Boarding Master"
         />
 
         <MasterCard
           name="Mr. Mbayo"
-          img="images/master2.jpg"
+          img="images/Achara.jpg"
           role="Deputy Boarding Master (Discipline)"
         />
 
         <MasterCard
           name="Mr. Caesar Wanyama"
-          img="images/master3.jpg"
+          img="images/Caesar.jpg"
           role="Deputy Boarding Master (Welfare)"
         />
 

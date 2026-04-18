@@ -76,7 +76,7 @@ export default function TeachersPage() {
         <div className="col-lg-4 col-md-6">
           <div className="card shadow h-100">
             <img
-              src="images/principal.jpg"
+              src="images/principal.pg.jpg"
               className="card-img-top"
               alt="Principal"
               style={{ height: "280px", objectFit: "cover" }}
@@ -95,7 +95,7 @@ export default function TeachersPage() {
         <div className="col-lg-4 col-md-6">
           <div className="card shadow h-100">
             <img
-              src="images/deputy1.jpg"
+              src="images/Wanzetse.jpg"
               className="card-img-top"
               alt="Deputy Academics"
               style={{ height: "280px", objectFit: "cover" }}
@@ -114,7 +114,7 @@ export default function TeachersPage() {
         <div className="col-lg-4 col-md-6">
           <div className="card shadow h-100">
             <img
-              src="images/deputy2.jpg"
+              src="images/muhati.jpg"
               className="card-img-top"
               alt="Deputy Administration"
               style={{ height: "280px", objectFit: "cover" }}

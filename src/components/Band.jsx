@@ -7,7 +7,7 @@ export default function BandFestivalPage() {
       {/* 🔥 HERO SECTION WITH OVERLAY */}
       <section
         style={{
-          backgroundImage: "url('images/band1.jpg')",
+          backgroundImage: "url('images/band5.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           height: "350px",
@@ -90,8 +90,8 @@ export default function BandFestivalPage() {
 
           <div className="row g-3">
             {[
-              "band1.jpg",
-              "band2.jpg",
+              "Band1.jpg",
+              "Band2.jpg",
               "band3.jpg",
               "band4.jpg",
               "band5.jpg",
