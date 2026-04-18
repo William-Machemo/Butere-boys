@@ -7,7 +7,7 @@ export default function BandFestivalPage() {
       {/* 🔥 HERO SECTION WITH OVERLAY */}
       <section
         style={{
-          backgroundImage: "url('images/band5.jpg')",
+          backgroundImage: "url('images/Band5.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           height: "350px",
