@@ -49,7 +49,7 @@ It is one of the leading boys’ schools in the Western region, well known for i
 
             <div className="carousel-item active">
               <img
-                src="images/1743963068160~2.jpg"
+                src="images/Ghorofa.jpg"
                 alt="slide1"
                 className="d-block w-100 img-fluid"
                 style={{ height: "300px", objectFit: "cover" }}
@@ -58,7 +58,7 @@ It is one of the leading boys’ schools in the Western region, well known for i
 
             <div className="carousel-item">
               <img
-                src="images/imageB.jpg"
+                src="images/Ghorofa4.jpg"
                 alt="slide2"
                 className="d-block w-100 img-fluid"
                 style={{ height: "300px", objectFit: "cover" }}
@@ -67,7 +67,7 @@ It is one of the leading boys’ schools in the Western region, well known for i
 
             <div className="carousel-item">
               <img
-                src="images/imageC.jpg"
+                src="images/News4.jpg"
                 alt="slide3"
                 className="d-block w-100 img-fluid"
                 style={{ height: "300px", objectFit: "cover" }}
@@ -76,7 +76,7 @@ It is one of the leading boys’ schools in the Western region, well known for i
 
             <div className="carousel-item">
               <img
-                src="images/imageE.jpg"
+                src="images/Gate.jpg"
                 alt="slide4"
                 className="d-block w-100 img-fluid"
                 style={{ height: "300px", objectFit: "cover" }}
