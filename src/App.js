@@ -6,6 +6,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import VolleyBall from './components/VolleyBall';
 import TableTennis from './components/TableTennis';
 import Rugby from './components/Rugby';
+import SchoolVideos from './components/SchoolVideos';
 import NetBall from './components/NetBall';
 import Hockey from './components/Hockey';
 import HandBall from './components/HandBall';
@@ -302,6 +303,7 @@ function App() {
           <Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
           <Link className="nav-link text-white px-3" to="/signup">Signup</Link>
           <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
+          <Link className="nav-link text-white px-3" to="/SchoolVideos">Videos</Link>
           <Link className="nav-link text-white px-3" to="/news">News</Link>
           <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
           <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
@@ -363,6 +365,7 @@ function App() {
 
 
             <Route path="/academics" element={<Academics />} />
+             <Route path="/schoolvideos" element={<SchoolVideos />} />
             <Route path="/teachers" element={<Teachers />} />
             <Route path="/newsletter" element={<NewsLetter />} />
             <Route path="/upcomingevents" element={<UpcomingEvents />} />

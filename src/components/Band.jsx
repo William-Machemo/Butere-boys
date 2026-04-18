@@ -108,27 +108,33 @@ export default function BandFestivalPage() {
             ))}
           </div>
         </section>
+{/* 🎥 MULTIPLE VIDEOS */}
+<section className="mb-5">
+  <h3 className="text-center mb-4">Band Performances</h3>
 
-        {/* 🎥 MULTIPLE VIDEOS */}
-        <section className="mb-5">
-          <h3 className="text-center mb-4">Band Performances</h3>
+  <div className="row g-4">
 
-          <div className="row g-4">
+    {[
+      "https://www.youtube.com/embed/5G7v30F1Wlg",
+      "https://www.youtube.com/embed/mWN1fJNMJ1k",
+      "https://www.youtube.com/embed/O5jVmmupi6U",
+      "https://www.youtube.com/embed/bFt7QAN_EHI",
+      "https://www.youtube.com/embed/1woAAkQKqqw"
+    ].map((video, index) => (
+      <div className="col-lg-6" key={index}>
+        <div className="ratio ratio-16x9 shadow">
+          <iframe
+            src={`${video}?autoplay=0&mute=1`}
+            title={`Band Video ${index + 1}`}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </div>
+    ))}
 
-            {[1,2,3,4,5].map((vid, index) => (
-              <div className="col-lg-6" key={index}>
-                <div className="ratio ratio-16x9 shadow">
-                  <iframe
-                    src={`https://www.youtube.com/embed/YOUR_VIDEO_ID_${vid}`}
-                    title={`Band Video ${vid}`}
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              </div>
-            ))}
-
-          </div>
-        </section>
+  </div>
+</section>
 
         {/* 🎺 EXTRA CONTENT */}
         <section className="mb-5 text-center">
