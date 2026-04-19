@@ -16,9 +16,9 @@ export default function SchoolVideosPage() {
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const containerRef = useRef(null);
+  const sectionsRef = useRef([]);
 
-  // 👇 Detect which video is visible
+  // 👇 Detect visible video
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -38,9 +38,28 @@ export default function SchoolVideosPage() {
     return () => observer.disconnect();
   }, []);
 
+  // 🔥 FULLSCREEN FUNCTION (FIXED)
+  const goFullscreen = async (index) => {
+    const el = sectionsRef.current[index];
+    if (!el) return;
+
+    // Enter fullscreen
+    if (el.requestFullscreen) {
+      await el.requestFullscreen();
+    }
+
+    // Try to rotate screen (FIXED ESLINT ERROR HERE)
+    if (window.screen.orientation && window.screen.orientation.lock) {
+      try {
+        await window.screen.orientation.lock("landscape");
+      } catch (err) {
+        console.log("Orientation lock not supported");
+      }
+    }
+  };
+
   return (
     <div
-      ref={containerRef}
       style={{
         height: "100vh",
         overflowY: "scroll",
@@ -50,6 +69,7 @@ export default function SchoolVideosPage() {
       {videoIds.map((id, index) => (
         <section
           key={index}
+          ref={(el) => (sectionsRef.current[index] = el)}
           data-index={index}
           className="video-section"
           style={{
@@ -59,14 +79,15 @@ export default function SchoolVideosPage() {
             backgroundColor: "black",
           }}
         >
+          {/* 🎥 VIDEO */}
           <iframe
             src={
               activeIndex === index
-                ? `https://www.youtube.com/embed/${id}?autoplay=1&mute=1`
-                : `https://www.youtube.com/embed/${id}?mute=1`
+                ? `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=1`
+                : `https://www.youtube.com/embed/${id}?mute=1&controls=1`
             }
             title={`Video ${index}`}
-            allow="autoplay; encrypted-media"
+            allow="autoplay; encrypted-media; fullscreen"
             allowFullScreen
             loading="lazy"
             style={{
@@ -76,7 +97,26 @@ export default function SchoolVideosPage() {
             }}
           ></iframe>
 
-          {/* Overlay */}
+          {/* 🔳 FULLSCREEN BUTTON */}
+          <button
+            onClick={() => goFullscreen(index)}
+            style={{
+              position: "absolute",
+              top: "20px",
+              right: "20px",
+              background: "rgba(0,0,0,0.6)",
+              color: "white",
+              border: "none",
+              padding: "8px 12px",
+              borderRadius: "6px",
+              fontSize: "18px",
+              cursor: "pointer",
+            }}
+          >
+            ⛶
+          </button>
+
+          {/* 📝 OVERLAY */}
           <div
             style={{
               position: "absolute",

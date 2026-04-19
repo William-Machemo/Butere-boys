@@ -121,7 +121,7 @@ It is one of the leading boys’ schools in the Western region, well known for i
            <Link to="/StudentLife" className="btn btn-danger">Students</Link>
              <Link to="/Alumni" className="btn btn-danger">Alumni</Link>
  <Link to="/Boarding" className="btn btn-danger">Boarding</Link>
-              <Link to="/Clubs" className="btn btn-danger">Clubs & Activities</Link>
+              <Link to="/SchoolVideos" className="btn btn-danger">School Videos</Link>
              
             </div>
 

@@ -275,43 +275,37 @@ function App() {
         {/* Auto scrolling nav */}
         <div className="navbar-nav flex-row auto-scroll">
 
-          <Link className="nav-link text-white px-3" to="/homepage">Home</Link>
-          <Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
-          <Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
-          <Link className="nav-link text-white px-3" to="/signup">Signup</Link>
-          <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
-          <Link className="nav-link text-white px-3" to="/news">News</Link>
-          <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
-          <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
-          <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
+<Link className="nav-link text-white px-3" to="/homepage">Home</Link>
+<Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
+<Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
+<Link className="nav-link text-white px-3" to="/signup">Signup</Link>
+<Link className="nav-link text-white px-3" to="/classes">Classes</Link>
+<Link className="nav-link text-white px-3" to="/news">News</Link>
+<Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
+<Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
+<Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
 
-          <Link
-            className="nav-link text-white px-3"
-            to="/Chat"
-            onClick={() => setChatLoginVisible(true)}
-          >
-            Chat
-          </Link>
+<Link className="nav-link text-white px-3" to="/Chat" onClick={() => setChatLoginVisible(true)} >  Chat
+</Link>
 
-          <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
-          <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
-          <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
+<Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
+<Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
+<Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
 
-          {/* 🔁 Duplicate links for smooth continuous scroll */}
-          <Link className="nav-link text-white px-3" to="/homepage">Home</Link>
-          <Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
-          <Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
-          <Link className="nav-link text-white px-3" to="/signup">Signup</Link>
-          <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
-          <Link className="nav-link text-white px-3" to="/SchoolVideos">Videos</Link>
-          <Link className="nav-link text-white px-3" to="/news">News</Link>
-          <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
-          <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
-          <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
-          <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
-          <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
-          <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
-          <Link className="nav-link text-white px-3" to="/SchoolVideos">School Videos</Link>
+<Link className="nav-link text-white px-3" to="/homepage">Home</Link>
+<Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
+<Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
+<Link className="nav-link text-white px-3" to="/signup">Signup</Link>
+<Link className="nav-link text-white px-3" to="/classes">Classes</Link>
+<Link className="nav-link text-white px-3" to="/Clubs">Clubs</Link>
+<Link className="nav-link text-white px-3" to="/news">News</Link>
+<Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
+<Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
+        
+<Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
+<Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
+<Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
+<Link className="nav-link text-white px-3" to="/SchoolVideos">School Videos</Link>
 
 
         </div>
