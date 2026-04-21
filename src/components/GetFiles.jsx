@@ -10,24 +10,22 @@ const GetFiles = () => {
 
   const navigate = useNavigate();
 
-  // 🔐 CHECK LOGIN FIRST
+  // ✅ LOGIN PROTECTION + FETCH FILES
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = localStorage.getItem("user");
 
     if (!user) {
-      alert("Please login first to access assignments");
+      alert("Please login first");
       navigate("/signin");
-      return;
+    } else {
+      fetchFiles();
     }
+  }, [navigate]); // ✅ FIXED ESLINT ERROR
 
-    fetchFiles();
-  }, []);
-
+  // ---------------- FETCH FILES ----------------
   const fetchFiles = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/getfiles`);
-
-      // ✅ SAFE CHECK
       setFiles(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching files:", err);
@@ -35,9 +33,11 @@ const GetFiles = () => {
     }
   };
 
+  // ---------------- VIEW FILE ----------------
   const openFile = (file) => setSelectedFile(file);
   const closeFile = () => setSelectedFile(null);
 
+  // ---------------- DOWNLOAD ----------------
   const downloadFile = async (filename) => {
     try {
       const res = await axios.get(
@@ -57,9 +57,9 @@ const GetFiles = () => {
     }
   };
 
-  // 🔥 SAFE GROUPING
-  const grouped = (files || []).reduce((acc, file) => {
-    if (!file?.grade || !file?.subject) return acc;
+  // ---------------- GROUP FILES ----------------
+  const grouped = files.reduce((acc, file) => {
+    if (!file.grade || !file.subject) return acc;
 
     if (!acc[file.grade]) acc[file.grade] = {};
     if (!acc[file.grade][file.subject]) acc[file.grade][file.subject] = [];
@@ -73,7 +73,7 @@ const GetFiles = () => {
     <div className="container mt-4">
       <h2>Assignments</h2>
 
-      {/* FILE VIEW */}
+      {/* ---------------- FILE VIEW ---------------- */}
       {selectedFile ? (
         <div>
           <button className="btn btn-secondary mb-3" onClick={closeFile}>
@@ -92,8 +92,8 @@ const GetFiles = () => {
           <p><strong>Subject:</strong> {selectedFile.subject}</p>
           <p>{selectedFile.file_description}</p>
 
-          {/* PDF CHECK FIXED */}
-          {selectedFile.file_photo?.toLowerCase().endsWith(".pdf") ? (
+          {/* FILE PREVIEW */}
+          {selectedFile.file_photo?.toLowerCase().endsWith("pdf") ? (
             <iframe
               src={`${API_BASE_URL}/static/images/${selectedFile.file_photo}`}
               width="100%"
@@ -110,6 +110,7 @@ const GetFiles = () => {
           )}
         </div>
       ) : (
+        /* ---------------- FILE LIST ---------------- */
         Object.keys(grouped)
           .sort()
           .map((grade) => (
@@ -132,7 +133,8 @@ const GetFiles = () => {
                         >
                           <div className="card h-100 shadow-sm">
 
-                            {file.file_photo?.toLowerCase().endsWith(".pdf") ? (
+                            {/* FILE PREVIEW IMAGE / PDF LABEL */}
+                            {file.file_photo?.toLowerCase().endsWith("pdf") ? (
                               <div
                                 className="card-body d-flex align-items-center justify-content-center"
                                 style={{ height: "150px", fontWeight: "bold" }}
@@ -154,8 +156,7 @@ const GetFiles = () => {
                               </h6>
 
                               <p className="card-text">
-                                {file.file_description?.substring(0, 50) || ""}
-                                ...
+                                {file.file_description?.substring(0, 50)}...
                               </p>
                             </div>
 
