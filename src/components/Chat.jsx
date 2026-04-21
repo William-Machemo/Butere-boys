@@ -1,185 +1,238 @@
 import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
+import axios from "axios";
+import { io } from "socket.io-client";
 
-// ⚠️ Connect safely
-const socket = io("https://butere-boys-flask-j2x3.onrender.com", {
-  transports: ["websocket", "polling"], // fallback support
+const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
+
+const socket = io(API_BASE_URL, {
+  transports: ["websocket", "polling"],
 });
 
-const Chat = ({ username, role }) => {
+const Chat = () => {
+  const [username, setUsername] = useState("");
+  const [role, setRole] = useState("student");
+  const [joined, setJoined] = useState(false);
+
   const [currentRoom, setCurrentRoom] = useState("");
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [rooms, setRooms] = useState([]);
+
+  const [messagesByRoom, setMessagesByRoom] = useState({});
   const [onlineUsers, setOnlineUsers] = useState([]);
 
-  const ALL_ROOMS = [
+  const ROOMS = [
     "General Chat",
-    "Classes Chat",
-    "Announcement Chat",
-    "Teachers & Parents",
-    "Teachers Only"
+    "Parents Chat",
+    "Teachers Chat",
   ];
 
-  // Set rooms based on role
+  // ---------------- SOCKET ----------------
   useEffect(() => {
-    if (role === "teacher") setRooms(ALL_ROOMS);
-    else if (role === "parent")
-      setRooms(["General Chat", "Announcement Chat", "Teachers & Parents"]);
-  }, [role]);
+    const handleMessage = (msg) => {
+      setMessagesByRoom((prev) => {
+        const roomMsgs = prev[msg.room] || [];
+        return {
+          ...prev,
+          [msg.room]: [...roomMsgs, msg],
+        };
+      });
+    };
 
-  // Socket listeners
-  useEffect(() => {
-    // Receive messages
-    socket.on("message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
+    socket.on("message", handleMessage);
 
-      // Notification
-      if (
-        msg.username !== username &&
-        Notification.permission === "granted"
-      ) {
-        new Notification(`${msg.username}:`, { body: msg.text });
-      }
-    });
-
-    // Receive online users
     socket.on("online_users", (users) => {
       setOnlineUsers(users);
     });
 
-    // Request notification permission
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-
     return () => {
-      socket.off("message");
+      socket.off("message", handleMessage);
       socket.off("online_users");
     };
-  }, [username]);
+  }, []);
 
-  // Join room
-  const joinRoom = (room) => {
+  // ---------------- LOGIN ----------------
+  const enterChat = () => {
+    if (!username.trim()) {
+      alert("Enter username first");
+      return;
+    }
+    setJoined(true);
+    socket.emit("user_joined", { username, role });
+  };
+
+  // ---------------- LOAD MESSAGES ----------------
+  const loadMessages = async (room) => {
+    try {
+      const res = await axios.get(
+        `${API_BASE_URL}/api/chat/${room}`
+      );
+
+      setMessagesByRoom((prev) => ({
+        ...prev,
+        [room]: res.data || [],
+      }));
+    } catch (err) {
+      console.error("Load error:", err);
+    }
+  };
+
+  // ---------------- JOIN ROOM ----------------
+  const joinRoom = async (room) => {
     if (!username) return;
 
-    if (currentRoom) {
-      socket.emit("leave_room", { username });
+    // Teacher protection
+    if (room === "Teachers Chat" && role !== "teacher") {
+      alert("Access denied");
+      return;
+    }
+
+    if (room === "Teachers Chat") {
+      const pass = prompt("Enter teacher password:");
+      if (pass !== "teach123") {
+        alert("Wrong password");
+        return;
+      }
     }
 
     setCurrentRoom(room);
-    setMessages([]);
 
     socket.emit("join_room", { username, room, role });
+
+    // ALWAYS reload from DB (fix persistence issue)
+    await loadMessages(room);
   };
 
-  // Send message
-  const sendMessage = (e) => {
+  // ---------------- SEND MESSAGE ----------------
+  const sendMessage = async (e) => {
     e.preventDefault();
+
     if (!message.trim() || !currentRoom) return;
 
-    const myMsg = {
+    const msgData = {
       username,
       role,
-      text: message,
       room: currentRoom,
+      text: message,
       time: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, myMsg]);
+    // UI update
+    setMessagesByRoom((prev) => ({
+      ...prev,
+      [currentRoom]: [
+        ...(prev[currentRoom] || []),
+        msgData,
+      ],
+    }));
 
-    socket.emit("send_message", myMsg);
+    socket.emit("send_message", msgData);
+
+    try {
+      await axios.post(`${API_BASE_URL}/api/chat/send`, {
+        username,
+        role,
+        room: currentRoom,
+        message,
+      });
+    } catch (err) {
+      console.error(err);
+    }
 
     setMessage("");
   };
 
+  // ---------------- LOGIN SCREEN ----------------
+  if (!joined) {
+    return (
+      <div style={{ padding: 30 }}>
+        <h2>Chat Login</h2>
+
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{ padding: 10, width: 220 }}
+        />
+
+        <br /><br />
+
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          style={{ padding: 10 }}
+        >
+          <option value="student">Student</option>
+          <option value="parent">Parent</option>
+          <option value="teacher">Teacher</option>
+        </select>
+
+        <br /><br />
+
+        <button onClick={enterChat} style={{ padding: 10 }}>
+          Enter Chat
+        </button>
+      </div>
+    );
+  }
+
+  const messages = messagesByRoom[currentRoom] || [];
+
   return (
-    <div className="chat-container d-flex">
+    <div style={{ display: "flex", height: "100vh" }}>
 
       {/* ROOMS */}
-      <div className="rooms p-2 border-end" style={{ minWidth: "200px" }}>
-        <h5>Rooms</h5>
-        {rooms.map((r) => (
+      <div style={{ width: 220, borderRight: "1px solid #ccc", padding: 10 }}>
+        <h4>Rooms</h4>
+
+        {ROOMS.map((r) => (
           <button
             key={r}
-            className={`btn w-100 mb-2 ${
-              currentRoom === r ? "btn-success" : "btn-outline-success"
-            }`}
             onClick={() => joinRoom(r)}
+            style={{
+              width: "100%",
+              marginBottom: 8,
+              padding: 8,
+              background: currentRoom === r ? "green" : "white",
+              color: currentRoom === r ? "white" : "black",
+            }}
           >
             {r}
           </button>
         ))}
 
-        {/* ONLINE USERS */}
-        <div className="mt-4">
-          <h6>Online Users</h6>
-          {onlineUsers.length === 0 ? (
-            <p className="text-muted">No users online</p>
-          ) : (
-            onlineUsers.map((user, i) => (
-              <div key={i} className="small">
-                🟢 {user}
-              </div>
-            ))
-          )}
-        </div>
+        <h5>Online</h5>
+        {onlineUsers.map((u, i) => (
+          <div key={i}>🟢 {u}</div>
+        ))}
       </div>
 
-      {/* CHAT WINDOW */}
-      <div className="chat-window flex-grow-1 p-3 d-flex flex-column">
+      {/* CHAT */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
 
-        {/* MESSAGES */}
-        <div className="messages flex-grow-1 mb-3" style={{ overflowY: "auto" }}>
-          {messages.map((msg, i) => (
+        <div style={{ flex: 1, overflowY: "auto", padding: 10 }}>
+          {messages.map((m, i) => (
             <div
               key={i}
-              className={`mb-2 ${
-                msg.username === username ? "text-end" : "text-start"
-              }`}
+              style={{
+                textAlign: m.username === username ? "right" : "left",
+              }}
             >
-              {!msg.system && (
-                <small className="text-muted">
-                  {msg.username} ({msg.role})
-                </small>
-              )}
-              <div className="p-2 bg-light rounded">
-                {msg.text}
-                {msg.file_name && (
-                  <div>
-                    <a
-                      href={`https://william9605.pythonanywhere.com/download/${msg.file_name}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {msg.file_name}
-                    </a>
-                  </div>
-                )}
+              <small>{m.username} ({m.role})</small>
+              <div style={{ background: "#eee", padding: 6, margin: 5 }}>
+                {m.text}
               </div>
-              <small className="text-muted">
-                {new Date(msg.time).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </small>
             </div>
           ))}
         </div>
 
-        {/* INPUT */}
-        <form className="d-flex" onSubmit={sendMessage}>
+        <form onSubmit={sendMessage} style={{ display: "flex", padding: 10 }}>
           <input
-            type="text"
-            className="form-control me-2"
-            placeholder="Type a message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            style={{ flex: 1, padding: 10 }}
           />
-          <button className="btn btn-success" type="submit">
-            Send
-          </button>
+          <button style={{ marginLeft: 10 }}>Send</button>
         </form>
+
       </div>
     </div>
   );

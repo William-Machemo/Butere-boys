@@ -6,11 +6,11 @@ export default function CBCForm4Admission() {
     <div className="container py-5">
 
       <h1 className="text-center text-primary fw-bold">
-        Form 4 Return to School Requirements
+        Students Return to School Requirements
       </h1>
 
       <p className="text-center text-muted mb-5">
-        Requirements for students reporting back from home to continue Form 4 studies
+        Requirements for students reporting back from home to continue For studies
       </p>
 
       {/* ================= CARDS GRID ================= */}
@@ -22,7 +22,7 @@ export default function CBCForm4Admission() {
             <div className="card-body">
               <h4 className="text-success fw-bold">Academic Requirements</h4>
               <p>
-                Students must return with all academic documents and be ready for final year learning.
+                Students must return with all academic documents and be ready for academic journey
               </p>
               <ul>
                 <li>Previous term report forms</li>

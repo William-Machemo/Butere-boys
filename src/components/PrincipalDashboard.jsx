@@ -12,13 +12,16 @@ const PrincipalDashboard = () => {
   });
 
   const [messages, setMessages] = useState([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  // FETCH DATA AFTER LOGIN
+  // ✅ KEEP LOGIN AFTER REFRESH
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("principalAuth") === "true";
+  });
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchCounts();
@@ -26,36 +29,28 @@ const PrincipalDashboard = () => {
     }
   }, [isAuthenticated]);
 
-  // ---------------- COUNTS ----------------
   const fetchCounts = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/dashboard_counts`, {
-        timeout: 10000,
-      });
-
-      console.log("API RESPONSE:", res.data);
-
+      const res = await axios.get(`${API_BASE_URL}/api/dashboard_counts`);
       setCounts({
         students: Number(res.data?.students) || 0,
         teachers: Number(res.data?.teachers) || 0,
         assignments: Number(res.data?.assignments) || 0,
       });
     } catch (error) {
-      console.error("Error fetching dashboard counts:", error);
+      console.error(error);
     }
   };
 
-  // ---------------- MESSAGES ----------------
   const fetchMessages = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/get_messages`);
       setMessages(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      console.error(error);
     }
   };
 
-  // ---------------- LOGIN ----------------
   const handleLogin = async () => {
     if (!password.trim()) {
       setError("Enter password");
@@ -68,13 +63,20 @@ const PrincipalDashboard = () => {
       });
 
       setIsAuthenticated(true);
+      localStorage.setItem("principalAuth", "true"); // ✅ SAVE LOGIN
       setError("");
-    } catch (err) {
+    } catch {
       setError("Wrong principal password");
     }
   };
 
-  // ---------------- LOGIN SCREEN ----------------
+  // ✅ LOGOUT FUNCTION
+  const handleLogout = () => {
+    localStorage.removeItem("principalAuth");
+    setIsAuthenticated(false);
+  };
+
+  // ================= LOGIN PAGE =================
   if (!isAuthenticated) {
     return (
       <div className="container mt-5">
@@ -84,7 +86,6 @@ const PrincipalDashboard = () => {
 
         <input
           type="password"
-          placeholder="Enter Principal Password"
           className="form-control mb-3"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -97,50 +98,50 @@ const PrincipalDashboard = () => {
     );
   }
 
-  // ---------------- DASHBOARD ----------------
+  // ================= DASHBOARD =================
   return (
     <div className="container mt-4">
       <h2>Principal Dashboard</h2>
 
-      {/* TEACHER SIGNUP */}
+      {/* LOGOUT BUTTON */}
+      <button className="btn btn-danger mb-3" onClick={handleLogout}>
+        Logout
+      </button>
+
       <div className="col-md-3 mb-3 text-center">
         <Link className="btn btn-success w-100 p-3" to="/teachersignup">
           Teachers signup here
         </Link>
       </div>
 
-      {/* COUNTS */}
       <div className="row g-4 mt-3">
         <div className="col-md-4">
           <div
-            className="card bg-warning text-dark p-3"
-            style={{ cursor: "pointer" }}
+            className="card bg-warning p-3"
             onClick={() => navigate("/studentdashboard")}
           >
             <h4>Total Students</h4>
-            <p style={{ fontSize: "24px" }}>{counts.students}</p>
+            <p>{counts.students}</p>
           </div>
         </div>
 
         <div className="col-md-4">
           <div
-            className="card bg-warning text-dark p-3"
-            style={{ cursor: "pointer" }}
+            className="card bg-warning p-3"
             onClick={() => navigate("/teacherdashboard")}
           >
             <h4>Total Teachers</h4>
-            <p style={{ fontSize: "24px" }}>{counts.teachers}</p>
+            <p>{counts.teachers}</p>
           </div>
         </div>
 
         <div className="col-md-4">
           <div
-            className="card bg-warning text-dark p-3"
-            style={{ cursor: "pointer" }}
+            className="card bg-warning p-3"
             onClick={() => navigate("/getfiles")}
           >
             <h4>Total Assignments</h4>
-            <p style={{ fontSize: "24px" }}>{counts.assignments}</p>
+            <p>{counts.assignments}</p>
           </div>
         </div>
       </div>
@@ -150,11 +151,12 @@ const PrincipalDashboard = () => {
         <h3>Messages from Contact Form</h3>
 
         {messages.length === 0 ? (
-          <p className="text-muted">No messages yet</p>
+          <p>No messages yet</p>
         ) : (
           messages.map((msg, index) => (
-            <div key={index} className="card p-3 mb-2 shadow-sm">
-              {msg}
+            <div key={index} className="card p-3 mb-2">
+              <h5>{msg.username}</h5>
+              <p>{msg.message}</p>
             </div>
           ))
         )}

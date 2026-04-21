@@ -17,11 +17,13 @@ import Athletics from './components/Athletics';
 import Band from './components/Band';
 import Scouts from './components/Scouts';
 import Clubs from './components/Clubs';
+import Chat from './components/Chat';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
-import { io } from "socket.io-client";
+
 
 /* ALL COMPONENTS (UNCHANGED) */
 import MpesaPayment from './components/MpesaPayment';
@@ -84,152 +86,19 @@ import GeneralScience from "./components/GeneralScience";
 /* ================= API ================= */
 const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
-/* ================= SOCKET FIX (PRODUCTION SAFE) ================= */
-const socket = io("https://butere-boys-flask-j2x3.onrender.com", {
-  transports: ["polling", "websocket"],
-  withCredentials: true,
-  reconnection: true,
-  reconnectionAttempts: 5,
-  timeout: 10000
-});
-
-const ALL_ROOMS = ["General", "Classes", "Announcements", "Teachers Only"];
-
-/* ================= CHAT ================= */
-function Chat({ username, role }) {
-  const [currentRoom, setCurrentRoom] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [rooms, setRooms] = useState([]);
-
-  useEffect(() => {
-    if (role === "teacher") setRooms(ALL_ROOMS);
-    else if (role === "parent") setRooms(["General", "Announcements"]);
-    else setRooms(["General"]);
-  }, [role]);
-
-  /* FIXED SOCKET LISTENER */
-  useEffect(() => {
-    const handleMessage = (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    };
-
-    socket.on("message", handleMessage);
-
-    return () => {
-      socket.off("message", handleMessage);
-    };
-  }, []);
-
-  const joinRoom = (room) => {
-    if (!username) return;
-
-    if (currentRoom) {
-      socket.emit("leave_room", { username, room: currentRoom });
-    }
-
-    setCurrentRoom(room);
-    setMessages([]);
-
-    socket.emit("join_room", {
-      username,
-      room,
-      role
-    });
-  };
-
-  const sendMessage = (e) => {
-    e.preventDefault();
-
-    if (!message.trim() || !currentRoom) return;
-
-    const msgData = {
-      username,
-      room: currentRoom,
-      text: message,
-      role,
-      time: new Date().toISOString()
-    };
-
-    socket.emit("send_message", msgData);
-    setMessages((prev) => [...prev, msgData]);
-    setMessage("");
-  };
-
-  return (
-    <div className="card p-3 mb-3">
-      <h4>Chat Rooms</h4>
-
-      <div className="d-flex flex-wrap mb-3">
-        {rooms.map((r, i) => (
-          <button
-            key={i}
-            className={`btn me-2 mb-2 ${currentRoom === r ? "btn-primary" : "btn-outline-primary"}`}
-            onClick={() => joinRoom(r)}
-          >
-            {r}
-          </button>
-        ))}
-      </div>
-
-      {currentRoom && (
-        <>
-          <h5>Room: {currentRoom}</h5>
-
-          <div className="border p-3 mb-3" style={{ height: 300, overflowY: "scroll" }}>
-            {messages.map((m, i) => (
-              <div key={i}>
-                <b>{m.username}:</b> {m.text}
-              </div>
-            ))}
-          </div>
-
-          <form className="d-flex" onSubmit={sendMessage}>
-            <input
-              className="form-control me-2"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type message..."
-            />
-            <button className="btn btn-success">Send</button>
-          </form>
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ================= APP ================= */
 function App() {
-  const [chatLoginVisible, setChatLoginVisible] = useState(true);
-  const [role, setRole] = useState("");
-  const [username, setUsername] = useState("");
-  const [chatActive, setChatActive] = useState(false);
 
-  const [loginData, setLoginData] = useState({
-    usernameInput: "",
-    password: ""
-  });
+const [username, setUsername] = useState("");
+const [message, setMessage] = useState("");
 
-  const [message, setMessage] = useState("");
-
-  const loginToChat = () => {
-    if (!loginData.usernameInput || !role) {
-      alert("Fill all fields");
-      return;
-    }
-
-    setUsername(loginData.usernameInput);
-    setChatActive(true);
-    setChatLoginVisible(false);
-  };
 
   const sendContactMessage = async (e) => {
     e.preventDefault();
 
     try {
       await axios.post(`${API_BASE_URL}/api/contact`, {
-        message: `${username}: ${message}`
+        username: username,
+        message: message
       });
 
       setMessage("");
@@ -237,11 +106,13 @@ function App() {
     } catch {
       alert("Failed to send message");
     }
+  
   };
+
 
   return (
     <Router>
-      <div className="App d-flex flex-column min-vh-100 container-fluid p-0">
+     <div className="App d-flex flex-column min-vh-100 container-fluid p-0">
 <header className="bg-danger text-success">
   <nav className="navbar navbar-expand-lg navbar-dark container py-2">
 
@@ -284,9 +155,8 @@ function App() {
 <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
 <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
 <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
+<Link className="nav-link text-white px-3" to="/Chat">Chatboard</Link>
 
-<Link className="nav-link text-white px-3" to="/Chat" onClick={() => setChatLoginVisible(true)} >  Chat
-</Link>
 
 <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
 <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
@@ -325,7 +195,7 @@ function App() {
 
 
         {/* ROUTES (🔥 ALL YOUR ORIGINAL ROUTES KEPT) */}
-        <div className="container mt-4 flex-grow-1">
+       <div className="container-fluid mt-4 flex-grow-1 px-0">
           <Routes>
             <Route path="/" element={<Navigate to="/homepage" />} />
 
@@ -372,7 +242,15 @@ function App() {
             <Route path="/openingrequirements" element={<OpeningRequirements />} />
             <Route path="/kcsepredictions" element={<KcsePredictions />} />
             <Route path="/newfacilities" element={<NewFacilities />} />
-            <Route path="/holidayassignment" element={<HolidayAssignment />} />
+
+           <Route
+  path="/holidayassignment"
+  element={
+    <ProtectedRoute>
+      <HolidayAssignment />
+    </ProtectedRoute>
+  }
+/>
             <Route path="/mainmenu" element={<MainMenu />} />
             <Route path="/getfiles" element={<GetFiles />} />
             <Route path="/addfiles" element={<AddFiles />} />
@@ -383,6 +261,7 @@ function App() {
             <Route path="/teachersignup" element={<TeacherSignUp />} />
             <Route path="/principaldashboard" element={<PrincipalDashboard />} />
             <Route path="/physics" element={<PhysicsPage />} />
+<Route path="/chat" element={<Chat username="John" role="teacher" />} />
             <Route path="/chemistry" element={<Chemistry />} />
             <Route path="/generalscience" element={<GeneralScience />} />
             <Route path="/wood-technology" element={<WoodTechnology />} />
@@ -403,33 +282,12 @@ function App() {
             <Route path="/fine-arts" element={<FineArts />} />
             <Route path="/mathematics" element={<Mathematics />} />
 
-            <Route path="/Chat" element={
-              chatActive ? <Chat username={username} role={role} /> : null
-            } />
+     
 
           </Routes>
 
-          {/* CHAT LOGIN */}
-          {chatLoginVisible && !chatActive && (
-            <div className="card p-3 mb-3">
-              <h4>Login to Chat</h4>
-
-              <input className="form-control mb-2" placeholder="Username"
-                onChange={(e) => setLoginData({ ...loginData, usernameInput: e.target.value })}
-              />
-
-              <select className="form-select mb-2" onChange={(e) => setRole(e.target.value)}>
-                <option value="">Select Role</option>
-                <option value="parent">Parent</option>
-                <option value="teacher">Teacher</option>
-              </select>
-
-              <button className="btn btn-primary" onClick={loginToChat}>
-                Enter Chat
-              </button>
-            </div>
-          )}
-        </div>
+        
+    
 
         {/* FOOTER (UNCHANGED FULL SECTION) */}
         <section className="row bg-success p-3 mt-4">
@@ -483,9 +341,10 @@ function App() {
         <footer className="bg-dark text-white text-center p-3">
           Developed by William @ Sanny Jones © 2026
         </footer>
-
+      </div>
       </div>
     </Router>
+
   );
 }
 

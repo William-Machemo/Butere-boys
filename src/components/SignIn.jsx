@@ -32,9 +32,13 @@ function SignIn() {
 
       alert(data?.message || "Login successful");
 
+      // ✅ IMPORTANT FIX: SAVE USER SESSION
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("role", data.role);
+
       const role = data?.role;
 
-      // FIXED ROUTES (must match App.js routes exactly)
+      // Redirect based on role
       if (role === "student") {
         navigate("/studentdashboard");
       } else if (role === "teacher") {

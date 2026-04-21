@@ -1,24 +1,31 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from flask_socketio import SocketIO
 import pymysql
 import os
 import time
-from flask_socketio import SocketIO
-from datetime import datetime
 
 app = Flask(__name__)
-
 CORS(app)
+
+# ✅ ONLY ONE SOCKETIO INSTANCE
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 PRINCIPAL_PASSWORD = "1234"
 TEACHER_UPLOAD_PASSWORD = "butere123"
+ROOM_PASSWORDS = {
+    "Teachers Only": "teach123",
+}
 
+# ---------------- SOCKET ----------------
+@socketio.on("send_message")
+def handle_send_message(data):
+    print("SOCKET MESSAGE RECEIVED:", data)
+    socketio.emit("message", data, broadcast=True)
 
 def get_connection():
     return pymysql.connect(
@@ -32,34 +39,45 @@ def get_connection():
         write_timeout=60,
         autocommit=True
     )
-
-
-# ---------------- STUDENT SIGNUP ----------------
+@app.before_request
+def log_request():
+    print("REQUEST HIT:", request.path)
+    #student signup 
 @app.route("/api/signup", methods=["POST"])
 def signup():
-    start = time.time()
-
     try:
         data = request.get_json()
+        print("RECEIVED DATA:", request.get_json())
+        print("RAW DATA RECEIVED:", data)  # 🔥 DEBUG (KEEP THIS)
+
+        username = data.get("username")
+        password = data.get("password")
+        phone = data.get("phone")
+        student_class = data.get("class")  # frontend still sends "class"
+
+        if not username or not password or not phone or not student_class:
+            return jsonify({"message": "All fields are required"}), 400
 
         conn = get_connection()
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO users(username, password, phone, role) VALUES(%s,%s,%s,%s)",
-            (data["username"], data["password"], data["phone"], "student")
+            """
+            INSERT INTO users(username, password, phone, student_class, role)
+            VALUES(%s, %s, %s, %s, %s)
+            """,
+            (username, password, phone, student_class, "student")
         )
 
         conn.commit()
         cursor.close()
         conn.close()
 
-        print("SIGNUP TIME:", time.time() - start)  # 👈 ADD THIS
-
-        return jsonify({"message": "Signup successful"})
+        return jsonify({"message": "Signup successful"}), 201
 
     except Exception as e:
         print("SIGNUP ERROR:", e)
+        print("RECEIVED FROM FRONTEND:", data)
         return jsonify({"message": "Signup failed"}), 500
 
 # ---------------- TEACHER SIGNUP ----------------
@@ -137,34 +155,94 @@ def signin():
         return jsonify({"message": str(e)}), 500
 
 
-# ---------------- CHAT (HTTP VERSION) ----------------
-chat_messages = []
 
-@app.route("/api/chat", methods=["POST"])
+# send chat message
+@app.route("/api/chat/send", methods=["POST"])
 def send_chat():
     try:
         data = request.get_json()
 
-        msg = {
-            "username": data.get("username"),
-            "role": data.get("role"),
-            "text": data.get("text"),
-            "time": datetime.now().isoformat()
-        }
+        conn = get_connection()
+        cursor = conn.cursor()
 
-        chat_messages.append(msg)
+        cursor.execute("""
+            INSERT INTO chat_messages (username, role, room, message)
+            VALUES (%s, %s, %s, %s)
+        """, (
+            data["username"],
+            data["role"],
+            data["room"],
+            data["message"]
+        ))
 
-        return jsonify({"message": "sent", "data": msg})
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "saved"})
 
     except Exception as e:
-        return jsonify({"message": str(e)}), 500
+        print("SEND ERROR:", e)
+        return jsonify({"message": "error"}), 500
+    
+        # join chat room
+@app.route("/api/chat/join", methods=["POST"])
+def join_chat():
+    data = request.get_json()
 
+    room = data.get("room")
+    role = data.get("role")
+    password = data.get("password")
 
-@app.route("/api/chat", methods=["GET"])
-def get_chat():
-    return jsonify(chat_messages)
+    # 🔴 ONLY TEACHERS CHAT IS PROTECTED
+    if room == "Teachers Chat":
+        if role != "teacher":
+            return jsonify({"message": "Access denied"}), 403
 
+        if password != "teach123":
+            return jsonify({"message": "Wrong password"}), 401
 
+    return jsonify({"message": "OK"})
+    
+    # get chat messages
+@app.route("/api/chat/<room>", methods=["GET"])
+def get_chat(room):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        print("FETCHING ROOM:", room)  # DEBUG
+
+        cursor.execute("""
+            SELECT username, role, room, message, created_at
+            FROM chat_messages
+            WHERE room = %s
+            ORDER BY created_at ASC
+        """, (room,))
+
+        rows = cursor.fetchall()
+
+        messages = [
+            {
+                "username": r["username"],
+                "role": r["role"],
+                "room": r["room"],
+                "text": r["message"],
+                "time": str(r["created_at"])
+            }
+            for r in rows
+        ]
+
+        cursor.close()
+        conn.close()
+
+        print("FOUND MESSAGES:", len(messages))  # DEBUG
+
+        return jsonify(messages)
+
+    except Exception as e:
+        print("FETCH ERROR:", e)
+        return jsonify([]), 500
 # ---------------- DASHBOARD COUNTS (FIXED STABLE VERSION) ----------------
 @app.route("/api/dashboard_counts", methods=["GET"])
 def dashboard_counts():
@@ -228,7 +306,7 @@ def get_students():
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT user_id AS id, username, phone, role FROM users  WHERE role='student'")
+        cursor.execute("SELECT user_id AS id, username, phone,student_class, role FROM users  WHERE role='student'")
         students = cursor.fetchall()
 
         cursor.close()
@@ -238,6 +316,50 @@ def get_students():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+print("ROUTE HIT")
+@app.route("/api/get_messages", methods=["GET"], strict_slashes=False)
+def get_contact_messages():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM contact_messages ORDER BY id DESC")
+        messages = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(messages)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+# assignment login
+@app.route("/api/verify_user", methods=["POST"])
+def verify_user():
+    data = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT * FROM users 
+        WHERE username=%s AND password=%s
+    """, (username, password))
+
+    user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if user:
+        return jsonify({"valid": True, "user": user})
+
+    return jsonify({"valid": False}), 401
         
 # ---------------- UPLOAD FILES ----------------
 @app.route("/api/addfiles", methods=["POST"])
@@ -294,21 +416,44 @@ def get_files():
 def download_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename, as_attachment=True)
 
-
-# ---------------- CONTACT ----------------
-messages_store = []
-
+    # contact
 @app.route("/api/contact", methods=["POST"])
-def contact():
-    data = request.get_json()
-    messages_store.append(data.get("message"))
-    return jsonify({"message": "Message sent successfully"})
+def save_contact_message():
+    try:
+        data = request.get_json()
+        print("🔥 REQUEST RECEIVED:", data)
 
+        username = data.get("username")
+        message = data.get("message")
 
-@app.route("/api/get_messages")
-def get_messages():
-    return jsonify(messages_store)
+        print("USERNAME:", username)
+        print("MESSAGE:", message)
 
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        sql = "INSERT INTO contact_messages (username, message) VALUES (%s, %s)"
+        values = (username, message)
+
+        print("SQL:", sql)
+        print("VALUES:", values)
+
+        cursor.execute(sql, values)
+        conn.commit()
+
+        print("✅ INSERT DONE")
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Saved successfully"})
+
+    except Exception as e:
+        print("❌ ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
+@app.route("/test", methods=["GET"])
+def test():
+    return "TEST OK"
 
 # ---------------- PRINCIPAL LOGIN ----------------
 @app.route("/api/principal_login", methods=["POST"])
@@ -334,5 +479,6 @@ def home():
 
 # -------------- RUN ----------------
 if __name__ == "__main__":
+    print(app.url_map)
     port = int(os.environ.get("PORT", 10000))
     socketio.run(app, host="0.0.0.0", port=port, debug=False)
