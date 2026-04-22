@@ -25,7 +25,10 @@ ROOM_PASSWORDS = {
 @socketio.on("send_message")
 def handle_send_message(data):
     print("SOCKET MESSAGE RECEIVED:", data)
-    socketio.emit("message", data, to=data.get("room"))
+
+    room = data.get("room")
+
+    socketio.emit("message", data, to=room)
 
 def get_connection():
     return pymysql.connect(
