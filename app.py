@@ -22,14 +22,16 @@ ROOM_PASSWORDS = {
 }
 
 # ---------------- SOCKET ----------------
-@socketio.on("send_message")
-def handle_send_message(data):
-    print("SOCKET MESSAGE RECEIVED:", data)
+from flask_socketio import join_room
 
+@socketio.on("join_room")
+def handle_join(data):
     room = data.get("room")
+    username = data.get("username")
 
-    socketio.emit("message", data, to=room)
+    join_room(room)
 
+    print(f"{username} joined {room}")
 def get_connection():
     return pymysql.connect(
         host="mysql-williammachemo.alwaysdata.net",
