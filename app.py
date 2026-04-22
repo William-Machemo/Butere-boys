@@ -40,7 +40,18 @@ def handle_join(data):
     room = data.get("room")
     username = data.get("username")
 
+    if not room:
+        return
+
     join_room(room)
+
+    # ✅ CONFIRM join
+    socketio.emit("message", {
+        "username": "System",
+        "message": f"{username} joined {room}",
+        "room": room,
+        "time": time.strftime("%H:%M:%S")
+    }, to=room)
 
     print(f"{username} joined {room}")
 def get_connection():

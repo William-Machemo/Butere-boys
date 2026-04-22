@@ -11,6 +11,43 @@ const TEACHER_PASS = "teach123";
 
 const Chat = () => {
   const socketRef = useRef(null);
+  // ✅ SINGLE socket connection (FIXED)
+useEffect(() => {
+  const socket = io(API_BASE_URL, {
+    transports: ["websocket"],
+    withCredentials: true,
+  });
+
+  socketRef.current = socket;
+
+socket.on("connect", () => {
+  console.log("Socket connected:", socket.id);
+
+  // ✅ REJOIN ROOM AFTER RECONNECT
+  if (currentRoom && username) {
+    socket.emit("join_room", { username, room: currentRoom, role });
+  }
+});
+
+  socket.on("message", (msg) => {
+    setMessagesByRoom((prev) => ({
+      ...prev,
+      [msg.room]: [...(prev[msg.room] || []), msg],
+    }));
+  });
+
+  socket.on("online_users", setOnlineUsers);
+
+  socket.on("typing", ({ username: user, room }) => {
+    if (room === currentRoom && user !== username) {
+      setTypingUser(user);
+      setTimeout(() => setTypingUser(""), 1500);
+    }
+  });
+
+  return () => socket.disconnect();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
 useEffect(() => {
   socketRef.current = io(API_BASE_URL, {
@@ -62,54 +99,8 @@ const [privateUser, setPrivateUser] = useState("");
 const [dmMessages, setDmMessages] = useState({});
 
 const messagesEndRef = useRef(null);
-// ================= SOCKET =================
-useEffect(() => {
-  const socket = io(API_BASE_URL, {
-    transports: ["websocket"],
-    withCredentials: true,
-  });
 
-  socketRef.current = socket;
-
-  socket.on("connect", () => {
-    console.log("Socket connected:", socket.id);
-  });
-
-  // ✅ attach listeners HERE (same place)
-  socket.on("message", (msg) => {
-    setMessagesByRoom((prev) => {
-      const updated = [...(prev[msg.room] || []), msg];
-      localStorage.setItem("chat_" + msg.room, JSON.stringify(updated));
-
-      return {
-        ...prev,
-        [msg.room]: updated,
-      };
-    });
-  });
-
-  socket.on("online_users", setOnlineUsers);
-
-  socket.on("typing", ({ username: user, room }) => {
-    if (room === currentRoom && user !== username) {
-      setTypingUser(user);
-      setTimeout(() => setTypingUser(""), 1500);
-    }
-  });
-
-  return () => {
-    socket.disconnect();
-  };
-
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
-  // ================= SCROLL =================
-useEffect(() => {
-  const el = messagesContainerRef.current;
-  if (el) {
-    el.scrollTop = 0; // 👈 go to top
-  }
-}, [currentRoom]);
+  
   // ================= TIME FORMAT =================
  const formatTime = (t) => {
   if (!t) return "";
@@ -138,16 +129,7 @@ socketRef.current.emit("user_joined", {
 
 // useEffect
 useEffect(() => {
-  if (currentRoom) {
-    const saved = localStorage.getItem("chat_" + currentRoom);
 
-    if (saved) {
-      setMessagesByRoom((prev) => ({
-        ...prev,
-        [currentRoom]: JSON.parse(saved),
-      }));
-    }
-  }
 }, [currentRoom]);
 const joinRoom = async (room) => {
 
@@ -164,15 +146,7 @@ const joinRoom = async (room) => {
 
   socketRef.current.emit("join_room", { username, room, role });
 
-  // ✅ LOAD FROM LOCAL STORAGE FIRST (instant)
-  const saved = localStorage.getItem("chat_" + room);
-  if (saved) {
-    setMessagesByRoom((prev) => ({
-      ...prev,
-      [room]: JSON.parse(saved),
-    }));
-  }
-
+ 
   // ✅ THEN FETCH FROM SERVER (update quietly)
   try {
     const res = await axios.get(`${API_BASE_URL}/api/chat/${room}`);
@@ -192,7 +166,7 @@ setMessagesByRoom((prev) => {
       )
   );
 
-  localStorage.setItem("chat_" + room, JSON.stringify(unique));
+
 
   return {
     ...prev,
@@ -222,11 +196,7 @@ setMessagesByRoom((prev) => {
   setMessagesByRoom((prev) => {
     const updatedMessages = [...(prev[currentRoom] || []), msg];
 
-    // 🔥 save EXACT same data
-    localStorage.setItem(
-      "chat_" + currentRoom,
-      JSON.stringify(updatedMessages)
-    );
+  
 
     return {
       ...prev,
