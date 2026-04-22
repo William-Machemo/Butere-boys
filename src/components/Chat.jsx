@@ -51,59 +51,41 @@ const [dmMessages, setDmMessages] = useState({});
 const messagesEndRef = useRef(null);
 // ================= SOCKET =================
 useEffect(() => {
-
-  // 🔥 MESSAGE HANDLER
   const handleMessage = (msg) => {
     setMessagesByRoom((prev) => {
-      const updatedMessages = [
-        ...(prev[msg.room] || []).filter(
-          (m) => !(m.time === msg.time && m.username === msg.username)
-        ),
-        msg,
-      ];
+      const roomMessages = prev[msg.room] || [];
+      const updated = [...roomMessages, msg];
 
-      // ✅ save to localStorage
-      localStorage.setItem(
-        "chat_" + msg.room,
-        JSON.stringify(updatedMessages)
-      );
+      localStorage.setItem("chat_" + msg.room, JSON.stringify(updated));
 
       return {
         ...prev,
-        [msg.room]: updatedMessages,
+        [msg.room]: updated,
       };
     });
   };
 
-  // 🔥 ONLINE USERS
-  const handleOnlineUsers = (users) => {
-    setOnlineUsers(users);
-  };
-
-  // 🔥 TYPING HANDLER
-  const handleTyping = ({ username: user, room }) => {
+  socket.on("message", handleMessage);
+  socket.on("online_users", setOnlineUsers);
+  socket.on("typing", ({ username: user, room }) => {
     if (room === currentRoom && user !== username) {
       setTypingUser(user);
-
-      setTimeout(() => {
-        setTypingUser("");
-      }, 1500);
+      setTimeout(() => setTypingUser(""), 1500);
     }
-  };
+  });
 
-  // ✅ REGISTER EVENTS
-  socket.on("message", handleMessage);
-  socket.on("online_users", handleOnlineUsers);
-  socket.on("typing", handleTyping);
-
-  // ✅ CLEANUP (VERY IMPORTANT)
   return () => {
     socket.off("message", handleMessage);
-    socket.off("online_users", handleOnlineUsers);
-    socket.off("typing", handleTyping);
+    socket.off("online_users");
+    socket.off("typing");
   };
+}, []); // 👈 CRITICAL FIX
 
-}, [username, currentRoom]);
+
+socket.on("connect", () => {
+  console.log("connected");
+});
+
   // ================= SCROLL =================
 useEffect(() => {
   const el = messagesContainerRef.current;
