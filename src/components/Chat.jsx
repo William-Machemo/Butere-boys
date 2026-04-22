@@ -49,42 +49,61 @@ const [privateUser, setPrivateUser] = useState("");
 const [dmMessages, setDmMessages] = useState({});
 
 const messagesEndRef = useRef(null);
-  // ================= SOCKET =================
-  useEffect(() => {
-  socket.on("message", (msg) => {
-  setMessagesByRoom((prev) => {
-    const updated = {
-      ...prev,
-      [msg.room]: [...(prev[msg.room] || []), msg],
-    };
+// ================= SOCKET =================
+useEffect(() => {
 
-    // save history per room
-    localStorage.setItem(
-      "chat_" + msg.room,
-      JSON.stringify(updated[msg.room])
-    );
+  // 🔥 MESSAGE HANDLER
+  const handleMessage = (msg) => {
+    setMessagesByRoom((prev) => {
+      const updatedMessages = [
+        ...(prev[msg.room] || []).filter(
+          (m) => !(m.time === msg.time && m.username === msg.username)
+        ),
+        msg,
+      ];
 
-    return updated;
-  });
-});
-  
-    socket.on("online_users", setOnlineUsers);
+      // ✅ save to localStorage
+      localStorage.setItem(
+        "chat_" + msg.room,
+        JSON.stringify(updatedMessages)
+      );
 
-    socket.on("typing", (user) => {
-      if (user !== username) {
-        setTypingUser(user);
-        setTimeout(() => setTypingUser(""), 1500);
-      }
+      return {
+        ...prev,
+        [msg.room]: updatedMessages,
+      };
     });
+  };
 
-    return () => {
-      socket.off("message");
-      socket.off("private_message");
-      socket.off("online_users");
-      socket.off("typing");
-    };
-  }, [username]);
+  // 🔥 ONLINE USERS
+  const handleOnlineUsers = (users) => {
+    setOnlineUsers(users);
+  };
 
+  // 🔥 TYPING HANDLER
+  const handleTyping = ({ username: user, room }) => {
+    if (room === currentRoom && user !== username) {
+      setTypingUser(user);
+
+      setTimeout(() => {
+        setTypingUser("");
+      }, 1500);
+    }
+  };
+
+  // ✅ REGISTER EVENTS
+  socket.on("message", handleMessage);
+  socket.on("online_users", handleOnlineUsers);
+  socket.on("typing", handleTyping);
+
+  // ✅ CLEANUP (VERY IMPORTANT)
+  return () => {
+    socket.off("message", handleMessage);
+    socket.off("online_users", handleOnlineUsers);
+    socket.off("typing", handleTyping);
+  };
+
+}, [username, currentRoom]);
   // ================= SCROLL =================
 useEffect(() => {
   const el = messagesContainerRef.current;
@@ -131,34 +150,61 @@ useEffect(() => {
 }, [currentRoom]);
 const joinRoom = async (room) => {
 
-  // 🔒 BLOCK TEACHER ROOM FIRST (BEFORE ANYTHING ELSE)
   if (room.trim() === "Teachers Chat") {
     const pass = prompt("Enter teacher password");
-
     if (!pass || pass.trim() !== TEACHER_PASS) {
       alert("Access denied: wrong password");
-      return; // ❌ STOP HERE
+      return;
     }
   }
 
-  // ✅ ONLY AFTER PASS IS CORRECT
   setCurrentRoom(room);
+  localStorage.setItem("room", room);
 
   socket.emit("join_room", { username, room, role });
 
+  // ✅ LOAD FROM LOCAL STORAGE FIRST (instant)
+  const saved = localStorage.getItem("chat_" + room);
+  if (saved) {
+    setMessagesByRoom((prev) => ({
+      ...prev,
+      [room]: JSON.parse(saved),
+    }));
+  }
+
+  // ✅ THEN FETCH FROM SERVER (update quietly)
   try {
     const res = await axios.get(`${API_BASE_URL}/api/chat/${room}`);
 
-    setMessagesByRoom((prev) => ({
-      ...prev,
-      [room]: res.data || [],
-    }));
+    const newMessages = Array.isArray(res.data) ? res.data : [];
+
+setMessagesByRoom((prev) => {
+  const existing = prev[room] || [];
+
+  const merged = [...existing, ...newMessages];
+
+  // remove duplicates
+  const unique = merged.filter(
+    (msg, index, self) =>
+      index === self.findIndex(
+        (m) => m.time === msg.time && m.username === msg.username
+      )
+  );
+
+  localStorage.setItem("chat_" + room, JSON.stringify(unique));
+
+  return {
+    ...prev,
+    [room]: unique,
+  };
+});
+
   } catch (err) {
     console.log("Failed to load messages", err);
   }
 };
   // ================= SEND MESSAGE =================
-  const sendMessage = async (e) => {
+ const sendMessage = async (e) => {
   e.preventDefault();
   if (!message.trim()) return;
 
@@ -166,32 +212,32 @@ const joinRoom = async (room) => {
     username,
     role,
     room: currentRoom,
-    message: message, // MUST be message (not text)
+    message: message,
     time: new Date().toISOString(),
     profilePic,
   };
 
-  // 🔥 optimistic UI update
-  setMessagesByRoom((prev) => ({
-    ...prev,
-    [currentRoom]: [...(prev[currentRoom] || []), msg],
-  }));
+  // ✅ SINGLE SOURCE OF TRUTH (state + localStorage together)
+  setMessagesByRoom((prev) => {
+    const updatedMessages = [...(prev[currentRoom] || []), msg];
 
+    // 🔥 save EXACT same data
+    localStorage.setItem(
+      "chat_" + currentRoom,
+      JSON.stringify(updatedMessages)
+    );
+
+    return {
+      ...prev,
+      [currentRoom]: updatedMessages,
+    };
+  });
+
+  // send to backend + socket
   socket.emit("send_message", msg);
 
   try {
     await axios.post(`${API_BASE_URL}/api/chat/send`, msg);
-
-    // 🔥 reload messages after saving (IMPORTANT FIX)
-    const res = await axios.get(`${API_BASE_URL}/api/chat/${currentRoom}`);
-
-    setMessagesByRoom((prev) => ({
-      ...prev,
-      [currentRoom]: (res.data || []).map((m) => ({
-        ...m,
-        message: m.message || m.text,
-      })),
-    }));
   } catch (err) {
     console.log("Send error:", err.message);
   }
@@ -270,11 +316,20 @@ const joinRoom = async (room) => {
 
       {/* TOP ROOMS */}
       <div style={styles.topBar}>
-        {ROOMS.map((r) => (
-          <div key={r} onClick={() => joinRoom(r)} style={styles.room}>
-            {r}
-          </div>
-        ))}
+     {ROOMS.map((r) => (
+  <div
+    key={r}
+    onClick={() => joinRoom(r)}
+    style={{
+      ...styles.room,
+      background: currentRoom === r ? "#4CAF50" : "#eee",
+      color: currentRoom === r ? "white" : "black",
+      fontWeight: currentRoom === r ? "bold" : "normal",
+    }}
+  >
+    {r}
+  </div>
+))}
         <button onClick={() => setDark(!dark)}>🌙</button>
       </div>
 
@@ -352,8 +407,16 @@ const joinRoom = async (room) => {
         <b>{m.from}</b>: {m.message}
       </div>
     ))}
-
-  {typingUser && <i>{typingUser} typing...</i>}
+{typingUser && (
+  <div style={{ fontStyle: "italic", marginTop: 5 }}>
+    {typingUser} is typing
+    <span className="typing-dots">
+      <span>.</span>
+      <span>.</span>
+      <span>.</span>
+    </span>
+  </div>
+)}
 
   <div ref={messagesEndRef} />
 </div>
@@ -366,10 +429,17 @@ const joinRoom = async (room) => {
 
             <input
               value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                socket.emit("typing", username);
-              }}
+             onChange={(e) => {
+  setMessage(e.target.value);
+
+  if (!currentRoom || !username) return; // ✅ safety check
+  if (!socket.connected) return;         // ✅ socket safety
+
+  socket.emit("typing", {
+    username,
+    room: currentRoom,
+  });
+}}
               style={styles.input}
             />
 
