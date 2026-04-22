@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+
+from flask_socketio import join_room
 from flask_socketio import SocketIO
 import pymysql
 import os
@@ -22,7 +24,16 @@ ROOM_PASSWORDS = {
 }
 
 # ---------------- SOCKET ----------------
-from flask_socketio import join_room
+@socketio.on("send_message")
+def handle_send_message(data):
+    print("SOCKET MESSAGE RECEIVED:", data)
+
+    room = data.get("room")
+
+    # send ONLY to room
+    socketio.emit("message", data, to=room)
+
+
 
 @socketio.on("join_room")
 def handle_join(data):
