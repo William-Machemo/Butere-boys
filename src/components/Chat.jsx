@@ -4,65 +4,15 @@ import { io } from "socket.io-client";
 
 const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
+const socket = io(API_BASE_URL, {
+  transports: ["websocket", "polling"],
+});
 
 const ROOMS = ["General Chat", "Parents Chat", "Teachers Chat"];
 const emojis = ["😀", "😂", "😍", "🔥", "👍", "🎉", "❤️"];
 const TEACHER_PASS = "teach123";
 
 const Chat = () => {
-  const socketRef = useRef(null);
-  // ✅ SINGLE socket connection (FIXED)
-useEffect(() => {
-  const socket = io(API_BASE_URL, {
-    transports: ["websocket"],
-    withCredentials: true,
-  });
-
-  socketRef.current = socket;
-
-socket.on("connect", () => {
-  console.log("Socket connected:", socket.id);
-
-  // ✅ REJOIN ROOM AFTER RECONNECT
-  if (currentRoom && username) {
-    socket.emit("join_room", { username, room: currentRoom, role });
-  }
-});
-
-  socket.on("message", (msg) => {
-    setMessagesByRoom((prev) => ({
-      ...prev,
-      [msg.room]: [...(prev[msg.room] || []), msg],
-    }));
-  });
-
-  socket.on("online_users", setOnlineUsers);
-
-  socket.on("typing", ({ username: user, room }) => {
-    if (room === currentRoom && user !== username) {
-      setTypingUser(user);
-      setTimeout(() => setTypingUser(""), 1500);
-    }
-  });
-
-  return () => socket.disconnect();
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
-
-useEffect(() => {
-  socketRef.current = io(API_BASE_URL, {
-    transports: ["websocket"],
-    withCredentials: true,
-  });
-
-  socketRef.current.on("connect", () => {
-    console.log("Socket connected:", socketRef.current.id);
-  });
-
-  return () => {
-    socketRef.current.disconnect();
-  };
-}, []);
 
  const [username, setUsername] = useState(
   localStorage.getItem("username") || ""
@@ -99,8 +49,68 @@ const [privateUser, setPrivateUser] = useState("");
 const [dmMessages, setDmMessages] = useState({});
 
 const messagesEndRef = useRef(null);
+// ================= SOCKET =================
+useEffect(() => {
 
-  
+  // 🔥 MESSAGE HANDLER
+  const handleMessage = (msg) => {
+    setMessagesByRoom((prev) => {
+      const updatedMessages = [
+        ...(prev[msg.room] || []).filter(
+          (m) => !(m.time === msg.time && m.username === msg.username)
+        ),
+        msg,
+      ];
+
+      // ✅ save to localStorage
+      localStorage.setItem(
+        "chat_" + msg.room,
+        JSON.stringify(updatedMessages)
+      );
+
+      return {
+        ...prev,
+        [msg.room]: updatedMessages,
+      };
+    });
+  };
+
+  // 🔥 ONLINE USERS
+  const handleOnlineUsers = (users) => {
+    setOnlineUsers(users);
+  };
+
+  // 🔥 TYPING HANDLER
+  const handleTyping = ({ username: user, room }) => {
+    if (room === currentRoom && user !== username) {
+      setTypingUser(user);
+
+      setTimeout(() => {
+        setTypingUser("");
+      }, 1500);
+    }
+  };
+
+  // ✅ REGISTER EVENTS
+  socket.on("message", handleMessage);
+  socket.on("online_users", handleOnlineUsers);
+  socket.on("typing", handleTyping);
+
+  // ✅ CLEANUP (VERY IMPORTANT)
+  return () => {
+    socket.off("message", handleMessage);
+    socket.off("online_users", handleOnlineUsers);
+    socket.off("typing", handleTyping);
+  };
+
+}, [username, currentRoom]);
+  // ================= SCROLL =================
+useEffect(() => {
+  const el = messagesContainerRef.current;
+  if (el) {
+    el.scrollTop = 0; // 👈 go to top
+  }
+}, [currentRoom]);
   // ================= TIME FORMAT =================
  const formatTime = (t) => {
   if (!t) return "";
@@ -118,18 +128,25 @@ const enterChat = () => {
 
   setJoined(true);
 
-if (!socketRef.current) return;
-
-socketRef.current.emit("user_joined", {
-  username,
-  role,
-  profilePic,
-});
+  socket.emit("user_joined", {
+    username,
+    role,
+    profilePic,
+  });
 };
 
 // useEffect
 useEffect(() => {
+  if (currentRoom) {
+    const saved = localStorage.getItem("chat_" + currentRoom);
 
+    if (saved) {
+      setMessagesByRoom((prev) => ({
+        ...prev,
+        [currentRoom]: JSON.parse(saved),
+      }));
+    }
+  }
 }, [currentRoom]);
 const joinRoom = async (room) => {
 
@@ -144,9 +161,17 @@ const joinRoom = async (room) => {
   setCurrentRoom(room);
   localStorage.setItem("room", room);
 
-  socketRef.current.emit("join_room", { username, room, role });
+  socket.emit("join_room", { username, room, role });
 
- 
+  // ✅ LOAD FROM LOCAL STORAGE FIRST (instant)
+  const saved = localStorage.getItem("chat_" + room);
+  if (saved) {
+    setMessagesByRoom((prev) => ({
+      ...prev,
+      [room]: JSON.parse(saved),
+    }));
+  }
+
   // ✅ THEN FETCH FROM SERVER (update quietly)
   try {
     const res = await axios.get(`${API_BASE_URL}/api/chat/${room}`);
@@ -166,7 +191,7 @@ setMessagesByRoom((prev) => {
       )
   );
 
-
+  localStorage.setItem("chat_" + room, JSON.stringify(unique));
 
   return {
     ...prev,
@@ -196,7 +221,11 @@ setMessagesByRoom((prev) => {
   setMessagesByRoom((prev) => {
     const updatedMessages = [...(prev[currentRoom] || []), msg];
 
-  
+    // 🔥 save EXACT same data
+    localStorage.setItem(
+      "chat_" + currentRoom,
+      JSON.stringify(updatedMessages)
+    );
 
     return {
       ...prev,
@@ -205,7 +234,7 @@ setMessagesByRoom((prev) => {
   });
 
   // send to backend + socket
-  socketRef.current.emit("send_message", msg);
+  socket.emit("send_message", msg);
 
   try {
     await axios.post(`${API_BASE_URL}/api/chat/send`, msg);
@@ -228,7 +257,7 @@ setMessagesByRoom((prev) => {
       profilePic,
     };
 
-    socketRef.current.emit("private_message", msg);
+    socket.emit("private_message", msg);
 
     setDmMessages((prev) => ({
       ...prev,
@@ -245,7 +274,7 @@ setMessagesByRoom((prev) => {
 
     await axios.post(`${API_BASE_URL}/api/addfiles`, form);
 
-    socketRef.current.emit("send_message", {
+    socket.emit("send_message", {
       username,
       room: currentRoom,
       file: file.name,
@@ -404,9 +433,9 @@ setMessagesByRoom((prev) => {
   setMessage(e.target.value);
 
   if (!currentRoom || !username) return; // ✅ safety check
-  if (!socketRef.current || !socketRef.current.connected) return;        // ✅ socket safety
+  if (!socket.connected) return;         // ✅ socket safety
 
-  socketRef.current.emit("typing", {
+  socket.emit("typing", {
     username,
     room: currentRoom,
   });
