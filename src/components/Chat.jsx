@@ -64,50 +64,45 @@ const [dmMessages, setDmMessages] = useState({});
 const messagesEndRef = useRef(null);
 // ================= SOCKET =================
 useEffect(() => {
-  const socket = socketRef.current;
+  const socket = io(API_BASE_URL, {
+    transports: ["websocket"],
+    withCredentials: true,
+  });
 
-  if (!socket) return;
+  socketRef.current = socket;
 
-  const handleMessage = (msg) => {
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+  });
+
+  // ✅ attach listeners HERE (same place)
+  socket.on("message", (msg) => {
     setMessagesByRoom((prev) => {
-      const updatedMessages = [
-        ...(prev[msg.room] || []).filter(
-          (m) => !(m.time === msg.time && m.username === msg.username)
-        ),
-        msg,
-      ];
-
-      localStorage.setItem("chat_" + msg.room, JSON.stringify(updatedMessages));
+      const updated = [...(prev[msg.room] || []), msg];
+      localStorage.setItem("chat_" + msg.room, JSON.stringify(updated));
 
       return {
         ...prev,
-        [msg.room]: updatedMessages,
+        [msg.room]: updated,
       };
     });
-  };
+  });
 
-  const handleOnlineUsers = (users) => {
-    setOnlineUsers(users);
-  };
+  socket.on("online_users", setOnlineUsers);
 
-  const handleTyping = ({ username: user, room }) => {
+  socket.on("typing", ({ username: user, room }) => {
     if (room === currentRoom && user !== username) {
       setTypingUser(user);
       setTimeout(() => setTypingUser(""), 1500);
     }
-  };
-
-  // 🔥 FORCE ATTACH AFTER CONNECT
-socket.on("message", handleMessage);
-socket.on("online_users", handleOnlineUsers);
-socket.on("typing", handleTyping);
+  });
 
   return () => {
-    socket.off("message", handleMessage);
-    socket.off("online_users", handleOnlineUsers);
-    socket.off("typing", handleTyping);
+    socket.disconnect();
   };
-}, [currentRoom, username]);
+
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
   // ================= SCROLL =================
 useEffect(() => {
   const el = messagesContainerRef.current;
@@ -132,11 +127,13 @@ const enterChat = () => {
 
   setJoined(true);
 
-  socketRef.current.emit("user_joined", {
-    username,
-    role,
-    profilePic,
-  });
+if (!socketRef.current) return;
+
+socketRef.current.emit("user_joined", {
+  username,
+  role,
+  profilePic,
+});
 };
 
 // useEffect
@@ -437,7 +434,7 @@ setMessagesByRoom((prev) => {
   setMessage(e.target.value);
 
   if (!currentRoom || !username) return; // ✅ safety check
-  if (!socketRef.current.connected) return;         // ✅ socket safety
+  if (!socketRef.current || !socketRef.current.connected) return;        // ✅ socket safety
 
   socketRef.current.emit("typing", {
     username,
