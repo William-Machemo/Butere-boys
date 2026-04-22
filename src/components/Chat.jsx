@@ -13,6 +13,7 @@ const emojis = ["😀", "😂", "😍", "🔥", "👍", "🎉", "❤️"];
 const TEACHER_PASS = "teach123";
 
 const Chat = () => {
+
  const [username, setUsername] = useState(
   localStorage.getItem("username") || ""
 );
@@ -24,6 +25,7 @@ const [role, setRole] = useState(
 const [profilePic, setProfilePic] = useState(
   localStorage.getItem("profilePic") || ""
 );
+const messagesContainerRef = useRef(null);
 
 const [joined, setJoined] = useState(
   localStorage.getItem("joined") === "true"
@@ -49,22 +51,23 @@ const [dmMessages, setDmMessages] = useState({});
 const messagesEndRef = useRef(null);
   // ================= SOCKET =================
   useEffect(() => {
-    socket.on("message", (msg) => {
-      setMessagesByRoom((prev) => ({
-        ...prev,
-        [msg.room]: [...(prev[msg.room] || []), msg],
-      }));
-    });
+  socket.on("message", (msg) => {
+  setMessagesByRoom((prev) => {
+    const updated = {
+      ...prev,
+      [msg.room]: [...(prev[msg.room] || []), msg],
+    };
 
-    socket.on("private_message", (msg) => {
-      const key = msg.from === username ? msg.to : msg.from;
+    // save history per room
+    localStorage.setItem(
+      "chat_" + msg.room,
+      JSON.stringify(updated[msg.room])
+    );
 
-      setDmMessages((prev) => ({
-        ...prev,
-        [key]: [...(prev[key] || []), msg],
-      }));
-    });
-
+    return updated;
+  });
+});
+  
     socket.on("online_users", setOnlineUsers);
 
     socket.on("typing", (user) => {
@@ -83,10 +86,12 @@ const messagesEndRef = useRef(null);
   }, [username]);
 
   // ================= SCROLL =================
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  });
-
+useEffect(() => {
+  const el = messagesContainerRef.current;
+  if (el) {
+    el.scrollTop = 0; // 👈 go to top
+  }
+}, [currentRoom]);
   // ================= TIME FORMAT =================
  const formatTime = (t) => {
   if (!t) return "";
@@ -111,18 +116,32 @@ const enterChat = () => {
   });
 };
 
-  // ================= JOIN ROOM =================
-  const joinRoom = async (room) => {
-  if (room === "Teachers Chat" && role !== "teacher") {
-    return alert("Access denied");
+// useEffect
+useEffect(() => {
+  if (currentRoom) {
+    const saved = localStorage.getItem("chat_" + currentRoom);
+
+    if (saved) {
+      setMessagesByRoom((prev) => ({
+        ...prev,
+        [currentRoom]: JSON.parse(saved),
+      }));
+    }
+  }
+}, [currentRoom]);
+const joinRoom = async (room) => {
+
+  // 🔒 BLOCK TEACHER ROOM FIRST (BEFORE ANYTHING ELSE)
+  if (room.trim() === "Teachers Chat") {
+    const pass = prompt("Enter teacher password");
+
+    if (!pass || pass.trim() !== TEACHER_PASS) {
+      alert("Access denied: wrong password");
+      return; // ❌ STOP HERE
+    }
   }
 
-  if (room === "Teachers Chat") {
-    const pass = prompt("Teacher password");
-    if (pass !== TEACHER_PASS) return alert("Wrong password");
-  }
-
-  setPrivateUser("");
+  // ✅ ONLY AFTER PASS IS CORRECT
   setCurrentRoom(room);
 
   socket.emit("join_room", { username, room, role });
@@ -132,16 +151,12 @@ const enterChat = () => {
 
     setMessagesByRoom((prev) => ({
       ...prev,
-      [room]: (res.data || []).map((m) => ({
-        ...m,
-        message: m.message || m.text, // 🔥 normalize
-      })),
+      [room]: res.data || [],
     }));
   } catch (err) {
-    console.log("Load messages error:", err.message);
+    console.log("Failed to load messages", err);
   }
 };
-
   // ================= SEND MESSAGE =================
   const sendMessage = async (e) => {
   e.preventDefault();
@@ -293,47 +308,55 @@ const enterChat = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-     {messages.map((m, i) => {
-  const isMine = m.username === username;
 
-  return (
-    <div
-      key={i}
-      style={{
-        display: "flex",
-        justifyContent: isMine ? "flex-end" : "flex-start",
-        width: "100%",
-        marginBottom: 8,
-      }}
-    >
+{/* ✅ ADD THIS WRAPPER */}
+<div
+  ref={messagesContainerRef}
+  style={styles.messages}
+>
+  {messages.map((m, i) => {
+    const isMine = m.username === username;
+
+    return (
       <div
+        key={i}
         style={{
-          maxWidth: "70%",
-          padding: 10,
-          borderRadius: 12,
-          background: isMine ? "#dcf8c6" : "#fff",
-          wordBreak: "break-word",
+          display: "flex",
+          justifyContent: isMine ? "flex-end" : "flex-start",
+          width: "100%",
+          marginBottom: 8,
         }}
       >
-        <b>{m.username}</b>
-        <div>{m.text || m.message}</div>
-        <small>{formatTime(m.time)}</small>
-        {isMine && <div>✔✔</div>}
+        <div
+          style={{
+            maxWidth: "70%",
+            padding: 10,
+            borderRadius: 12,
+            background: isMine ? "#dcf8c6" : "#fff",
+            wordBreak: "break-word",
+          }}
+        >
+          <b>{m.username}</b>
+          <div>{m.text || m.message}</div>
+          <small>{formatTime(m.time)}</small>
+          {isMine && <div>✔✔</div>}
+        </div>
       </div>
-    </div>
-  );
-})}
-          {/* DM */}
-          {privateUser &&
-            dms.map((m, i) => (
-              <div key={i}>
-                <b>{m.from}</b>: {m.message}
-              </div>
-            ))}
+    );
+  })}
 
-          {typingUser && <i>{typingUser} typing...</i>}
-          <div ref={messagesEndRef} />
+  {/* DM */}
+  {privateUser &&
+    dms.map((m, i) => (
+      <div key={i}>
+        <b>{m.from}</b>: {m.message}
+      </div>
+    ))}
 
+  {typingUser && <i>{typingUser} typing...</i>}
+
+  <div ref={messagesEndRef} />
+</div>
           {/* INPUT */}
           <form onSubmit={sendMessage} style={styles.inputArea}>
 
