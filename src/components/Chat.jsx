@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 
@@ -8,234 +8,492 @@ const socket = io(API_BASE_URL, {
   transports: ["websocket", "polling"],
 });
 
+const ROOMS = ["General Chat", "Parents Chat", "Teachers Chat"];
+const emojis = ["😀", "😂", "😍", "🔥", "👍", "🎉", "❤️"];
+const TEACHER_PASS = "teach123";
+
 const Chat = () => {
-  const [username, setUsername] = useState("");
-  const [role, setRole] = useState("student");
-  const [joined, setJoined] = useState(false);
+ const [username, setUsername] = useState(
+  localStorage.getItem("username") || ""
+);
 
-  const [currentRoom, setCurrentRoom] = useState("");
-  const [message, setMessage] = useState("");
+const [role, setRole] = useState(
+  localStorage.getItem("role") || "student"
+);
 
-  const [messagesByRoom, setMessagesByRoom] = useState({});
-  const [onlineUsers, setOnlineUsers] = useState([]);
+const [profilePic, setProfilePic] = useState(
+  localStorage.getItem("profilePic") || ""
+);
 
-  const ROOMS = [
-    "General Chat",
-    "Parents Chat",
-    "Teachers Chat",
-  ];
+const [joined, setJoined] = useState(
+  localStorage.getItem("joined") === "true"
+);
 
-  // ---------------- SOCKET ----------------
+const [currentRoom, setCurrentRoom] = useState(
+  localStorage.getItem("room") || ""
+);
+
+const [message, setMessage] = useState("");
+
+const [messagesByRoom, setMessagesByRoom] = useState({});
+const [onlineUsers, setOnlineUsers] = useState([]);
+
+const [typingUser, setTypingUser] = useState("");
+const [search, setSearch] = useState("");
+const [dark, setDark] = useState(false);
+const [showEmoji, setShowEmoji] = useState(false);
+
+const [privateUser, setPrivateUser] = useState("");
+const [dmMessages, setDmMessages] = useState({});
+
+const messagesEndRef = useRef(null);
+  // ================= SOCKET =================
   useEffect(() => {
-    const handleMessage = (msg) => {
-      setMessagesByRoom((prev) => {
-        const roomMsgs = prev[msg.room] || [];
-        return {
-          ...prev,
-          [msg.room]: [...roomMsgs, msg],
-        };
-      });
-    };
+    socket.on("message", (msg) => {
+      setMessagesByRoom((prev) => ({
+        ...prev,
+        [msg.room]: [...(prev[msg.room] || []), msg],
+      }));
+    });
 
-    socket.on("message", handleMessage);
+    socket.on("private_message", (msg) => {
+      const key = msg.from === username ? msg.to : msg.from;
 
-    socket.on("online_users", (users) => {
-      setOnlineUsers(users);
+      setDmMessages((prev) => ({
+        ...prev,
+        [key]: [...(prev[key] || []), msg],
+      }));
+    });
+
+    socket.on("online_users", setOnlineUsers);
+
+    socket.on("typing", (user) => {
+      if (user !== username) {
+        setTypingUser(user);
+        setTimeout(() => setTypingUser(""), 1500);
+      }
     });
 
     return () => {
-      socket.off("message", handleMessage);
+      socket.off("message");
+      socket.off("private_message");
       socket.off("online_users");
+      socket.off("typing");
     };
-  }, []);
+  }, [username]);
 
-  // ---------------- LOGIN ----------------
-  const enterChat = () => {
-    if (!username.trim()) {
-      alert("Enter username first");
-      return;
-    }
-    setJoined(true);
-    socket.emit("user_joined", { username, role });
-  };
+  // ================= SCROLL =================
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  });
 
-  // ---------------- LOAD MESSAGES ----------------
-  const loadMessages = async (room) => {
-    try {
-      const res = await axios.get(
-        `${API_BASE_URL}/api/chat/${room}`
-      );
+  // ================= TIME FORMAT =================
+ const formatTime = (t) => {
+  if (!t) return "";
+  return new Date(t).toLocaleTimeString();
+};
+  // ================= LOGIN =================
+const enterChat = () => {
+  if (!username.trim()) return alert("Enter username");
 
-      setMessagesByRoom((prev) => ({
-        ...prev,
-        [room]: res.data || [],
-      }));
-    } catch (err) {
-      console.error("Load error:", err);
-    }
-  };
+  // ✅ persist user data (so refresh keeps user logged in)
+  localStorage.setItem("username", username);
+  localStorage.setItem("role", role);
+  localStorage.setItem("profilePic", profilePic);
+  localStorage.setItem("joined", "true");
 
-  // ---------------- JOIN ROOM ----------------
+  setJoined(true);
+
+  socket.emit("user_joined", {
+    username,
+    role,
+    profilePic,
+  });
+};
+
+  // ================= JOIN ROOM =================
   const joinRoom = async (room) => {
-    if (!username) return;
+  if (room === "Teachers Chat" && role !== "teacher") {
+    return alert("Access denied");
+  }
 
-    // Teacher protection
-    if (room === "Teachers Chat" && role !== "teacher") {
-      alert("Access denied");
-      return;
-    }
+  if (room === "Teachers Chat") {
+    const pass = prompt("Teacher password");
+    if (pass !== TEACHER_PASS) return alert("Wrong password");
+  }
 
-    if (room === "Teachers Chat") {
-      const pass = prompt("Enter teacher password:");
-      if (pass !== "teach123") {
-        alert("Wrong password");
-        return;
-      }
-    }
+  setPrivateUser("");
+  setCurrentRoom(room);
 
-    setCurrentRoom(room);
+  socket.emit("join_room", { username, room, role });
 
-    socket.emit("join_room", { username, room, role });
+  try {
+    const res = await axios.get(`${API_BASE_URL}/api/chat/${room}`);
 
-    // ALWAYS reload from DB (fix persistence issue)
-    await loadMessages(room);
-  };
-
-  // ---------------- SEND MESSAGE ----------------
-  const sendMessage = async (e) => {
-    e.preventDefault();
-
-    if (!message.trim() || !currentRoom) return;
-
-    const msgData = {
-      username,
-      role,
-      room: currentRoom,
-      text: message,
-      time: new Date().toISOString(),
-    };
-
-    // UI update
     setMessagesByRoom((prev) => ({
       ...prev,
-      [currentRoom]: [
-        ...(prev[currentRoom] || []),
-        msgData,
-      ],
+      [room]: (res.data || []).map((m) => ({
+        ...m,
+        message: m.message || m.text, // 🔥 normalize
+      })),
     }));
+  } catch (err) {
+    console.log("Load messages error:", err.message);
+  }
+};
 
-    socket.emit("send_message", msgData);
+  // ================= SEND MESSAGE =================
+  const sendMessage = async (e) => {
+  e.preventDefault();
+  if (!message.trim()) return;
 
-    try {
-      await axios.post(`${API_BASE_URL}/api/chat/send`, {
-        username,
-        role,
-        room: currentRoom,
-        message,
-      });
-    } catch (err) {
-      console.error(err);
-    }
+  const msg = {
+    username,
+    role,
+    room: currentRoom,
+    message: message, // MUST be message (not text)
+    time: new Date().toISOString(),
+    profilePic,
+  };
+
+  // 🔥 optimistic UI update
+  setMessagesByRoom((prev) => ({
+    ...prev,
+    [currentRoom]: [...(prev[currentRoom] || []), msg],
+  }));
+
+  socket.emit("send_message", msg);
+
+  try {
+    await axios.post(`${API_BASE_URL}/api/chat/send`, msg);
+
+    // 🔥 reload messages after saving (IMPORTANT FIX)
+    const res = await axios.get(`${API_BASE_URL}/api/chat/${currentRoom}`);
+
+    setMessagesByRoom((prev) => ({
+      ...prev,
+      [currentRoom]: (res.data || []).map((m) => ({
+        ...m,
+        message: m.message || m.text,
+      })),
+    }));
+  } catch (err) {
+    console.log("Send error:", err.message);
+  }
+
+  setMessage("");
+};
+
+  // ================= DM =================
+  const sendDM = () => {
+    if (!message || !privateUser) return;
+
+    const msg = {
+      from: username,
+      to: privateUser,
+       message: message,
+      time: new Date().toISOString(),
+      profilePic,
+    };
+
+    socket.emit("private_message", msg);
+
+    setDmMessages((prev) => ({
+      ...prev,
+      [privateUser]: [...(prev[privateUser] || []), msg],
+    }));
 
     setMessage("");
   };
 
-  // ---------------- LOGIN SCREEN ----------------
+  // ================= FILE =================
+  const sendFile = async (file) => {
+    const form = new FormData();
+    form.append("file_photo", file);
+
+    await axios.post(`${API_BASE_URL}/api/addfiles`, form);
+
+    socket.emit("send_message", {
+      username,
+      room: currentRoom,
+      file: file.name,
+      time: new Date().toISOString(),
+      profilePic,
+    });
+  };
+
+  // ================= LOGIN SCREEN =================
   if (!joined) {
     return (
-      <div style={{ padding: 30 }}>
-        <h2>Chat Login</h2>
+      <div style={styles.center}>
+        <div style={styles.login}>
+          <h2>Chat Login</h2>
 
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={{ padding: 10, width: 220 }}
-        />
+          <input placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
 
-        <br /><br />
+          <select onChange={(e) => setRole(e.target.value)}>
+            <option value="student">Student</option>
+            <option value="parent">Parent</option>
+            <option value="teacher">Teacher</option>
+          </select>
 
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          style={{ padding: 10 }}
-        >
-          <option value="student">Student</option>
-          <option value="parent">Parent</option>
-          <option value="teacher">Teacher</option>
-        </select>
+          <input type="file" onChange={(e) =>
+            setProfilePic(URL.createObjectURL(e.target.files[0]))
+          } />
 
-        <br /><br />
-
-        <button onClick={enterChat} style={{ padding: 10 }}>
-          Enter Chat
-        </button>
+          <button onClick={enterChat}>Enter</button>
+        </div>
       </div>
     );
   }
 
   const messages = messagesByRoom[currentRoom] || [];
+  const dms = dmMessages[privateUser] || [];
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ ...styles.container, background: dark ? "#111" : "#f5f5f5" }}>
 
-      {/* ROOMS */}
-      <div style={{ width: 220, borderRight: "1px solid #ccc", padding: 10 }}>
-        <h4>Rooms</h4>
-
+      {/* TOP ROOMS */}
+      <div style={styles.topBar}>
         {ROOMS.map((r) => (
-          <button
-            key={r}
-            onClick={() => joinRoom(r)}
-            style={{
-              width: "100%",
-              marginBottom: 8,
-              padding: 8,
-              background: currentRoom === r ? "green" : "white",
-              color: currentRoom === r ? "white" : "black",
-            }}
-          >
+          <div key={r} onClick={() => joinRoom(r)} style={styles.room}>
             {r}
-          </button>
+          </div>
         ))}
-
-        <h5>Online</h5>
-        {onlineUsers.map((u, i) => (
-          <div key={i}>🟢 {u}</div>
-        ))}
+        <button onClick={() => setDark(!dark)}>🌙</button>
       </div>
 
-      {/* CHAT */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      {/* MAIN */}
+      <div style={styles.main}>
 
-        <div style={{ flex: 1, overflowY: "auto", padding: 10 }}>
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              style={{
-                textAlign: m.username === username ? "right" : "left",
-              }}
-            >
-              <small>{m.username} ({m.role})</small>
-              <div style={{ background: "#eee", padding: 6, margin: 5 }}>
-                {m.text}
-              </div>
+        {/* SIDEBAR */}
+        <div style={styles.sidebar} className="sidebar">
+          <h4>Online</h4>
+          {onlineUsers.map((u) => (
+            <div key={u} onClick={() => setPrivateUser(u)}>
+              🟢 {u}
             </div>
           ))}
         </div>
 
-        <form onSubmit={sendMessage} style={{ display: "flex", padding: 10 }}>
-          <input
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            style={{ flex: 1, padding: 10 }}
-          />
-          <button style={{ marginLeft: 10 }}>Send</button>
-        </form>
+        {/* CHAT */}
+        <div style={styles.chat}>
 
+          {/* MOBILE ONLINE */}
+          <div className="mobileOnline">
+            {onlineUsers.map((u) => (
+              <span key={u}>🟢 {u}</span>
+            ))}
+          </div>
+
+          {/* SEARCH */}
+          <input
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+     {messages.map((m, i) => {
+  const isMine = m.username === username;
+
+  return (
+    <div
+      key={i}
+      style={{
+        display: "flex",
+        justifyContent: isMine ? "flex-end" : "flex-start",
+        width: "100%",
+        marginBottom: 8,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "70%",
+          padding: 10,
+          borderRadius: 12,
+          background: isMine ? "#dcf8c6" : "#fff",
+          wordBreak: "break-word",
+        }}
+      >
+        <b>{m.username}</b>
+        <div>{m.text || m.message}</div>
+        <small>{formatTime(m.time)}</small>
+        {isMine && <div>✔✔</div>}
       </div>
+    </div>
+  );
+})}
+          {/* DM */}
+          {privateUser &&
+            dms.map((m, i) => (
+              <div key={i}>
+                <b>{m.from}</b>: {m.message}
+              </div>
+            ))}
+
+          {typingUser && <i>{typingUser} typing...</i>}
+          <div ref={messagesEndRef} />
+
+          {/* INPUT */}
+          <form onSubmit={sendMessage} style={styles.inputArea}>
+
+            <button type="button" onClick={() => alert("🎤 Voice UI")}>🎤</button>
+
+            <button type="button" onClick={() => setShowEmoji(!showEmoji)}>😀</button>
+
+            <input
+              value={message}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                socket.emit("typing", username);
+              }}
+              style={styles.input}
+            />
+
+            <input type="file" onChange={(e) => sendFile(e.target.files[0])} />
+
+            <button type="button" onClick={privateUser ? sendDM : sendMessage}>
+              {privateUser ? "DM" : "Send"}
+            </button>
+
+          </form>
+
+          {showEmoji && (
+            <div>
+              {emojis.map((e, i) => (
+                <span key={i} onClick={() => setMessage(message + e)}>
+                  {e}
+                </span>
+              ))}
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* RESPONSIVE */}
+      <style>{`
+        @media (max-width: 768px) {
+          .sidebar { display: none; }
+          .mobileOnline {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px;
+            background: #ddd;
+          }
+        }
+        @media (min-width: 769px) {
+          .mobileOnline { display: none; }
+        }
+      `}</style>
+
     </div>
   );
 };
 
 export default Chat;
+/* ================= STYLES (FIXED) ================= */
+const styles = {
+  container: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    boxSizing: "border-box",
+  },
+
+  topBar: {
+    display: "flex",
+    overflowX: "auto",
+    padding: 10,
+    gap: 8,
+    flexShrink: 0,
+  },
+
+  room: {
+    padding: 10,
+    marginRight: 10,
+    borderRadius: 20,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    background: "#eee",
+    flexShrink: 0,
+  },
+
+  main: {
+    display: "flex",
+    flex: 1,
+    overflow: "hidden",
+    minHeight: 0,
+  },
+
+  sidebar: {
+    width: 200,
+    padding: 10,
+    overflowY: "auto",
+    borderRight: "1px solid #ddd",
+    flexShrink: 0,
+    background: "#fafafa",
+  },
+
+  chat: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    minHeight: 0,
+    overflow: "hidden",
+  },
+
+  messages: {
+    flex: 1,
+    overflowY: "auto",
+    padding: 10,
+    display: "flex",
+    flexDirection: "column",
+    gap: 6,
+  },
+
+  pic: {
+    width: 25,
+    height: 25,
+    borderRadius: "50%",
+    objectFit: "cover",
+    marginRight: 6,
+    flexShrink: 0,
+  },
+
+  inputArea: {
+    display: "flex",
+    padding: 8,
+    position: "sticky",
+    bottom: 0,
+    background: "#fff",
+    gap: 6,
+    flexShrink: 0,
+    alignItems: "center",
+    flexWrap: "wrap",   // 🔥 FIX mobile overflow
+  },
+
+  input: {
+    flex: 1,
+    minWidth: 0,        // 🔥 FIX input disappearing on mobile
+    padding: 10,
+    borderRadius: 20,
+    border: "1px solid #ccc",
+    outline: "none",
+  },
+
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+  },
+
+  login: {
+    background: "#fff",
+    padding: 20,
+    borderRadius: 10,
+  },
+};
