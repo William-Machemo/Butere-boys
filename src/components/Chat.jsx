@@ -96,7 +96,7 @@ const Chat = () => {
     socket.emit("user_joined", { username, role, profilePic });
   };
 
-  // ================= JOIN ROOM (FAST + MYSQL BACKUP) =================
+  // ================= JOIN ROOM =================
   const joinRoom = async (room) => {
     if (room === "Teachers Chat") {
       const pass = prompt("Enter teacher password");
@@ -108,16 +108,13 @@ const Chat = () => {
 
     socket.emit("join_room", { username, room, role });
 
-    // FAST LOAD FIRST (NO BLANK SCREEN)
     setMessagesByRoom((prev) => ({
       ...prev,
       [room]: prev[room] || [],
     }));
 
-    // BACKGROUND MYSQL LOAD
     try {
       const res = await axios.get(`${API_BASE_URL}/api/chat/${room}`);
-
       setMessagesByRoom((prev) => ({
         ...prev,
         [room]: res.data || [],
@@ -127,7 +124,7 @@ const Chat = () => {
     }
   };
 
-  // ================= SEND MESSAGE (WHATSAPP STYLE) =================
+  // ================= SEND MESSAGE =================
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -142,7 +139,6 @@ const Chat = () => {
       status: "sent",
     };
 
-    // INSTANT UI
     setMessagesByRoom((prev) => ({
       ...prev,
       [currentRoom]: [...(prev[currentRoom] || []), msg],
@@ -218,10 +214,9 @@ const Chat = () => {
         <button onClick={() => setDark(!dark)}>🌙</button>
       </div>
 
-      {/* MAIN */}
       <div style={styles.main}>
 
-        {/* ONLINE (DESKTOP) */}
+        {/* ONLINE */}
         <div className="desktopOnline" style={styles.sidebar}>
           <h4>Online</h4>
           {onlineUsers.map((u) => (
@@ -257,22 +252,38 @@ const Chat = () => {
                     background: isMine ? "#dcf8c6" : "#fff",
                   }}>
 
-                    {/* PROFILE PIC FIX */}
+                    {/* PROFILE PIC FIX (CLEAN) */}
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      {m.profilePic && (
-                        <img src={m.profilePic} style={styles.pic} />
+                      {m.profilePic ? (
+                       <img
+  src={m.profilePic}
+  alt="profile"
+  style={styles.pic}
+  onError={(e) => (e.target.style.display = "none")}
+/>
+                      ) : (
+                        <div style={{
+                          ...styles.pic,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "#ccc",
+                          fontSize: 10,
+                          fontWeight: "bold",
+                        }}>
+                          {m.username?.charAt(0).toUpperCase()}
+                        </div>
                       )}
+
                       <b>{m.username}</b>
                     </div>
 
                     <div>{m.message}</div>
 
-                    {/* TIME */}
                     <small style={{ opacity: 0.6 }}>
                       {formatTime(m.time)}
                     </small>
 
-                    {/* BLUE TICKS */}
                     {isMine && (
                       <div style={{ color: "#1976d2", fontSize: 12 }}>
                         ✔✔
@@ -292,10 +303,6 @@ const Chat = () => {
 
           {/* INPUT */}
           <form onSubmit={sendMessage} style={styles.inputArea}>
-            <button type="button" onClick={() => setShowEmoji(!showEmoji)}>
-              😀
-            </button>
-
             <input
               value={message}
               onChange={(e) => {
@@ -304,29 +311,45 @@ const Chat = () => {
               }}
               style={styles.input}
             />
-
+            <button type="button" onClick={() => setShowEmoji(prev => !prev)}>
+  😀
+</button>
             <button type="submit">Send</button>
           </form>
 
-          {/* EMOJIS */}
-          {showEmoji && (
-            <div>
-              {emojis.map((e, i) => (
-                <span key={i} onClick={() => setMessage(message + e)}>
-                  {e}
-                </span>
-              ))}
-            </div>
-          )}
-
         </div>
       </div>
+
+      {/* EMOJIS */}
+{showEmoji && (
+  <div style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    padding: "8px",
+    background: "#fff",
+    borderRadius: "10px",
+    marginTop: "5px"
+  }}>
+    {emojis.map((e, i) => (
+      <span
+        key={i}
+        onClick={() => setMessage((prev) => prev + e)}
+        style={{
+          cursor: "pointer",
+          fontSize: "18px"
+        }}
+      >
+        {e}
+      </span>
+    ))}
+  </div>
+)}
 
       {/* RESPONSIVE */}
       <style>{`
         @media (max-width: 768px) {
           .desktopOnline { display: none; }
-
           .mobileOnline {
             display: flex;
             gap: 10px;
@@ -335,7 +358,6 @@ const Chat = () => {
             background: #ddd;
           }
         }
-
         @media (min-width: 769px) {
           .mobileOnline { display: none; }
         }
@@ -355,35 +377,15 @@ const styles = {
 
   main: { display: "flex", flex: 1 },
 
-  sidebar: {
-    width: 200,
-    padding: 10,
-    borderRight: "1px solid #ddd",
-  },
+  sidebar: { width: 200, padding: 10, borderRight: "1px solid #ddd" },
 
-  chat: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-  },
+  chat: { flex: 1, display: "flex", flexDirection: "column" },
 
-  messages: {
-    flex: 1,
-    overflowY: "auto",
-    padding: 10,
-  },
+  messages: { flex: 1, overflowY: "auto", padding: 10 },
 
-  inputArea: {
-    display: "flex",
-    padding: 10,
-    gap: 6,
-  },
+  inputArea: { display: "flex", padding: 10, gap: 6 },
 
-  input: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 20,
-  },
+  input: { flex: 1, padding: 10, borderRadius: 20 },
 
   pic: {
     width: 25,
@@ -391,16 +393,7 @@ const styles = {
     borderRadius: "50%",
   },
 
-  center: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-  },
+  center: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" },
 
-  login: {
-    background: "#fff",
-    padding: 20,
-    borderRadius: 10,
-  },
+  login: { background: "#fff", padding: 20, borderRadius: 10 },
 };
