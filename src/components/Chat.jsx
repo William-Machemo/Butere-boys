@@ -57,6 +57,14 @@ const Chat = () => {
       });
     };
 
+
+socket.on("chat_history", (msgs) => {
+  setMessagesByRoom((prev) => ({
+    ...prev,
+    [currentRoom]: msgs,
+  }));
+});
+
     socket.on("message", handleMessage);
     socket.on("online_users", setOnlineUsers);
 
@@ -114,27 +122,14 @@ const Chat = () => {
 
     socket.emit("join_room", { username, room, role });
 
+ 
     // ⚡ INSTANT LOAD FROM CACHE
     const cached = JSON.parse(localStorage.getItem("chat_cache") || "{}");
     if (cached[room]) {
       setMessagesByRoom(cached);
     }
 
-    // ⚡ BACKGROUND MYSQL FETCH
-    try {
-      const res = await axios.get(`${API_BASE_URL}/api/chat/${room}`);
-
-      setMessagesByRoom((prev) => {
-        const updated = {
-          ...prev,
-          [room]: res.data || [],
-        };
-        localStorage.setItem("chat_cache", JSON.stringify(updated));
-        return updated;
-      });
-    } catch (err) {
-      console.log(err);
-    }
+    
   };
 
   // ================= SEND =================

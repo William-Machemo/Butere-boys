@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 import pymysql
 import os
+from flask_socketio import join_room
 import time
 
 app = Flask(__name__)
@@ -22,10 +23,62 @@ ROOM_PASSWORDS = {
 }
 
 # ---------------- SOCKET ----------------
+
 @socketio.on("send_message")
 def handle_send_message(data):
-    print("SOCKET MESSAGE RECEIVED:", data)
-    socketio.emit("message", data, broadcast=True)
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO chat_messages (username, role, room, message)
+        VALUES (%s, %s, %s, %s)
+    """, (
+        data["username"],
+        data["role"],
+        data["room"],
+        data["message"]
+    ))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    socketio.emit("message", data, room=data["room"])
+@socketio.on("join_room")
+def handle_join(data):
+    room = data.get("room")
+   
+    join_room(room)   # 🔥 CRITICAL FIX
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT username, role, room, message, created_at
+        FROM chat_messages
+        WHERE room = %s
+        ORDER BY created_at DESC
+        LIMIT 50
+    """, (room,))
+
+    rows = cursor.fetchall()
+    rows.reverse()
+
+    messages = [
+        {
+            "username": r["username"],
+            "role": r["role"],
+            "room": r["room"],
+            "message": r["message"],
+            "time": str(r["created_at"])
+        }
+        for r in rows
+    ]
+
+    cursor.close()
+    conn.close()
+
+    socketio.emit("chat_history", messages, room=room)
 
 def get_connection():
     return pymysql.connect(
@@ -34,9 +87,9 @@ def get_connection():
         password="modcom1234",
         database="williammachemo_sokogarden",
         cursorclass=pymysql.cursors.DictCursor,
-        connect_timeout=60,
-        read_timeout=60,
-        write_timeout=60,
+        connect_timeout=10,
+        read_timeout=10,
+        write_timeout=10,
         autocommit=True
     )
 @app.before_request
@@ -154,37 +207,6 @@ def signin():
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
-
-
-# send chat message
-@app.route("/api/chat/send", methods=["POST"])
-def send_chat():
-    try:
-        data = request.get_json()
-
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            INSERT INTO chat_messages (username, role, room, message)
-            VALUES (%s, %s, %s, %s)
-        """, (
-            data["username"],
-            data["role"],
-            data["room"],
-            data["message"]
-        ))
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return jsonify({"message": "saved"})
-
-    except Exception as e:
-        print("SEND ERROR:", e)
-        return jsonify({"message": "error"}), 500
-    
         # join chat room
 @app.route("/api/chat/join", methods=["POST"])
 def join_chat():
@@ -211,23 +233,25 @@ def get_chat(room):
         conn = get_connection()
         cursor = conn.cursor()
 
-        print("FETCHING ROOM:", room)  # DEBUG
-
         cursor.execute("""
             SELECT username, role, room, message, created_at
             FROM chat_messages
             WHERE room = %s
-            ORDER BY created_at ASC
+            ORDER BY created_at DESC
+            LIMIT 50
         """, (room,))
 
         rows = cursor.fetchall()
+
+        # reverse so oldest comes first in UI
+        rows.reverse()
 
         messages = [
             {
                 "username": r["username"],
                 "role": r["role"],
                 "room": r["room"],
-                "text": r["message"],
+                "message": r["message"],   # ✅ FIX NAME
                 "time": str(r["created_at"])
             }
             for r in rows
@@ -235,8 +259,6 @@ def get_chat(room):
 
         cursor.close()
         conn.close()
-
-        print("FOUND MESSAGES:", len(messages))  # DEBUG
 
         return jsonify(messages)
 
