@@ -101,6 +101,8 @@ const Chat = () => {
       return m;
     });
 
+    
+
     return {
       ...prev,
       [data.room]: updated,
@@ -145,6 +147,34 @@ const Chat = () => {
     room: currentRoom,
   });
 };
+// ✅ DELETE FOR EVERYONE
+socket.on("message_deleted", ({ id }) => {
+  setMessagesByRoom((prev) => {
+    const updated = {};
+
+    for (const room in prev) {
+      updated[room] = prev[room].filter((m) => m.id !== id);
+    }
+
+    return updated;
+  });
+});
+
+// ✅ EDIT MESSAGE
+socket.on("message_edited", ({ id, message }) => {
+  setMessagesByRoom((prev) => {
+    const updated = {};
+
+    for (const room in prev) {
+      updated[room] = prev[room].map((m) =>
+        m.id === id ? { ...m, message } : m
+      );
+    }
+
+    return updated;
+  });
+});
+
 
   // ================= JOIN ROOM =================
   const joinRoom = (room) => {
@@ -252,7 +282,7 @@ const Chat = () => {
       {/* MAIN */}
       <div style={styles.main}>
         <div style={styles.sidebar}>
-          <h4>Online</h4>
+      
           {onlineUsers.map((u) => (
             <div key={u}>🟢 {u}</div>
           ))}
@@ -397,7 +427,7 @@ const styles = {
   messages: {
     flex: 1,
     overflowY: "auto",
-    padding: 10,
+    padding: 1,
 
     // 🔴 IMPORTANT FIXES FOR CENTERING ISSUE
     display: "flex",
@@ -413,7 +443,7 @@ const styles = {
     gap: 6,
     flexShrink: 0,
     background: "#ce2929",
-    alignItems: "center",
+    alignItems: "cover",
   },
 
   input: {

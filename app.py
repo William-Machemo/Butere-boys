@@ -142,6 +142,55 @@ def mark_seen(data):
         "username": username
     }, room=room)
 
+
+@socketio.on("delete_for_everyone")
+def delete_for_everyone(data):
+    msg_id = data.get("id")
+    room = data.get("room")
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM chat_messages WHERE id=%s", (msg_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        socketio.emit("message_deleted", {"id": msg_id}, room=room)
+
+    except Exception as e:
+        print("❌ DELETE ERROR:", e)
+
+# edit
+@socketio.on("edit_message")
+def edit_message(data):
+    msg_id = data.get("id")
+    new_text = data.get("message")
+    room = data.get("room")
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "UPDATE chat_messages SET message=%s WHERE id=%s",
+            (new_text, msg_id)
+        )
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        socketio.emit("message_edited", {
+            "id": msg_id,
+            "message": new_text
+        }, room=room)
+
+    except Exception as e:
+        print("❌ EDIT ERROR:", e)
+
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
