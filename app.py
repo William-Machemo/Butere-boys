@@ -5,15 +5,10 @@ import pymysql
 import os
 import time
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-socketio = SocketIO(
-    app,
-    cors_allowed_origins="*",
-    async_mode="threading"
-)
-
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 # ================= SOCKET EVENTS =================
 
 # 🔹 JOIN ROOM
@@ -485,4 +480,4 @@ def home():
 # -------------- RUN ----------------
 if __name__ == "__main__":
     print(app.url_map)
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000)
