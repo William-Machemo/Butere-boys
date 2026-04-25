@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { io } from "socket.io-client";
-
 const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
 const socket = io(API_BASE_URL, {
-  transports: ["websocket", "polling"],
+  transports: ["polling", "websocket"], // ✅ FIX
   reconnection: true,
 });
 
@@ -28,8 +26,6 @@ const Chat = () => {
 
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUser, setTypingUser] = useState("");
-
-  const [dark, setDark] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
   const messagesRef = useRef(null);
@@ -57,14 +53,6 @@ const Chat = () => {
       });
     };
 
-
-socket.on("chat_history", (msgs) => {
-  setMessagesByRoom((prev) => ({
-    ...prev,
-    [currentRoom]: msgs,
-  }));
-});
-
     socket.on("message", handleMessage);
     socket.on("online_users", setOnlineUsers);
 
@@ -75,10 +63,23 @@ socket.on("chat_history", (msgs) => {
       }
     });
 
+    socket.on("chat_history", (msgs) => {
+      if (!msgs.length) return;
+
+      const room = msgs[0].room;
+
+      setMessagesByRoom((prev) => ({
+        ...prev,
+        [room]: msgs,
+      }));
+    });
+
     return () => {
       socket.off("message", handleMessage);
       socket.off("online_users");
       socket.off("typing");
+      socket.off("chat_history");
+      socket.disconnect();
     };
   }, [currentRoom, username]);
 
@@ -106,12 +107,11 @@ socket.on("chat_history", (msgs) => {
     sessionStorage.setItem("joined", "true");
 
     setJoined(true);
-
     socket.emit("user_joined", { username, role, profilePic });
   };
 
-  // ================= JOIN ROOM (INSTANT LOAD) =================
-  const joinRoom = async (room) => {
+  // ================= JOIN ROOM =================
+  const joinRoom = (room) => {
     if (room === "Teachers Chat") {
       const pass = prompt("Enter teacher password");
       if (pass !== TEACHER_PASS) return;
@@ -122,18 +122,17 @@ socket.on("chat_history", (msgs) => {
 
     socket.emit("join_room", { username, room, role });
 
- 
-    // ⚡ INSTANT LOAD FROM CACHE
     const cached = JSON.parse(localStorage.getItem("chat_cache") || "{}");
     if (cached[room]) {
-      setMessagesByRoom(cached);
+      setMessagesByRoom((prev) => ({
+        ...prev,
+        [room]: cached[room],
+      }));
     }
-
-    
   };
 
   // ================= SEND =================
-  const sendMessage = async (e) => {
+  const sendMessage = (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
@@ -151,27 +150,17 @@ socket.on("chat_history", (msgs) => {
         ...prev,
         [currentRoom]: [...(prev[currentRoom] || []), msg],
       };
+
       localStorage.setItem("chat_cache", JSON.stringify(updated));
       return updated;
     });
 
     socket.emit("send_message", msg);
     setMessage("");
-
-    try {
-      await axios.post(`${API_BASE_URL}/api/chat/send`, msg);
-    } catch (err) {
-      console.log(err);
-    }
   };
 
-  const formatTime = (t) => {
-    if (!t) return "";
-    return new Date(t).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatTime = (t) =>
+    t ? new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
   // ================= LOGIN SCREEN =================
   if (!joined) {
@@ -204,9 +193,8 @@ socket.on("chat_history", (msgs) => {
   const messages = messagesByRoom[currentRoom] || [];
 
   return (
-    
     <div style={styles.container}>
-      {/* TOP */}
+      {/* ROOMS */}
       <div style={styles.topBar}>
         {ROOMS.map((r) => (
           <div
@@ -218,18 +206,14 @@ socket.on("chat_history", (msgs) => {
               color: currentRoom === r ? "#fff" : "#000",
             }}
           >
-            {typingUser && (
-  <div style={{ fontStyle: "italic", fontSize: 12, padding: "5px 10px" }}>
-    {typingUser} is typing...
-  </div>
-)}
             {r}
           </div>
         ))}
       </div>
 
+      {/* MAIN */}
       <div style={styles.main}>
-        <div className="desktopOnline" style={styles.sidebar}>
+        <div style={styles.sidebar}>
           <h4>Online</h4>
           {onlineUsers.map((u) => (
             <div key={u}>🟢 {u}</div>
@@ -237,72 +221,52 @@ socket.on("chat_history", (msgs) => {
         </div>
 
         <div style={styles.chat}>
-          <div ref={messagesRef} style={styles.messages}>
-            {messages.map((m, i) => {
-              const isMine = m.username === username;
+          {typingUser && (
+            <div style={{ fontStyle: "italic", fontSize: 12 }}>
+              {typingUser} is typing...
+            </div>
+          )}
 
-              return (
+          <div ref={messagesRef} style={styles.messages}>
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: m.username === username ? "flex-end" : "flex-start",
+                  marginBottom: 6,
+                }}
+              >
                 <div
-                  key={i}
                   style={{
-                    display: "flex",
-                    justifyContent: isMine ? "flex-end" : "flex-start",
-                    marginBottom: 6,
+                    maxWidth: "70%",
+                    padding: 10,
+                    borderRadius: 12,
+                    background: m.username === username ? "#dcf8c6" : "#fff",
                   }}
                 >
-                  <div
-                    style={{
-                      maxWidth: "70%",
-                      padding: 10,
-                      borderRadius: 12,
-                      background: isMine ? "#dcf8c6" : "#fff",
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: 6 }}>
-                      {m.profilePic ? (
-                        <img
-                          src={m.profilePic}
-                          alt="profile"
-                          style={styles.pic}
-                        />
-                      ) : (
-                        <div style={styles.pic}>
-                          {m.username?.charAt(0)}
-                        </div>
-                      )}
-                      <b>{m.username}</b>
-                    </div>
-
-                    <div>{m.message}</div>
-
-                    <small>{formatTime(m.time)}</small>
-                  </div>
+                  <b>{m.username}</b>
+                  <div>{m.message}</div>
+                  <small>{formatTime(m.time)}</small>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
 
-          {/* INPUT FIXED */}
           <form onSubmit={sendMessage} style={styles.inputArea}>
             <input
               value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                socket.emit("typing", { username, room: currentRoom });
-              }}
+              onChange={(e) => setMessage(e.target.value)}
               style={styles.input}
             />
 
             <button type="button" onClick={() => setShowEmoji((p) => !p)}>
               😀
             </button>
-              <button onClick={() => setDark(prev => !prev)}>
-  {dark ? "☀️" : "🌙"}
-</button>
+
             <button type="submit">Send</button>
           </form>
 
-          {/* EMOJIS */}
           {showEmoji && (
             <div style={styles.emojiBox}>
               {emojis.map((e, i) => (
@@ -314,61 +278,83 @@ socket.on("chat_history", (msgs) => {
           )}
         </div>
       </div>
-
-      {/* RESPONSIVE FIX */}
-      <style>{`
-        @media (max-width:768px){
-          .desktopOnline{display:none;}
-        }
-      `}</style>
     </div>
   );
 };
 
 export default Chat;
-
 const styles = {
-  container: { height: "100vh", display: "flex", flexDirection: "column" },
-  topBar: { display: "flex", padding: 10, gap: 8 },
-  room: { padding: 10, borderRadius: 20, cursor: "pointer" },
+  container: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+  },
 
-  main: { display: "flex", flex: 1, minHeight: 0 },
+  topBar: {
+    display: "flex",
+    padding: 10,
+    gap: 8,
+  },
 
-  sidebar: { width: 200, padding: 10 },
+  room: {
+    padding: 10,
+    borderRadius: 20,
+    cursor: "pointer",
+  },
 
-  chat: { flex: 1, display: "flex", flexDirection: "column" },
+  main: {
+    display: "flex",
+    flex: 1,
+    overflow: "hidden",
+  },
 
-  messages: { flex: 1, overflowY: "auto", padding: 10 },
+  sidebar: {
+    width: 200,
+    padding: 10,
+  },
+
+  chat: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+  },
+
+  messages: {
+    flex: 1,
+    overflowY: "auto",
+    padding: 10,
+  },
 
   inputArea: {
     display: "flex",
     padding: 10,
     gap: 6,
-    position: "sticky",
-    bottom: 0,
-    background: "#fff",
+    flexShrink: 0,
   },
 
-  input: { flex: 1, padding: 10, borderRadius: 20 },
+  input: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 20,
+  },
 
   emojiBox: {
     display: "flex",
     flexWrap: "wrap",
     padding: 10,
-    background: "#fff",
   },
 
-  pic: {
-    width: 25,
-    height: 25,
-    borderRadius: "50%",
-    background: "#ccc",
+  center: {
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
-    fontSize: 12,
+    alignItems: "center",
+    height: "100vh",
   },
 
-  center: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" },
-  login: { background: "#fff", padding: 20 },
+  login: {
+    background: "#fff",
+    padding: 20,
+  },
 };

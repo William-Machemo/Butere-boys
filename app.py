@@ -1,16 +1,121 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room
 import pymysql
 import os
-from flask_socketio import join_room
 import time
 
 app = Flask(__name__)
 CORS(app)
 
-# ✅ ONLY ONE SOCKETIO INSTANCE
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+
+
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    async_mode="threading"  # safe for local + deployment
+)
+
+
+
+# ================= SOCKET EVENTS =================
+
+# 🔹 JOIN ROOM
+@socketio.on("join_room")
+def handle_join(data):
+    username = data.get("username")
+    room = data.get("room")
+
+    print(f"{username} joined {room}")
+
+    # join socket room
+    join_room(room)
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT * FROM chat_messages WHERE room=%s ORDER BY created_at ASC",
+            (room,)
+        )
+
+        messages = cursor.fetchall()
+
+        # format time for frontend
+        for msg in messages:
+            msg["time"] = msg["created_at"].isoformat()
+
+        # send history ONLY to that room
+            socketio.emit("chat_history", messages, to=request.sid)
+
+        cursor.close()
+        conn.close()
+
+    except Exception as e:
+        print("❌ JOIN ROOM ERROR:", e)
+
+
+# 🔹 SEND MESSAGE
+@socketio.on("send_message")
+def handle_message(data):
+    try:
+        print("MESSAGE:", data)
+
+        username = data.get("username")
+        message = data.get("message")
+        room = data.get("room")
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO chat_messages (username, message, room)
+            VALUES (%s, %s, %s)
+        """, (username, message, room))
+
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        # send message ONLY to that room
+        socketio.emit("message", data, room=room)
+
+    except Exception as e:
+        print("❌ MESSAGE ERROR:", e)
+
+
+# 🔹 TYPING INDICATOR
+@socketio.on("typing")
+def handle_typing(data):
+    socketio.emit("typing", data, room=data.get("room"))
+
+
+user_sessions = {}
+
+@socketio.on("user_joined")
+def user_joined(data):
+    username = data.get("username")
+    user_sessions[request.sid] = username
+    socketio.emit("online_users", list(user_sessions.values()))
+
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    if request.sid in user_sessions:
+        user_sessions.pop(request.sid)
+    socketio.emit("online_users", list(user_sessions.values()))
+
+@socketio.on("user_joined")
+def user_joined(data):
+    username = data.get("username")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    # NOTE: This is basic — doesn't remove specific user reliably
+    print("User disconnected")
+
 
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -21,64 +126,6 @@ TEACHER_UPLOAD_PASSWORD = "butere123"
 ROOM_PASSWORDS = {
     "Teachers Only": "teach123",
 }
-
-# ---------------- SOCKET ----------------
-
-@socketio.on("send_message")
-def handle_send_message(data):
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        INSERT INTO chat_messages (username, role, room, message)
-        VALUES (%s, %s, %s, %s)
-    """, (
-        data["username"],
-        data["role"],
-        data["room"],
-        data["message"]
-    ))
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    socketio.emit("message", data, room=data["room"])
-@socketio.on("join_room")
-def handle_join(data):
-    room = data.get("room")
-   
-    join_room(room)   # 🔥 CRITICAL FIX
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT username, role, room, message, created_at
-        FROM chat_messages
-        WHERE room = %s
-        ORDER BY created_at DESC
-        LIMIT 50
-    """, (room,))
-
-    rows = cursor.fetchall()
-    rows.reverse()
-
-    messages = [
-        {
-            "username": r["username"],
-            "role": r["role"],
-            "room": r["room"],
-            "message": r["message"],
-            "time": str(r["created_at"])
-        }
-        for r in rows
-    ]
-
-    cursor.close()
-    conn.close()
-
-    socketio.emit("chat_history", messages, room=room)
 
 def get_connection():
     return pymysql.connect(
@@ -207,64 +254,7 @@ def signin():
     except Exception as e:
         return jsonify({"message": str(e)}), 500
 
-        # join chat room
-@app.route("/api/chat/join", methods=["POST"])
-def join_chat():
-    data = request.get_json()
-
-    room = data.get("room")
-    role = data.get("role")
-    password = data.get("password")
-
-    # 🔴 ONLY TEACHERS CHAT IS PROTECTED
-    if room == "Teachers Chat":
-        if role != "teacher":
-            return jsonify({"message": "Access denied"}), 403
-
-        if password != "teach123":
-            return jsonify({"message": "Wrong password"}), 401
-
-    return jsonify({"message": "OK"})
-    
-    # get chat messages
-@app.route("/api/chat/<room>", methods=["GET"])
-def get_chat(room):
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT username, role, room, message, created_at
-            FROM chat_messages
-            WHERE room = %s
-            ORDER BY created_at DESC
-            LIMIT 50
-        """, (room,))
-
-        rows = cursor.fetchall()
-
-        # reverse so oldest comes first in UI
-        rows.reverse()
-
-        messages = [
-            {
-                "username": r["username"],
-                "role": r["role"],
-                "room": r["room"],
-                "message": r["message"],   # ✅ FIX NAME
-                "time": str(r["created_at"])
-            }
-            for r in rows
-        ]
-
-        cursor.close()
-        conn.close()
-
-        return jsonify(messages)
-
-    except Exception as e:
-        print("FETCH ERROR:", e)
-        return jsonify([]), 500
+        
 # ---------------- DASHBOARD COUNTS (FIXED STABLE VERSION) ----------------
 @app.route("/api/dashboard_counts", methods=["GET"])
 def dashboard_counts():
@@ -502,5 +492,4 @@ def home():
 # -------------- RUN ----------------
 if __name__ == "__main__":
     print(app.url_map)
-    port = int(os.environ.get("PORT", 10000))
-    socketio.run(app, host="0.0.0.0", port=port, debug=False)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
