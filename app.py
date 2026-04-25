@@ -20,6 +20,7 @@ def handle_join(data):
     print(f"{username} joined {room}")
 
     join_room(room)
+    print("JOINED ROOM:", room, "USER:", username)
 
     try:
         conn = get_connection()
@@ -37,7 +38,7 @@ def handle_join(data):
             msg["time"] = msg["created_at"].isoformat()
 
         # ✅ FIX: OUTSIDE LOOP
-        socketio.emit("chat_history", messages, to=request.sid)
+        socketio.emit("chat_history", messages)
 
         cursor.close()
         conn.close()
