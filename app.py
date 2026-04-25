@@ -12,7 +12,6 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 # ================= SOCKET EVENTS =================
 
 
-
 # 🔹 JOIN ROOM
 @socketio.on("join_room")
 def handle_join(data):
@@ -21,6 +20,7 @@ def handle_join(data):
 
     print(f"{username} joined {room}")
 
+    # ✅ join socket room
     join_room(room)
     print("JOINED ROOM:", room, "USER:", username)
 
@@ -28,19 +28,20 @@ def handle_join(data):
         conn = get_connection()
         cursor = conn.cursor()
 
+        # ✅ GET MESSAGES WITH ID (IMPORTANT FOR DELETE)
         cursor.execute(
-            "SELECT * FROM chat_messages WHERE room=%s ORDER BY created_at ASC",
+            "SELECT id, username, message, room, created_at FROM chat_messages WHERE room=%s ORDER BY created_at ASC",
             (room,)
         )
 
         messages = cursor.fetchall()
 
-        # ✅ format time
+        # ✅ FORMAT TIME
         for msg in messages:
             msg["time"] = msg["created_at"].isoformat()
 
-        # ✅ FIX: OUTSIDE LOOP
-        socketio.emit("chat_history", messages)
+        # ✅ SEND ONLY TO THE USER WHO JOINED
+        socketio.emit("chat_history", messages, to=request.sid)
 
         cursor.close()
         conn.close()
@@ -49,12 +50,10 @@ def handle_join(data):
         print("❌ JOIN ROOM ERROR:", e)
 
 
-# 🔹 SEND MESSAGE
+# send messages
 @socketio.on("send_message")
 def handle_message(data):
     try:
-        print("MESSAGE:", data)
-
         username = data.get("username")
         message = data.get("message")
         room = data.get("room")
@@ -69,15 +68,17 @@ def handle_message(data):
 
         conn.commit()
 
+        # ✅ GET ID
+        msg_id = cursor.lastrowid
+        data["id"] = msg_id
+
         cursor.close()
         conn.close()
 
-        # ✅ send to room only
         socketio.emit("message", data, room=room)
 
     except Exception as e:
         print("❌ MESSAGE ERROR:", e)
-
 
 # 🔹 TYPING INDICATOR
 @socketio.on("typing")
@@ -107,6 +108,29 @@ def handle_disconnect():
 
     socketio.emit("online_users", list(user_sessions.values()))
 
+
+@socketio.on("delete_message")
+def delete_message(data):
+    message_id = data.get("id")
+    room = data.get("room")
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM chat_messages WHERE id=%s", (message_id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        # ✅ notify everyone in room
+        socketio.emit("message_deleted", {
+            "id": message_id
+        }, room=room)
+
+    except Exception as e:
+        print("❌ DELETE ERROR:", e)
 
 @socketio.on("mark_seen")
 def mark_seen(data):

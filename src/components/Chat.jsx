@@ -136,6 +136,15 @@ const Chat = () => {
     setJoined(true);
     socket.emit("user_joined", { username, role, profilePic });
   };
+  // delete message
+  const deleteMessage = (id) => {
+  if (!window.confirm("Delete this message?")) return;
+
+  socket.emit("delete_message", {
+    id,
+    room: currentRoom,
+  });
+};
 
   // ================= JOIN ROOM =================
   const joinRoom = (room) => {
@@ -172,6 +181,7 @@ const Chat = () => {
       profilePic,
       status: "sent", 
     };
+    
 
     setMessagesByRoom((prev) => {
       const updated = {
@@ -283,6 +293,24 @@ const Chat = () => {
          <small style={{ fontSize: 10, opacity: 0.7, display: "flex", gap: 4, alignItems: "center" }}>
   {formatTime(m.time)}
 
+
+  {/* 🗑️ DELETE BUTTON */}
+   {isMine && (
+          <span
+          onClick={() => deleteMessage(m.id)}
+            style={{
+              position: "absolute",
+              top: 5,
+              right: 8,
+              cursor: "pointer",
+              fontSize: 12,
+              color: "red",
+            }}
+          >
+            🗑️
+          </span>
+        )}
+        
   {/* ✅ TICKS */}
   <span style={{ marginLeft: 6 }}>
     {m.status === "sent" && "✓"}
