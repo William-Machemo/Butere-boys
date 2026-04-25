@@ -4,19 +4,15 @@ from flask_socketio import SocketIO, join_room
 import pymysql
 import os
 import time
-
 app = Flask(__name__)
 CORS(app)
-
 
 
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
-    async_mode="threading"  # safe for local + deployment
+    async_mode="threading"
 )
-
-
 
 # ================= SOCKET EVENTS =================
 
@@ -28,7 +24,6 @@ def handle_join(data):
 
     print(f"{username} joined {room}")
 
-    # join socket room
     join_room(room)
 
     try:
@@ -42,12 +37,12 @@ def handle_join(data):
 
         messages = cursor.fetchall()
 
-        # format time for frontend
+        # ✅ format time
         for msg in messages:
             msg["time"] = msg["created_at"].isoformat()
 
-        # send history ONLY to that room
-            socketio.emit("chat_history", messages, to=request.sid)
+        # ✅ FIX: OUTSIDE LOOP
+        socketio.emit("chat_history", messages, to=request.sid)
 
         cursor.close()
         conn.close()
@@ -79,7 +74,7 @@ def handle_message(data):
         cursor.close()
         conn.close()
 
-        # send message ONLY to that room
+        # ✅ send to room only
         socketio.emit("message", data, room=room)
 
     except Exception as e:
@@ -92,29 +87,27 @@ def handle_typing(data):
     socketio.emit("typing", data, room=data.get("room"))
 
 
+# 🔹 ONLINE USERS (FIXED PROPERLY)
 user_sessions = {}
 
 @socketio.on("user_joined")
 def user_joined(data):
     username = data.get("username")
+
+    # store user by session id
     user_sessions[request.sid] = username
+
+    # send updated list
     socketio.emit("online_users", list(user_sessions.values()))
 
 
 @socketio.on("disconnect")
 def handle_disconnect():
+    # remove user safely
     if request.sid in user_sessions:
         user_sessions.pop(request.sid)
+
     socketio.emit("online_users", list(user_sessions.values()))
-
-@socketio.on("user_joined")
-def user_joined(data):
-    username = data.get("username")
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    # NOTE: This is basic — doesn't remove specific user reliably
-    print("User disconnected")
 
 
 UPLOAD_FOLDER = "static/images"
