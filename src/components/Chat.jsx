@@ -226,32 +226,60 @@ const Chat = () => {
               {typingUser} is typing...
             </div>
           )}
+            <div ref={messagesRef} style={styles.messages}>
+  {messages.map((m, i) => {
+    const isMe = m.username === username;
 
-          <div ref={messagesRef} style={styles.messages}>
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  justifyContent: m.username === username ? "flex-end" : "flex-start",
-                  marginBottom: 6,
-                }}
-              >
-                <div
-                  style={{
-                    maxWidth: "70%",
-                    padding: 10,
-                    borderRadius: 12,
-                    background: m.username === username ? "#dcf8c6" : "#fff",
-                  }}
-                >
-                  <b>{m.username}</b>
-                  <div>{m.message}</div>
-                  <small>{formatTime(m.time)}</small>
-                </div>
-              </div>
-            ))}
+    return (
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: isMe ? "flex-end" : "flex-start",
+          marginBottom: 10,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "70%",
+            padding: "10px 12px",
+            borderRadius: 18,
+            background: isMe ? "#dcf8c6" : "#ffffff",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+            position: "relative",
+          }}
+        >
+          {/* Username */}
+          <b style={{ fontSize: 12, color: "#555" }}>{m.username}</b>
+
+          {/* Message */}
+          <div style={{ fontSize: 14, marginTop: 2 }}>{m.message}</div>
+
+          {/* Time + ticks */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: 5,
+              fontSize: 11,
+              color: "gray",
+              gap: 10,
+            }}
+          >
+            <span>{formatTime(m.time)}</span>
+
+            {isMe && (
+              <span style={{ color: "blue", fontSize: 12 }}>
+                ✔✔
+              </span>
+            )}
           </div>
+        </div>
+      </div>
+    );
+  })}
+</div>
 
           <form onSubmit={sendMessage} style={styles.inputArea}>
             <input
@@ -326,13 +354,13 @@ const styles = {
     overflowY: "auto",
     padding: 10,
   },
-
-  inputArea: {
-    display: "flex",
-    padding: 10,
-    gap: 6,
-    flexShrink: 0,
-  },
+inputArea: {
+  display: "flex",
+  padding: 10,
+  gap: 6,
+  flexShrink: 0,
+  flexWrap: "wrap",   // ✅ allows buttons to move instead of disappearing
+},
 
   input: {
     flex: 1,
