@@ -34,6 +34,7 @@ const Chat = () => {
   // ================= SOCKET =================
   useEffect(() => {
     const handleMessage = (msg) => {
+      msg.status = "delivered";
       setMessagesByRoom((prev) => {
         const roomMsgs = prev[msg.room] || [];
 
@@ -80,6 +81,32 @@ const Chat = () => {
       socket.off("typing");
       socket.off("chat_history");
       socket.disconnect();
+  
+  if (!currentRoom) return;
+
+  socket.emit("mark_seen", {
+    room: currentRoom,
+    username,
+  });
+
+
+  socket.on("seen_messages", (data) => {
+  setMessagesByRoom((prev) => {
+    const roomMsgs = prev[data.room] || [];
+
+    const updated = roomMsgs.map((m) => {
+      if (m.username === username) {
+        return { ...m, status: "seen" };
+      }
+      return m;
+    });
+
+    return {
+      ...prev,
+      [data.room]: updated,
+    };
+  });
+});
     };
   }, [currentRoom, username]);
 
@@ -143,6 +170,7 @@ const Chat = () => {
       message,
       time: new Date().toISOString(),
       profilePic,
+      status: "sent", 
     };
 
     setMessagesByRoom((prev) => {
@@ -202,8 +230,8 @@ const Chat = () => {
             onClick={() => joinRoom(r)}
             style={{
               ...styles.room,
-              background: currentRoom === r ? "#4CAF50" : "#eee",
-              color: currentRoom === r ? "#fff" : "#000",
+              background: currentRoom === r ? "#4CAF50" : "#c7d024",
+              color: currentRoom === r ? "#d51d4b" : "#000",
             }}
           >
             {r}
@@ -226,55 +254,46 @@ const Chat = () => {
               {typingUser} is typing...
             </div>
           )}
-            <div ref={messagesRef} style={styles.messages}>
+          <div ref={messagesRef} style={styles.messages}>
   {messages.map((m, i) => {
-    const isMe = m.username === username;
+    const isMine = m.username === username;
 
     return (
       <div
         key={i}
         style={{
           display: "flex",
-          flexDirection: "column",
-          alignItems: isMe ? "flex-end" : "flex-start",
-          marginBottom: 10,
+          width: "100%",
+          justifyContent: isMine ? "flex-end" : "flex-start",
         }}
       >
         <div
           style={{
             maxWidth: "70%",
             padding: "10px 12px",
-            borderRadius: 18,
-            background: isMe ? "#dcf8c6" : "#ffffff",
-            boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-            position: "relative",
+            borderRadius: 12,
+            background: isMine ? "#b097789b" : "rgba(33, 191, 33, 0.57)",
+            textAlign: "left",
+            boxShadow: "0 1px 2px rgba(241, 34, 34, 0.1)",
           }}
         >
-          {/* Username */}
-          <b style={{ fontSize: 12, color: "#555" }}>{m.username}</b>
+          <b style={{ fontSize: 12 }}>{m.username}</b>
+          <div>{m.message}</div>
 
-          {/* Message */}
-          <div style={{ fontSize: 14, marginTop: 2 }}>{m.message}</div>
+         <small style={{ fontSize: 10, opacity: 0.7, display: "flex", gap: 4, alignItems: "center" }}>
+  {formatTime(m.time)}
 
-          {/* Time + ticks */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: 5,
-              fontSize: 11,
-              color: "gray",
-              gap: 10,
-            }}
-          >
-            <span>{formatTime(m.time)}</span>
+  {/* ✅ TICKS */}
+  <span style={{ marginLeft: 6 }}>
+    {m.status === "sent" && "✓"}
 
-            {isMe && (
-              <span style={{ color: "blue", fontSize: 12 }}>
-                ✔✔
-              </span>
-            )}
-          </div>
+    {m.status === "delivered" && "✓✓"}
+
+    {m.status === "seen" && (
+      <span style={{ color: "#4fc3f7", fontWeight: "bold" }}>✓✓</span>
+    )}
+  </span>
+</small>
         </div>
       </div>
     );
@@ -316,13 +335,14 @@ const styles = {
     height: "100vh",
     display: "flex",
     flexDirection: "column",
-    overflow: "hidden",
+    overflow: "hidden", // 🔴 prevents page overflow
   },
 
   topBar: {
     display: "flex",
     padding: 10,
     gap: 8,
+    flexShrink: 0,
   },
 
   room: {
@@ -332,20 +352,17 @@ const styles = {
   },
 
   main: {
-    display: "flex",
     flex: 1,
-    overflow: "hidden",
-  },
-
-  sidebar: {
-    width: 200,
-    padding: 10,
+    display: "flex",
+    width: "100%",
+    overflow: "hidden", // 🔴 important
   },
 
   chat: {
     flex: 1,
     display: "flex",
     flexDirection: "column",
+    width: "100%",
     overflow: "hidden",
   },
 
@@ -353,24 +370,37 @@ const styles = {
     flex: 1,
     overflowY: "auto",
     padding: 10,
+
+    // 🔴 IMPORTANT FIXES FOR CENTERING ISSUE
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
   },
-inputArea: {
-  display: "flex",
-  padding: 10,
-  gap: 6,
-  flexShrink: 0,
-  flexWrap: "wrap",   // ✅ allows buttons to move instead of disappearing
-},
+
+  // 🔴 INPUT BAR FIX (ALWAYS VISIBLE + NOT PUSHING CONTENT)
+  inputArea: {
+    display: "flex",
+    width: "100%",
+    padding: 10,
+    gap: 6,
+    flexShrink: 0,
+    background: "#ce2929",
+    alignItems: "center",
+  },
 
   input: {
     flex: 1,
-    padding: 10,
+    minWidth: 0,
+    padding: "10px 12px",
     borderRadius: 20,
+    border: "1px solid #60ad0e",
+    outline: "none",
   },
 
   emojiBox: {
     display: "flex",
     flexWrap: "wrap",
+    gap: 10,
     padding: 10,
   },
 
@@ -382,7 +412,7 @@ inputArea: {
   },
 
   login: {
-    background: "#fff",
     padding: 20,
+    background: "#dfb071",
   },
 };

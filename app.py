@@ -11,6 +11,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 # ================= SOCKET EVENTS =================
 
+
+
 # 🔹 JOIN ROOM
 @socketio.on("join_room")
 def handle_join(data):
@@ -105,6 +107,16 @@ def handle_disconnect():
 
     socketio.emit("online_users", list(user_sessions.values()))
 
+
+@socketio.on("mark_seen")
+def mark_seen(data):
+    room = data.get("room")
+    username = data.get("username")
+
+    socketio.emit("seen_messages", {
+        "room": room,
+        "username": username
+    }, room=room)
 
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
