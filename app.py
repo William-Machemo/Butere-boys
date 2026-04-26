@@ -1,22 +1,19 @@
-
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import eventlet
-eventlet.monkey_patch()
 from flask_socketio import SocketIO, join_room
+
 import pymysql
 import os
 import time
 
-# ✅ VERY IMPORTANT → eventlet MUST be first
-
+# (ONLY KEEP ONE request import — already included above)
 
 app = Flask(__name__)
 
-# ✅ Allow all devices (phones + laptops)
+# ================= CORS =================
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# ✅ FIXED SOCKET CONFIG (THIS IS CRITICAL)
+# ================= SOCKET SETUP =================
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
@@ -24,54 +21,51 @@ socketio = SocketIO(
     ping_timeout=60,
     ping_interval=25
 )
+
+
+# ================= SOCKET EVENTS =================
+
+# 🔹 JOIN ROOM
 @socketio.on("join_room")
 def handle_join(data):
     username = data.get("username")
     room = data.get("room")
 
-    if not room:
-        return
-
-    print(f"{username} joined {room}")
-
     join_room(room)
+    print(f"{username} joined {room}")
 
     try:
         conn = get_connection()
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT id, username, message, room, created_at 
-            FROM chat_messages 
-            WHERE room=%s 
-            ORDER BY created_at ASC
-        """, (room,))
+        cursor.execute(
+            "SELECT id, username, message, room, created_at FROM chat_messages WHERE room=%s ORDER BY created_at ASC",
+            (room,)
+        )
 
         messages = cursor.fetchall()
 
+        # format time
         for msg in messages:
             msg["time"] = msg["created_at"].isoformat()
 
-        # ✅ send ONLY to that user
+        # ✅ ONLY send to that user
         socketio.emit("chat_history", messages, to=request.sid)
 
         cursor.close()
         conn.close()
 
     except Exception as e:
-        print("❌ JOIN ROOM ERROR:", e)
+        print("JOIN ERROR:", e)
 
 
-# 🔹 SEND MESSAGE (FIXED)
+# 🔹 SEND MESSAGE
 @socketio.on("send_message")
 def handle_message(data):
     try:
         username = data.get("username")
         message = data.get("message")
         room = data.get("room")
-
-        if not message or not room:
-            return
 
         conn = get_connection()
         cursor = conn.cursor()
@@ -85,116 +79,17 @@ def handle_message(data):
 
         msg_id = cursor.lastrowid
 
-        cursor.close()
-        conn.close()
-
-        # ✅ SEND COMPLETE MESSAGE BACK
-        socketio.emit("message", {
-            "id": msg_id,
-            "username": username,
-            "message": message,
-            "room": room,
-            "time": eventlet.greenthread.time.time()  # or use datetime
-        }, room=room)
-
-    except Exception as e:
-        print("❌ MESSAGE ERROR:", e)
-
-
-# 🔹 TYPING
-@socketio.on("typing")
-def handle_typing(data):
-    socketio.emit("typing", data, room=data.get("room"))
-
-
-# 🔹 ONLINE USERS (CLEAN)
-user_sessions = {}
-
-@socketio.on("user_joined")
-def user_joined(data):
-    username = data.get("username")
-
-    if username:
-        user_sessions[request.sid] = username
-
-    socketio.emit("online_users", list(user_sessions.values()))
-
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    if request.sid in user_sessions:
-        user_sessions.pop(request.sid)
-
-    socketio.emit("online_users", list(user_sessions.values()))
-
-
-# 🔹 DELETE (ONLY ONE FUNCTION NEEDED)
-@socketio.on("delete_message")
-def delete_message(data):
-    msg_id = data.get("id")
-    room = data.get("room")
-
-    if not msg_id:
-        return
-
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("DELETE FROM chat_messages WHERE id=%s", (msg_id,))
-        conn.commit()
+        data["id"] = msg_id
 
         cursor.close()
         conn.close()
 
-        socketio.emit("message_deleted", {"id": msg_id}, room=room)
+        # ✅ send to everyone in room
+        socketio.emit("message", data, room=room)
 
     except Exception as e:
-        print("❌ DELETE ERROR:", e)
+        print("MESSAGE ERROR:", e)
 
-
-# 🔹 EDIT MESSAGE
-@socketio.on("edit_message")
-def edit_message(data):
-    msg_id = data.get("id")
-    new_text = data.get("message")
-    room = data.get("room")
-
-    if not msg_id or not new_text:
-        return
-
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "UPDATE chat_messages SET message=%s WHERE id=%s",
-            (new_text, msg_id)
-        )
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-        socketio.emit("message_edited", {
-            "id": msg_id,
-            "message": new_text
-        }, room=room)
-
-    except Exception as e:
-        print("❌ EDIT ERROR:", e)
-
-
-# 🔹 SEEN (BLUE TICKS SUPPORT)
-@socketio.on("mark_seen")
-def mark_seen(data):
-    room = data.get("room")
-    username = data.get("username")
-
-    socketio.emit("seen_messages", {
-        "room": room,
-        "username": username
-    }, room=room)
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
