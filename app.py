@@ -1,95 +1,27 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-from flask_socketio import SocketIO, join_room
-
 import pymysql
 import os
 import time
 
-# (ONLY KEEP ONE request import — already included above)
-
 app = Flask(__name__)
+CORS(app)
 
-# ================= CORS =================
-CORS(app, resources={r"/*": {"origins": "*"}})
-
-# ================= SOCKET SETUP =================
-socketio = SocketIO(
-    app,
-    cors_allowed_origins="*",
-    async_mode="eventlet",
-    ping_timeout=60,
-    ping_interval=25
-)
-
-
-# ================= SOCKET EVENTS =================
-
-# 🔹 JOIN ROOM
-@socketio.on("join_room")
-def handle_join(data):
-    username = data.get("username")
-    room = data.get("room")
-
-    join_room(room)
-    print(f"{username} joined {room}")
-
+# ================= DB CONNECTION =================
+def get_connection():
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "SELECT id, username, message, room, created_at FROM chat_messages WHERE room=%s ORDER BY created_at ASC",
-            (room,)
+        return pymysql.connect(
+            host="mysql-williammachemo.alwaysdata.net",
+            user="williammachemo",
+            password="modcom1234",
+            database="williammachemo_sokogarden",
+            cursorclass=pymysql.cursors.DictCursor,
+            autocommit=True
         )
-
-        messages = cursor.fetchall()
-
-        # format time
-        for msg in messages:
-            msg["time"] = msg["created_at"].isoformat()
-
-        # ✅ ONLY send to that user
-        socketio.emit("chat_history", messages, to=request.sid)
-
-        cursor.close()
-        conn.close()
-
-    except Exception as e:
-        print("JOIN ERROR:", e)
-
-
-# 🔹 SEND MESSAGE
-@socketio.on("send_message")
-def handle_message(data):
-    try:
-        username = data.get("username")
-        message = data.get("message")
-        room = data.get("room")
-
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            INSERT INTO chat_messages (username, message, room)
-            VALUES (%s, %s, %s)
-        """, (username, message, room))
-
-        conn.commit()
-
-        msg_id = cursor.lastrowid
-
-        data["id"] = msg_id
-
-        cursor.close()
-        conn.close()
-
-        # ✅ send to everyone in room
-        socketio.emit("message", data, room=room)
-
-    except Exception as e:
-        print("MESSAGE ERROR:", e)
-
+    except pymysql.MySQLError as e:
+        print("❌ DATABASE CONNECTION ERROR:", e)
+        return None
+    
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -100,18 +32,7 @@ ROOM_PASSWORDS = {
     "Teachers Only": "teach123",
 }
 
-def get_connection():
-    return pymysql.connect(
-        host="mysql-williammachemo.alwaysdata.net",
-        user="williammachemo",
-        password="modcom1234",
-        database="williammachemo_sokogarden",
-        cursorclass=pymysql.cursors.DictCursor,
-        connect_timeout=10,
-        read_timeout=10,
-        write_timeout=10,
-        autocommit=True
-    )
+
 @app.before_request
 def log_request():
     print("REQUEST HIT:", request.path)
@@ -396,11 +317,19 @@ def get_files():
     return jsonify(files)
 
 
+
 # ---------------- DOWNLOAD ----------------
 @app.route("/download/<filename>")
 def download_file(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename, as_attachment=True)
-
+    try:
+        return send_from_directory(
+            app.config["UPLOAD_FOLDER"],
+            filename,
+            as_attachment=True
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
     # contact
 @app.route("/api/contact", methods=["POST"])
 def save_contact_message():
@@ -465,4 +394,4 @@ def home():
 # -------------- RUN ----------------
 if __name__ == "__main__":
     print(app.url_map)
-    socketio.run(app, host="0.0.0.0", port=5000)
+    app.run(debug=True)

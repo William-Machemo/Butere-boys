@@ -17,7 +17,6 @@ import Athletics from './components/Athletics';
 import Band from './components/Band';
 import Scouts from './components/Scouts';
 import Clubs from './components/Clubs';
-import Chat from './components/Chat';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
@@ -155,7 +154,7 @@ const [message, setMessage] = useState("");
 <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
 <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
 <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
-<Link className="nav-link text-white px-3" to="/Chat">Chatboard</Link>
+
 
 
 <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
@@ -261,7 +260,6 @@ const [message, setMessage] = useState("");
             <Route path="/teachersignup" element={<TeacherSignUp />} />
             <Route path="/principaldashboard" element={<PrincipalDashboard />} />
             <Route path="/physics" element={<PhysicsPage />} />
-<Route path="/chat" element={<Chat username="John" role="teacher" />} />
             <Route path="/chemistry" element={<Chemistry />} />
             <Route path="/generalscience" element={<GeneralScience />} />
             <Route path="/wood-technology" element={<WoodTechnology />} />
