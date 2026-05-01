@@ -118,7 +118,7 @@ It is one of the leading boys’ schools in the Western region, well known for i
             <div className="d-grid gap-2">
        <Link to="/Band" className="btn btn-danger">Band Festival</Link>
             <Link to="/Teachers" className="btn btn-danger">Teachers</Link>
-           <Link to="/StudentLife" className="btn btn-danger">Students</Link>
+           <Link to="/Dashboard" className="btn btn-danger">AI Assistant</Link>
              <Link to="/Alumni" className="btn btn-danger">Alumni</Link>
  <Link to="/Boarding" className="btn btn-danger">Boarding</Link>
               <Link to="/SchoolVideos" className="btn btn-danger">School Videos</Link>
@@ -459,15 +459,16 @@ These programs help learners develop leadership skills, creativity, teamwork, an
   <div className="marquee-content d-inline-flex gap-3 px-3">
 
     
-    <Link className="btn btn-success px-3" to="/FootBall">Football</Link>
+   
     <Link className="btn btn-success px-3" to="/NetBall">Netball</Link>
     <Link className="btn btn-success px-3" to="/VolleyBll">Volleyball</Link>
     <Link className="btn btn-success px-3" to="/Hockey">Hockey</Link>
     <Link className="btn btn-success px-3" to="/Rugby">Rugby</Link>
 
-    
+     <Link className="btn btn-success px-3" to="/FootBall">Football</Link>
     <Link className="btn btn-success px-3" to="/HandBall">Handball</Link>
     <Link className="btn btn-success px-3" to="/Badminton">Badminton</Link>
+     <Link className="btn btn-success px-3" to="/Dashboard">AI Assistant</Link>
     <Link className="btn btn-success px-3" to="/Athletics">Athletics</Link>
     <Link className="btn btn-success px-3" to="/BaketBall">Basketball</Link>
     <Link className="btn btn-success px-3" to="/TableTennis">Table Tennis</Link>
