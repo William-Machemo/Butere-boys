@@ -18,6 +18,8 @@ import Band from './components/Band';
 import Scouts from './components/Scouts';
 import Clubs from './components/Clubs';
 import ProtectedRoute from './components/ProtectedRoute';
+import Dashboard from './components/Dashboard';
+
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useState } from 'react';
@@ -170,7 +172,8 @@ const [message, setMessage] = useState("");
 <Link className="nav-link text-white px-3" to="/news">News</Link>
 <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
 <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
-        
+<Link className="nav-link text-white px-3" to="/Dashboard">AI</Link>
+      
 <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
 <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
 <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
@@ -216,6 +219,7 @@ const [message, setMessage] = useState("");
             <Route path="/studentlife" element={<StudentLife />} />
             <Route path="/admissions" element={<Admissions />} />
             <Route path="/alumni" element={<Alumni />} />
+             <Route path="/dashboard" element={<Dashboard />} />
 
              <Route path="/rugby" element={<Rugby/>} />
                <Route path="/football" element={<FootBall />} />

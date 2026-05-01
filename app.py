@@ -1,11 +1,11 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pymysql
-import os
 import time
-
+import os
 app = Flask(__name__)
 CORS(app)
+
 
 # ================= DB CONNECTION =================
 def get_connection():
@@ -21,7 +21,132 @@ def get_connection():
     except pymysql.MySQLError as e:
         print("❌ DATABASE CONNECTION ERROR:", e)
         return None
-    
+
+
+# ================= HARDCODED DATA =================
+
+fixtures = [
+    {"sport": "Football", "match": "Butere vs Kakamega High", "date": "10 June"},
+    {"sport": "Netball", "match": "Butere vs Mukumu Girls", "date": "12 June"},
+    {"sport": "Basketball", "match": "Butere vs Maseno School", "date": "15 June"},
+    {"sport": "Rugby", "match": "Butere vs Kisumu Boys", "date": "18 June"},
+    {"sport": "Volleyball", "match": "Butere vs St Mary’s", "date": "20 June"}
+]
+
+sports_results = [
+    {"sport": "Football", "result": "Butere 2 - 1 Kakamega High"},
+    {"sport": "Netball", "result": "Butere 30 - 25 Mukumu Girls"},
+    {"sport": "Basketball", "result": "Butere 60 - 55 Maseno"},
+]
+
+kcse_results = [
+    {"year": "2025", "mean": "8.2"},
+    {"year": "2024", "mean": "7.2"},
+    {"year": "2023", "mean": "6.8"}
+]
+
+announcements = [
+    {"title": "School Opening", "message": "School opens on 28th April."},
+    {"title": "Exam Week", "message": "Midterm exams start next week."},
+    {"title": "Sports Day", "message": "Annual sports day on 20th June."}
+]
+
+students_count = 540
+teachers_count = 42
+assignments_count = 12
+
+
+# ================= NAVIGATION =================
+def detect_navigation(msg):
+    routes = {
+        "dashboard": "/PrincipalDashboard",
+        "home": "/HomePage",
+        "videos": "/SchoolVideos",
+        "sports": "/Sports",
+        "academics": "/Curriculum",
+        "assignments": "/GetFiles",
+        "boarding": "/Boarding",
+        "admissions": "/Admissions",
+        "news": "/News",
+        "alumni": "/Alumni",
+        "newsletter": "/NewsLetter",
+        "login": "/SignIn",
+        "signup": "/SignUp"
+    }
+
+    triggers = ["go to", "navigate to", "open", "take me to", "visit"]
+
+    if not any(t in msg for t in triggers):
+        return None
+
+    for key in routes:
+        if key in msg:
+            return routes[key]
+
+    return None
+# ================= AI ROUTE =================
+@app.route("/ask-ai", methods=["POST"])
+def ask_ai():
+    data = request.get_json()
+    msg = data.get("message", "").lower().strip()
+
+    # ---------------- NAVIGATION ----------------
+    nav = detect_navigation(msg)
+    if nav:
+        return jsonify({
+            "reply": "📍 Navigating...",
+            "redirect": nav
+        })
+
+    # ---------------- COUNTS ----------------
+    if "how many assignments" in msg:
+        return jsonify({"reply": "📊 12 assignments uploaded."})
+
+    if "how many students" in msg:
+        return jsonify({"reply": "👨‍🎓 120 students registered."})
+
+    if "how many teachers" in msg:
+        return jsonify({"reply": "👩‍🏫 25 teachers registered."})
+
+    if "how many pages" in msg:
+        return jsonify({
+            "reply": "📄 Pages: Dashboard, Academics, Assignments, Results, Sports, Announcements."
+        })
+
+    # ---------------- FIXTURES ----------------
+    if any(x in msg for x in ["fixture", "match", "games"]):
+        text = "⚽ Upcoming Fixtures:\n\n"
+        for f in fixtures:
+            text += f"{f['sport']} - {f['match']} on {f['date']}\n"
+        return jsonify({"reply": text})
+
+    # ---------------- SPORTS RESULTS ----------------
+    if "sports results" in msg:
+        text = "🏆 Sports Results:\n\n"
+        for r in sports_results:
+            text += f"{r['sport']} → {r['result']}\n"
+        return jsonify({"reply": text})
+
+    # ---------------- KCSE ----------------
+    if "kcse" in msg:
+        text = "🎓 KCSE Results:\n\n"
+        for r in kcse_results:
+            text += f"{r['year']} → Mean Score: {r['mean']}\n"
+        return jsonify({"reply": text})
+
+    # ---------------- ANNOUNCEMENTS ----------------
+    if "announcement" in msg:
+        text = "📢 Announcements:\n\n"
+        for a in announcements:
+            text += f"{a['title']} → {a['message']}\n"
+        return jsonify({"reply": text})
+
+    # ---------------- DEFAULT ----------------
+    return jsonify({
+        "reply": "🤖 Ask about assignments, students, sports, KCSE, announcements or navigation."
+    })
+
+# upload folder
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER

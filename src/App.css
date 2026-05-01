@@ -502,7 +502,7 @@ body, html {
 .chat-input button {
   margin-left: 10px;
   padding: 10px;
-  background: #0d6efd;
+  background: #9e124a;
   color: white;
   border: none;
 }
@@ -523,4 +523,119 @@ body, html {
   0% { opacity: 0; }
   50% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+
+.faq-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  max-width: 600px;
+}
+
+.faq-card {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  padding: 15px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.faq-card:hover {
+  transform: scale(1.03);
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+}
+
+.ai-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+/* TITLE */
+.title {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+/* CHAT */
+.chat-box {
+  background: #f5f7fb;
+  padding: 15px;
+  border-radius: 10px;
+  min-height: 200px;
+  margin-bottom: 20px;
+}
+
+.chat {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+.chat.user {
+  background: #d1e7ff;
+  text-align: left;
+}
+
+.chat.ai {
+  background: #e9f7ef;
+}
+
+/* FAQ */
+.section-title {
+  margin-top: 20px;
+}
+
+.faq-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.faq-card {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.faq-card:hover {
+  transform: scale(1.02);
+}
+
+/* INPUT AREA */
+.input-wrapper {
+  display: flex;
+  margin-top: 20px;
+  width: 100%;
+  background: #222;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.input-wrapper input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  outline: none;
+  border-radius: 6px;
+}
+
+.input-wrapper button {
+  margin-left: 10px;
+  padding: 12px 20px;
+  background: #00f2fe;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
