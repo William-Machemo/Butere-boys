@@ -451,7 +451,7 @@ body, html {
   flex: 1;
   overflow-y: auto;
   padding: 15px;
-  background: #f5f5f5;
+  background: #0bd133;
 }
 
 /* MESSAGE */
@@ -536,7 +536,7 @@ body, html {
 
 .faq-card {
   background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: white;
+  color: rgb(19, 228, 75);
   padding: 15px 18px;
   border-radius: 12px;
   cursor: pointer;
@@ -580,12 +580,12 @@ body, html {
 }
 
 .chat.user {
-  background: #d1e7ff;
+  background: #04c607;
   text-align: left;
 }
 
 .chat.ai {
-  background: #e9f7ef;
+  background: #e85c05;
 }
 
 /* FAQ */
@@ -602,7 +602,7 @@ body, html {
 
 .faq-card {
   background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: white;
+  color: rgb(196, 7, 7);
   padding: 12px;
   border-radius: 10px;
   cursor: pointer;
@@ -618,7 +618,7 @@ body, html {
   display: flex;
   margin-top: 20px;
   width: 100%;
-  background: #222;
+  background: #6408d4;
   padding: 10px;
   border-radius: 10px;
 }
@@ -638,4 +638,101 @@ body, html {
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+
+.faq-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faq-card {
+  padding: 12px;
+  background: #f1f1f1;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.chat-text {
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.ai-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.title {
+  text-align: center;
+}
+
+.chat-box {
+  border: 1px solid #ddd;
+  padding: 10px;
+  height: 400px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chat {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.user {
+  background: #d1e7ff;
+  text-align: right;
+}
+
+.ai {
+  background: #f1f1f1;
+}
+
+.input-area {
+  display: flex;
+  gap: 10px;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 10px;
+}
+
+.faq-container {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.faq-card {
+  padding: 10px;
+  background: #eee;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.ai-container {
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(to right, #e3f2fd, #ffffff);
+}
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.ai-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f4f6f9;
 }

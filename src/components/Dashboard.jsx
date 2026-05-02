@@ -8,51 +8,58 @@ export default function AIDashboard() {
 
   const navigate = useNavigate();
 
-  // ---------------- SAFE FORMAT FUNCTION ----------------
-  const formatReply = (data) => {
-    if (!data) return "No response";
+  
 
-    // string
-    if (typeof data === "string") return data;
-
-    // array (fixtures, results, announcements)
-    if (Array.isArray(data)) {
-      return data
-        .map((item) => Object.values(item).join(" - "))
-        .join("\n");
-    }
-
-    // object
-    if (typeof data === "object") {
-      return Object.entries(data)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join("\n");
-    }
-
-    return String(data);
+  // ---------------- TEXT TO SPEECH ----------------
+  const speak = (text) => {
+    if (!text) return;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
   };
+
+  // ---------------- VOICE INPUT ----------------
+  const startVoiceInput = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Voice input not supported in this browser");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.start();
+
+    recognition.onresult = (event) => {
+      const voiceText = event.results[0][0].transcript;
+      setMessage(voiceText);
+    };
+  };
+  <div
+  className="ai-container"
+  style={{ backgroundColor: "#f4f6f9", minHeight: "100vh" }}
+></div>
 
   // ---------------- SEND MESSAGE ----------------
   const sendMessage = async (customMessage = null) => {
     const msgToSend = customMessage || message;
-
     if (!msgToSend.trim()) return;
 
-    const newChat = [...chat, { role: "user", text: msgToSend }];
-    setChat(newChat);
+    setChat((prev) => [...prev, { role: "user", text: msgToSend }]);
     setMessage("");
     setLoading(true);
 
     try {
-      const res = await fetch("https://butere-boys-flask-j2x3.onrender.com/ask-ai", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ message: msgToSend })
-      });
-
-      if (!res.ok) throw new Error("Server error");
+      const res = await fetch(
+        "https://butere-boys-flask-j2x3.onrender.com/ask-ai",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msgToSend }),
+        }
+      );
 
       const data = await res.json();
 
@@ -61,18 +68,37 @@ export default function AIDashboard() {
         navigate(data.redirect);
       }
 
-      // ---------------- SAFE RENDER ----------------
-      const replyText = formatReply(data.reply);
+      // ---------------- FORMAT RESPONSE ----------------
+      let output = "";
 
-      setChat([
-        ...newChat,
-        { role: "ai", text: replyText }
+      if (data.type === "list") {
+        output = data.reply
+          .map((item) => `📌 ${item.title} - ${item.message}`)
+          .join("\n");
+      } else if (Array.isArray(data.reply)) {
+        output = data.reply
+          .map((item) => Object.values(item).join(" - "))
+          .join("\n");
+      } else if (typeof data.reply === "object") {
+        output = Object.entries(data.reply)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("\n");
+      } else {
+        output = data.reply;
+      }
+
+      setChat((prev) => [
+        ...prev,
+        { role: "ai", text: output || "No response from AI" },
       ]);
 
+      // 🔊 speak response (optional)
+      speak(output);
+
     } catch (error) {
-      setChat([
-        ...newChat,
-        { role: "ai", text: "❌ Cannot connect to server." }
+      setChat((prev) => [
+        ...prev,
+        { role: "ai", text: "❌ Cannot connect to server." },
       ]);
     }
 
@@ -83,7 +109,14 @@ export default function AIDashboard() {
     <div className="ai-container">
 
       {/* TITLE */}
-      <h1 className="title">AI Student Assistant</h1>
+      
+      <h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    🤖 AI Student Assistant
+  </span>
+</h3>
+
+      <p className="subtitle"><i>Ask anything about your school system</i></p>
 
       {/* CHAT BOX */}
       <div className="chat-box">
@@ -93,40 +126,17 @@ export default function AIDashboard() {
             className={c.role === "user" ? "chat user" : "chat ai"}
           >
             <b>{c.role === "user" ? "You" : "AI"}:</b>
-            <pre style={{ whiteSpace: "pre-wrap" }}>
+
+            <div style={{ whiteSpace: "pre-wrap" }}>
               {c.text}
-            </pre>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* FAQ */}
-      <h3 className="section-title bg-danger">🔥 Frequently Asked Questions</h3>
+      {/* INPUT AREA */}
+      <div className="input-area">
 
-      <div className="faq-container">
-        {[
-          "How many assignments have been uploaded?",
-          "Show me the fixtures of upcoming football",
-          "Show me sports results",
-          "Show KCSE results",
-          "How many pages",
-          "How many students have signed up?",
-          "How many teachers have signed up?",
-          "Show announcements",
-          "Take me to academics page"
-        ].map((q, i) => (
-          <div
-            key={i}
-            className="faq-card"
-            onClick={() => sendMessage(q)}
-          >
-            {q}
-          </div>
-        ))}
-      </div>
-
-      {/* INPUT */}
-      <div className="input-wrapper">
         <input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -136,6 +146,37 @@ export default function AIDashboard() {
         <button onClick={() => sendMessage()} disabled={loading}>
           {loading ? "Sending..." : "Send"}
         </button>
+
+        <button onClick={startVoiceInput}>
+          🎤 Speak
+        </button>
+
+      </div>
+
+      {/* FAQ BUTTONS */}
+      <div className="faq-container">
+            <h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    Frequently asked questions
+  </span>
+</h3>
+        {[
+          "How many assignments have been uploaded?",
+          "Show announcements",
+          "Show KCSE results",
+          "Show me sports results",
+          "How many students have signed up?",
+          "How many teachers have signed up?",
+          "Take me to academics page",
+        ].map((q, i) => (
+          <div
+            key={i}
+            className="faq-card"
+            onClick={() => sendMessage(q)}
+          >
+            {q}
+          </div>
+        ))}
       </div>
 
     </div>
