@@ -193,38 +193,58 @@ const StudentChat = () => {
             💬 {typingUser} is typing...
           </p>
         )}
+{messages.map((msg) => (
+  <div
+    key={msg.id}
+    style={{
+      display: "flex",
+      flexDirection: "column", // 🔥 stack vertically
+      alignItems: msg.username === username ? "flex-end" : "flex-start",
+      marginBottom: 15,
+    }}
+  >
+    {/* USERNAME (TOP) */}
+    <b style={{ fontSize: "13px", marginBottom: 3 }}>
+      {msg.username}
+    </b>
 
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            style={{
-              textAlign: msg.username === username ? "right" : "left",
-              marginBottom: 10,
-            }}
-          >
-            <b>{msg.username}</b>
+    {/* MESSAGE (BOTTOM) */}
+    <div
+      style={{
+        maxWidth: "60%",
+        padding: 10,
+        borderRadius: 10,
+        background: msg.username === username ? "#dcf8c6" : "#fff",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+        wordBreak: "break-word",
+      }}
+    >
+      {msg.message}
 
-            <div
-              style={{
-                display: "inline-block",
-                padding: 8,
-                background: msg.username === username ? "#dcf8c6" : "#fff",
-                borderRadius: 10,
-              }}
-            >
-              {msg.message}
-              {msg.username === username && <span> ✓✓</span>}
-            </div>
+      {/* seen ticks */}
+      {msg.username === username && (
+        <span style={{ marginLeft: 8 }}>✓✓</span>
+      )}
+    </div>
 
-            {msg.username === username && (
-              <button
-                onClick={() => deleteMessage(msg.id)}
-                style={{ marginLeft: 10, color: "red" }}
-              >
-                Delete
-              </button>
-            )}
-          </div>
+    {/* DELETE BUTTON */}
+    {msg.username === username && (
+      <button
+        onClick={() => deleteMessage(msg.id)}
+        style={{
+          marginTop: 5,
+          fontSize: "12px",
+          color: "red",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        Delete
+      </button>
+    )}
+  </div>
+
         ))}
       </div>
 
