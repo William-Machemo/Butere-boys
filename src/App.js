@@ -11,6 +11,7 @@ import SchoolVideos from './components/SchoolVideos';
 import NetBall from './components/NetBall';
 import Hockey from './components/Hockey';
 import HandBall from './components/HandBall';
+import Chat from './components/Chat';
 import FootBall from './components/FootBall';
 import BasketBall from './components/BasketBall';
 import Badminton from './components/Badminton';
@@ -179,6 +180,7 @@ const [message, setMessage] = useState("");
 <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
 <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
 <Link className="nav-link text-white px-3" to="/SchoolVideos">School Videos</Link>
+<Link className="nav-link text-white px-3" to="/Chat">Chatboard</Link>
 
 
         </div>
@@ -285,6 +287,8 @@ const [message, setMessage] = useState("");
             <Route path="/geography" element={<GeographyPage />} />
             <Route path="/fine-arts" element={<FineArts />} />
             <Route path="/mathematics" element={<Mathematics />} />
+             <Route path="/chat" element={<Chat />} />
+
 
      
 

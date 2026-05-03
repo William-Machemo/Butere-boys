@@ -565,6 +565,7 @@ With ongoing infrastructure development, modern facilities, and a supportive env
     <Link className="btn btn-success px-3" to="/StudentLife">Student Life</Link>
     <Link className="btn btn-success px-3" to="/Alumni">Alumni</Link>
     <Link className="btn btn-success px-3" to="/Sports">Sports</Link>
+     <Link className="btn btn-success px-3" to="/Chat">Chatboard</Link>
 
     
     <Link className="btn btn-success px-3" to="/Admissions">Admission</Link>

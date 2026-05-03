@@ -165,6 +165,63 @@ def delete_message(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# ---------------- CHAT SEND ----------------
+@app.route("/api/chat/send", methods=["POST"])
+def send_chat():
+    data = request.get_json()
+
+    username = data.get("username")
+    message = data.get("message")
+
+    if not username or not message:
+        return jsonify({"error": "Missing fields"}), 400
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO chat_messages (username, message)
+        VALUES (%s, %s)
+    """, (username, message))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Sent successfully"})
+
+# get chat messages
+@app.route("/api/chat/messages", methods=["GET"])
+def get_chat_messages():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT * FROM chat_messages
+        ORDER BY id ASC
+    """)
+    messages = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(messages)
+
+
+# delete chat messages
+@app.route("/api/chat/delete/<int:id>", methods=["DELETE"])
+def delete_chat(id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM chat_messages WHERE id=%s", (id,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Deleted"})
 # upload folder
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
