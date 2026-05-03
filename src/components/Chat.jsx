@@ -10,7 +10,6 @@ const StudentChat = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
-  const chatEndRef = useRef(null);
 
   // ================= LOGIN =================
   const handleLogin = () => {
@@ -91,10 +90,6 @@ const StudentChat = () => {
     }
   };
 
-  // ================= AUTO SCROLL =================
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   // ================= LOGIN SCREEN =================
   if (!isLoggedIn) {
@@ -155,8 +150,7 @@ const StudentChat = () => {
           </div>
         ))}
 
-        {/* scroll anchor */}
-        <div ref={chatEndRef} />
+        
       </div>
 
       {/* INPUT */}
