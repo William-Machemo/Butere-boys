@@ -185,10 +185,10 @@ const deleteMessage = async (id) => {
 
       {/* DELETE BUTTON */}
       <button
-        className="btn btn-sm btn-danger mt-2"
+        className="text-danger btn btn-primary"
         onClick={() => deleteMessage(msg.id)}
       >
-        🗑 Delete
+         Delete
       </button>
     
     </div>
