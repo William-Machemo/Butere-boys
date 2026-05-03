@@ -80,7 +80,12 @@ const PrincipalDashboard = () => {
   if (!isAuthenticated) {
     return (
       <div className="container mt-5">
-        <h2>Principal Login</h2>
+        <h2 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    Principal Login
+  </span>
+</h2>
+        
 
         {error && <p className="text-danger">{error}</p>}
 
@@ -91,20 +96,36 @@ const PrincipalDashboard = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="btn btn-primary" onClick={handleLogin}>
+        <button className="btn bg-danger" onClick={handleLogin}>
           Login
         </button>
       </div>
     );
   }
+const deleteMessage = async (id) => {
+  if (!window.confirm("Delete this message permanently?")) return;
 
+  try {
+    await axios.delete(`${API_BASE_URL}/api/delete_message/${id}`);
+
+    // ✅ remove instantly from UI
+    setMessages((prev) => prev.filter((msg) => msg.id !== id));
+  console.log(messages);
+  } catch (error) {
+    console.error("Delete error:", error);
+  }
+};
   // ================= DASHBOARD =================
   return (
-    <div className="container mt-4">
-      <h2>Principal Dashboard</h2>
+    <div className="container-fluid mt-4 text-start">
+      <h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    Principal Dashboard
+  </span>
+</h3>
 
       {/* LOGOUT BUTTON */}
-      <button className="btn btn-danger mb-3" onClick={handleLogout}>
+      <button className=" text-center btn btn-danger mb-3" onClick={handleLogout}>
         Logout
       </button>
 
@@ -147,17 +168,32 @@ const PrincipalDashboard = () => {
       </div>
 
       {/* MESSAGES */}
-      <div className="mt-5">
-        <h3>Messages from Contact Form</h3>
+      <div className="mt-5 text-start">
+        <h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    Messages from Contact Form
+  </span>
+</h3>
 
-        {messages.length === 0 ? (
-          <p>No messages yet</p>
-        ) : (
-          messages.map((msg, index) => (
-            <div key={index} className="card p-3 mb-2">
-              <h5>{msg.username}</h5>
-              <p>{msg.message}</p>
-            </div>
+       {messages.length === 0 ? (
+  <p>No messages yet</p>
+) : (
+  messages.map((msg, index) => (
+    <div key={msg.id} className="card p-3 mb-2">
+      <h5 className="text-success">{msg.username}</h5>
+      <p className="text-danger">{msg.message}</p>
+
+      {/* DELETE BUTTON */}
+      <button
+        className="btn btn-sm btn-danger mt-2"
+        onClick={() => deleteMessage(msg.id)}
+      >
+        🗑 Delete
+      </button>
+    
+    </div>
+  
+
           ))
         )}
       </div>

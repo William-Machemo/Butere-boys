@@ -148,7 +148,22 @@ def ask_ai():
     return jsonify({
         "reply": "🤖 Ask about assignments, students, sports, KCSE, announcements or navigation."
     })
+@app.route("/api/delete_message/<int:id>", methods=["DELETE"])
+def delete_message(id):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
+        cursor.execute("DELETE FROM contact_messages WHERE id=%s", (id,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Deleted successfully"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # upload folder
 UPLOAD_FOLDER = "static/images"
