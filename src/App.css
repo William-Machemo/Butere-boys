@@ -552,10 +552,11 @@ body, html {
 }
 
 .ai-container {
+  width: 100%;
+  min-height: 100vh;
   padding: 20px;
-  max-width: 900px;
-  margin: auto;
-  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+  background-color: #f4f6f9;
 }
 
 /* TITLE */
@@ -586,6 +587,7 @@ body, html {
 
 .chat.ai {
   background: #e85c05;
+  text-align: center;
 }
 
 /* FAQ */
@@ -658,11 +660,7 @@ body, html {
   word-break: break-word;
 }
 
-.ai-container {
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
-}
+
 
 .title {
   text-align: center;
@@ -715,11 +713,6 @@ body, html {
   border-radius: 6px;
 }
 
-.ai-container {
-  min-height: 100vh;
-  padding: 20px;
-  background: linear-gradient(to right, #e3f2fd, #ffffff);
-}
 body {
   margin: 0;
   padding: 0;
@@ -731,8 +724,20 @@ html, body {
   height: 100%;
 }
 
-.ai-container {
-  min-height: 100vh;
+
+
+
+
+.chat-box {
   width: 100%;
-  background-color: #f4f6f9;
+}
+
+.input-area {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
 }

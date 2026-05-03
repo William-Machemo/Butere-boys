@@ -116,12 +116,14 @@ It is one of the leading boys’ schools in the Western region, well known for i
             <h5 className="text-center mb-3">Top Pages</h5>
 
             <div className="d-grid gap-2">
+                <Link to="/AnnualMeeting" className="btn btn-danger">Annual Meeting (AGM)</Link>
+                 <Link to="/SchoolVideos" className="btn btn-danger">School Videos</Link>
        <Link to="/Band" className="btn btn-danger">Band Festival</Link>
-            <Link to="/Teachers" className="btn btn-danger">Teachers</Link>
+           
            <Link to="/Dashboard" className="btn btn-danger">AI Assistant</Link>
-             <Link to="/Alumni" className="btn btn-danger">Alumni</Link>
+            <Link to="/Teachers" className="btn btn-danger">Teachers</Link>
  <Link to="/Boarding" className="btn btn-danger">Boarding</Link>
-              <Link to="/SchoolVideos" className="btn btn-danger">School Videos</Link>
+             
              
             </div>
 

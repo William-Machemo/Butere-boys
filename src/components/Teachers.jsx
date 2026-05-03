@@ -15,9 +15,9 @@ export default function TeachersPage() {
       desc: "Experienced in guiding students to excel in mathematics."
     },
     {
-      name: "Ms. Grace Achieng",
+      name: "Mr. Titus Wanyama",
       subject: "English",
-      image: "images/teacher2.jpg",
+      image: "images/RugbyCotch.jpg",
       desc: "Passionate about communication skills and literature."
     },
     {
@@ -27,15 +27,15 @@ export default function TeachersPage() {
       desc: "Encourages practical science learning."
     },
     {
-      name: "Mrs. Mary Wanjiku",
+      name: "Mr. Caesar Wanyama",
       subject: "Biology",
-      image: "images/teacher4.jpg",
+      image: "images/Caesar.jpg",
       desc: "Promotes curiosity in life sciences."
     },
     {
-      name: "Mr. David Kiptoo",
+      name: "Mr. Achara",
       subject: "Chemistry",
-      image: "images/teacher5.jpg",
+      image: "images/Achara.jpg",
       desc: "Makes chemistry relatable and practical."
     },
     {

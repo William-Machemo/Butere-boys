@@ -73,6 +73,7 @@ def detect_navigation(msg):
         "alumni": "/Alumni",
         "newsletter": "/NewsLetter",
         "login": "/SignIn",
+         "annualmeeting": "/AnnualMeeting",
         "signup": "/SignUp"
     }
 

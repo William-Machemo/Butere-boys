@@ -6,6 +6,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import VolleyBall from './components/VolleyBall';
 import TableTennis from './components/TableTennis';
 import Rugby from './components/Rugby';
+import AnnualMeeting from './components/AnnualMeeting';
 import SchoolVideos from './components/SchoolVideos';
 import NetBall from './components/NetBall';
 import Hockey from './components/Hockey';
@@ -158,7 +159,7 @@ const [message, setMessage] = useState("");
 <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
 
 
-
+<Link className="nav-link text-white px-3" to="/AnnualMeeting">AGM Meeting</Link>
 <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
 <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>
 <Link className="nav-link text-white px-3" to="/curriculum">Academics</Link>
@@ -220,6 +221,7 @@ const [message, setMessage] = useState("");
             <Route path="/admissions" element={<Admissions />} />
             <Route path="/alumni" element={<Alumni />} />
              <Route path="/dashboard" element={<Dashboard />} />
+             <Route path="/annualmeeting" element={<AnnualMeeting />} />
 
              <Route path="/rugby" element={<Rugby/>} />
                <Route path="/football" element={<FootBall />} />

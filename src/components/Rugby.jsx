@@ -12,7 +12,7 @@ function Rugby() {
 
       {/* HERO IMAGE */}
       <img
-        src="/images/rugby-main.jpg"
+        src="images/rugby4.jpg"
         alt="Rugby Team"
         className="img-fluid rounded shadow mb-4"
         style={{ width: "100%", maxHeight: "450px", objectFit: "cover" }}
@@ -33,7 +33,7 @@ function Rugby() {
       <section className="mb-4">
         <h3 className="text-success mb-3">Team Gallery</h3>
         <div className="row">
-          {["rugby1.jpg", "rugby2.jpg", "rugby3.jpg"].map((img, i) => (
+          {["RugbyCotch.jpg", "rugby6.jpg","rugby1.jpg","rugby.jpg","rugby7.jpg","rugby4.jpg","rugby5.jpg","rugby3.jpg","rugby2.jpg"].map((img, i) => (
             <div className="col-md-4 mb-3" key={i}>
               <img
                 src={`/images/${img}`}
