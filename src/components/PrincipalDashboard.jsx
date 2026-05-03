@@ -10,7 +10,7 @@ const PrincipalDashboard = () => {
     teachers: 0,
     assignments: 0,
   });
-
+  const [newMessageCount, setNewMessageCount] = useState(0);
   const [messages, setMessages] = useState([]);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,11 +23,18 @@ const PrincipalDashboard = () => {
   });
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchCounts();
+  if (isAuthenticated) {
+    fetchCounts();
+    fetchMessages();
+
+    // auto refresh every 5 seconds
+    const interval = setInterval(() => {
       fetchMessages();
-    }
-  }, [isAuthenticated]);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }
+}, [isAuthenticated]);
 
   const fetchCounts = async () => {
     try {
@@ -41,15 +48,24 @@ const PrincipalDashboard = () => {
       console.error(error);
     }
   };
+const fetchMessages = async () => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/api/get_messages`);
+    const newData = Array.isArray(res.data) ? res.data : [];
 
-  const fetchMessages = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/api/get_messages`);
-      setMessages(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    setMessages((prevMessages) => {
+      if (prevMessages.length > 0 && newData.length > 0) {
+        if (newData[0].id !== prevMessages[0].id) {
+          setNewMessageCount((prev) => prev + 1);
+        }
+      }
+      return newData;
+    });
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleLogin = async () => {
     if (!password.trim()) {
@@ -108,9 +124,12 @@ const deleteMessage = async (id) => {
   try {
     await axios.delete(`${API_BASE_URL}/api/delete_message/${id}`);
 
-    // ✅ remove instantly from UI
+    // remove instantly
     setMessages((prev) => prev.filter((msg) => msg.id !== id));
-  console.log(messages);
+
+    // also reduce new message count
+    setNewMessageCount((prev) => Math.max(prev - 1, 0));
+
   } catch (error) {
     console.error("Delete error:", error);
   }
@@ -166,7 +185,21 @@ const deleteMessage = async (id) => {
           </div>
         </div>
       </div>
-
+      {/* new message */}
+{newMessageCount > 0 && (
+  <div className="alert alert-info text-center">
+    🔔 {newMessageCount} new message(s)
+    <button
+      className="btn btn-sm btn-primary ms-3"
+      onClick={() => {
+        fetchMessages();
+        setNewMessageCount(0);
+      }}
+    >
+      Refresh
+    </button>
+  </div>
+)}
       {/* MESSAGES */}
       <div className="mt-5 text-start">
         <h3 className="text-center">
