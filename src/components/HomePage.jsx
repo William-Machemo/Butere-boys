@@ -121,6 +121,7 @@ It is one of the leading boys’ schools in the Western region, well known for i
        <Link to="/Band" className="btn btn-danger">Band Festival</Link>
            
            <Link to="/Dashboard" className="btn btn-danger">AI Assistant</Link>
+            <Link to="/Chat" className="btn btn-danger">Chatboard</Link>
             <Link to="/Teachers" className="btn btn-danger">Teachers</Link>
  <Link to="/Boarding" className="btn btn-danger">Boarding</Link>
              
