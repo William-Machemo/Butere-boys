@@ -3,6 +3,9 @@ from flask_cors import CORS
 import pymysql
 import time
 import os
+from werkzeug.utils import secure_filename
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -173,24 +176,37 @@ def send_chat():
 
     username = data.get("username")
     message = data.get("message")
+    file = data.get("file")
 
-    if not username or not message:
-        return jsonify({"error": "Missing fields"}), 400
+    reply = data.get("replyTo")
+
+    # reply fields
+    reply_id = None
+    reply_username = None
+    reply_message = None
+
+    if reply:
+        reply_id = reply.get("id")
+        reply_username = reply.get("username")
+        reply_message = reply.get("message")
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
 
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO chat_messages (username, message)
-        VALUES (%s, %s)
-    """, (username, message))
+        INSERT INTO chat_messages 
+        (username, message, file, reply_id, reply_username, reply_message)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (username, message, file, reply_id, reply_username, reply_message))
 
     conn.commit()
     cursor.close()
     conn.close()
 
     return jsonify({"message": "Sent successfully"})
-
 # get chat messages
 @app.route("/api/chat/messages", methods=["GET"])
 def get_chat_messages():
@@ -201,14 +217,29 @@ def get_chat_messages():
         SELECT * FROM chat_messages
         ORDER BY id ASC
     """)
-    messages = cursor.fetchall()
+    rows = cursor.fetchall()
+
+    messages = []
+
+    for row in rows:
+        msg = dict(row)
+
+        # convert reply fields into replyTo object
+        if msg.get("reply_id"):
+            msg["replyTo"] = {
+                "id": msg["reply_id"],
+                "username": msg["reply_username"],
+                "message": msg["reply_message"]
+            }
+        else:
+            msg["replyTo"] = None
+
+        messages.append(msg)
 
     cursor.close()
     conn.close()
 
     return jsonify(messages)
-
-
 # delete chat messages
 @app.route("/api/chat/delete/<int:id>", methods=["DELETE"])
 def delete_chat(id):
@@ -222,7 +253,59 @@ def delete_chat(id):
     conn.close()
 
     return jsonify({"message": "Deleted"})
+
+
+
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+    return send_from_directory("uploads", filename)
+
+# file upload
+@app.route("/api/chat/upload", methods=["POST"])
+def upload_file():
+    if "file" not in request.files:
+        return jsonify({"error": "No file"}), 400
+
+    file = request.files["file"]
+    username = request.form.get("username")
+    message = request.form.get("message", "")
+    reply_id = request.form.get("reply_id")
+    reply_username = request.form.get("reply_username")
+    reply_message = request.form.get("reply_message")
+
+    if file.filename == "":
+        return jsonify({"error": "No file name"}), 400
+
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(filepath)
+
+    file_url = f"/uploads/{filename}"
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO chat_messages 
+        (username, message, file_url, reply_id, reply_username, reply_message)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (
+        username,
+        message,
+        file_url,
+        reply_id,
+        reply_username,
+        reply_message
+    ))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Uploaded", "file_url": file_url})
 # upload folder
+UPLOAD_FOLDER = "uploads"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 UPLOAD_FOLDER = "static/images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
