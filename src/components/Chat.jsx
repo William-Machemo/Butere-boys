@@ -5,23 +5,26 @@ const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
 const StudentChat = () => {
   const [username, setUsername] = useState("");
+  const [avatar, setAvatar] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [typingUser, setTypingUser] = useState("");
 
   const [unreadCount, setUnreadCount] = useState(0);
-  const [lastId, setLastId] = useState(null);
+  const [lastSeenId, setLastSeenId] = useState(null);
+
+  const [replyTo, setReplyTo] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const chatRef = useRef(null);
+  const startX = useRef(0);
 
   // ================= LOGIN =================
   const handleLogin = () => {
     if (!username.trim()) return alert("Enter username");
-
     localStorage.setItem("chatUser", username);
     setIsLoggedIn(true);
   };
@@ -34,100 +37,119 @@ const StudentChat = () => {
     }
   }, []);
 
-  // ================= NOTIFICATIONS =================
-  const playSound = () => {
+  // ================= TIME =================
+  const getTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // ================= NOTIFY =================
+  const notify = (msg, sender) => {
+    if (sender === username) return;
+
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(`💬 ${sender}`, { body: msg });
+    }
+
     const audio = new Audio("/notification.mp3");
     audio.play().catch(() => {});
   };
 
-  const pushNotify = (text) => {
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("New Message", { body: text });
-    }
-  };
-
   useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
+    if (Notification.permission === "default") {
       Notification.requestPermission();
     }
   }, []);
 
-  // ================= FETCH MESSAGES =================
+  // ================= FETCH =================
   const fetchMessages = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/chat/messages`);
       const data = Array.isArray(res.data) ? res.data : [];
 
-      // detect new message
+      setOnlineUsers([...new Set(data.map((m) => m.username))]);
+
       if (data.length > 0) {
         const latest = data[0].id;
 
-        if (lastId && latest !== lastId) {
+        if (lastSeenId && latest !== lastSeenId) {
           setUnreadCount((p) => p + 1);
-          playSound();
-          pushNotify("New message received");
+          notify(data[0].message, data[0].username);
         }
 
-        setLastId(latest);
+        setLastSeenId(latest);
       }
 
       setMessages(data);
-
-      // fake online users (replace later with backend socket)
-      setOnlineUsers([...new Set(data.map((m) => m.username))]);
-
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ================= AUTO REFRESH =================
   useEffect(() => {
     if (!isLoggedIn) return;
 
     fetchMessages();
-
-    const interval = setInterval(fetchMessages, 3000);
+    const interval = setInterval(fetchMessages, 2000);
 
     return () => clearInterval(interval);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
 
-  // ================= SEND MESSAGE =================
+  // ================= SEND =================
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() && !selectedFile) return;
 
-    const msg = message;
+    const msgObj = {
+      id: Date.now(),
+      username,
+      message,
+      time: getTime(),
+      avatar,
+
+      // ✅ FIXED REPLY STRUCTURE
+      replyTo: replyTo
+        ? {
+            id: replyTo.id,
+            username: replyTo.username,
+            message: replyTo.message,
+          }
+        : null,
+
+      file: selectedFile ? URL.createObjectURL(selectedFile) : null,
+    };
+
+    setMessages((prev) => [...prev, msgObj]);
     setMessage("");
-
-    // optimistic UI
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        username,
-        message: msg,
-      },
-    ]);
+    setReplyTo(null);
+    setSelectedFile(null);
 
     try {
-      await axios.post(`${API_BASE_URL}/api/chat/send`, {
-        username,
-        message: msg,
-      });
-
-      fetchMessages();
+      await axios.post(`${API_BASE_URL}/api/chat/send`, msgObj);
     } catch (err) {
       console.error(err);
     }
   };
 
+  // ================= SWIPE REPLY =================
+  const handleTouchStart = (e) => {
+    startX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e, msg) => {
+    const diff = e.changedTouches[0].clientX - startX.current;
+    if (diff > 80) setReplyTo(msg);
+  };
+
   // ================= DELETE =================
   const deleteMessage = async (id) => {
+    setMessages((prev) => prev.filter((m) => m.id !== id));
     try {
       await axios.delete(`${API_BASE_URL}/api/chat/delete/${id}`);
-      setMessages((prev) => prev.filter((m) => m.id !== id));
     } catch (err) {
       console.error(err);
     }
@@ -146,6 +168,14 @@ const StudentChat = () => {
           style={{ width: "100%", padding: 10 }}
         />
 
+        <input
+          type="file"
+          onChange={(e) =>
+            setAvatar(URL.createObjectURL(e.target.files[0]))
+          }
+          style={{ marginTop: 10 }}
+        />
+
         <button onClick={handleLogin} style={{ marginTop: 10 }}>
           Enter Chat
         </button>
@@ -155,114 +185,194 @@ const StudentChat = () => {
 
   // ================= CHAT UI =================
   return (
-    <div style={{ width: "100%", minHeight: "100vh", background: "#f4f6f9" }}>
-
-      {/* TOP BAR */}
-      <div style={{
+    <div
+      style={{
+        height: "100vh",
         display: "flex",
-        justifyContent: "space-between",
-        padding: 10,
-        background: "#fff"
-      }}>
+        flexDirection: "column",
+        background: "#0ad766",
+      }}
+    >
+      {/* TOP BAR */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: 10,
+          background: "#9c05e2",
+          color: "white",
+        }}
+      >
         <div>🟢 Online: {onlineUsers.length}</div>
-        <div>👤 {username}</div>
-        <div>
-          💬 Unread: {unreadCount}
-          <button
-            onClick={() => setUnreadCount(0)}
-            style={{ marginLeft: 10 }}
-          >
-            Clear
-          </button>
+
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {avatar && (
+            <img
+              src={avatar}
+              width={30}
+              height={30}
+              style={{ borderRadius: "50%" }}
+              alt=""
+            />
+          )}
+          👤 {username}
         </div>
+
+        <div>💬 Unread: {unreadCount}</div>
       </div>
 
-      {/* CHAT BOX */}
+      {/* CHAT AREA */}
       <div
         ref={chatRef}
         style={{
-          width: "100%",
-          height: "70vh",
+          flex: 1,
           overflowY: "auto",
           padding: 10,
         }}
       >
-        {/* typing indicator */}
-        {typingUser && (
-          <p style={{ fontStyle: "italic", color: "gray" }}>
-            💬 {typingUser} is typing...
-          </p>
-        )}
-{messages.map((msg) => (
-  <div
-    key={msg.id}
-    style={{
-      display: "flex",
-      flexDirection: "column", // 🔥 stack vertically
-      alignItems: msg.username === username ? "flex-end" : "flex-start",
-      marginBottom: 15,
-    }}
-  >
-    {/* USERNAME (TOP) */}
-    <b style={{ fontSize: "13px", marginBottom: 3 }}>
-      {msg.username}
-    </b>
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={(e) => handleTouchEnd(e, msg)}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems:
+                msg.username === username ? "flex-end" : "flex-start",
+              marginBottom: 12,
+            }}
+          >
+            <b style={{ fontSize: 12 }}>{msg.username}</b>
 
-    {/* MESSAGE (BOTTOM) */}
-    <div
-      style={{
-        maxWidth: "60%",
-        padding: 10,
-        borderRadius: 10,
-        background: msg.username === username ? "#dcf8c6" : "#fff",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-        wordBreak: "break-word",
-      }}
-    >
-      {msg.message}
+            {/* MESSAGE BUBBLE */}
+            <div
+              style={{
+                maxWidth: "75%",
+                padding: 10,
+                borderRadius: 12,
+                background:
+                  msg.username === username ? "#dcf8c6" : "#fff",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              }}
+            >
+              {/* ✅ WHATSAPP REPLY (TRUE STYLE) */}
+              {msg.replyTo && (
+                <div
+                  style={{
+                    borderLeft: "4px solid #9c05e2",
+                    background: "rgba(0,0,0,0.05)",
+                    padding: "5px 8px",
+                    marginBottom: 6,
+                    borderRadius: 6,
+                    fontSize: 12,
+                    opacity: 0.8,
+                  }}
+                >
+                  <b>{msg.replyTo.username}</b>
+                  <div>{msg.replyTo.message}</div>
+                </div>
+              )}
 
-      {/* seen ticks */}
-      {msg.username === username && (
-        <span style={{ marginLeft: 8 }}>✓✓</span>
-      )}
-    </div>
+              {/* MESSAGE */}
+              <div style={{ wordBreak: "break-word" }}>
+                {msg.message}
+              </div>
 
-    {/* DELETE BUTTON */}
-    {msg.username === username && (
-      <button
-        onClick={() => deleteMessage(msg.id)}
-        style={{
-          marginTop: 5,
-          fontSize: "12px",
-          color: "red",
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        Delete
-      </button>
-    )}
-  </div>
+              {/* FILE */}
+              {msg.file && (
+                <img
+                  src={msg.file}
+                  alt=""
+                  style={{
+                    width: "100%",
+                    marginTop: 6,
+                    borderRadius: 8,
+                  }}
+                />
+              )}
 
+              {/* TIME */}
+              <div
+                style={{
+                  fontSize: 10,
+                  opacity: 0.6,
+                  marginTop: 5,
+                  textAlign: "right",
+                }}
+              >
+                {msg.time}
+              </div>
+
+              {msg.username === username && (
+                <span style={{ color: "blue" }}>✓✓</span>
+              )}
+            </div>
+
+            {/* ACTIONS */}
+            <div style={{ display: "flex", gap: 10 }}>
+              {msg.username === username && (
+                <button
+                  onClick={() => deleteMessage(msg.id)}
+                  style={{ color: "red", fontSize: 12 }}
+                >
+                  Delete
+                </button>
+              )}
+
+              <button
+                onClick={() => setReplyTo(msg)}
+                style={{ fontSize: 12 }}
+              >
+                Reply
+              </button>
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* INPUT */}
-      <form onSubmit={sendMessage} style={{ padding: 10 }}>
+      {/* ================= FIXED RESPONSIVE INPUT ================= */}
+      <form
+        onSubmit={sendMessage}
+        style={{
+          display: "flex",
+          gap: 6,
+          padding: 8,
+          background: "#fff",
+          alignItems: "center",
+          flexWrap: "wrap", // ✅ FIX FOR SMALL SCREENS
+          borderTop: "1px solid #ddd",
+        }}
+      >
         <input
-          value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            setTypingUser(username);
-
-            setTimeout(() => setTypingUser(""), 1000);
-          }}
-          placeholder="Type message..."
-          style={{ width: "80%", padding: 10 }}
+          type="file"
+          style={{ maxWidth: 90 }}
+          onChange={(e) => setSelectedFile(e.target.files[0])}
         />
 
-        <button style={{ width: "20%", padding: 10 }}>
+        <input
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type message..."
+          style={{
+            flex: 1,
+            minWidth: 120,
+            padding: 10,
+            outline: "none",
+          }}
+        />
+
+        <button
+          type="submit"
+          style={{
+            padding: "10px 14px",
+            background: "#9c05e2",
+            color: "white",
+            border: "none",
+            borderRadius: 6,
+            flexShrink: 0,
+          }}
+        >
           Send
         </button>
       </form>
