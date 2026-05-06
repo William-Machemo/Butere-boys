@@ -1,148 +1,235 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 
 const Admissions = () => {
+  const [curriculum, setCurriculum] = useState("8-4-4");
 
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    dob: "",
+    index: "",
+    parent: "",
+    phone: "",
+    email: "",
+    type: "Day Scholar",
+    notes: "",
+  });
+
+  const [files, setFiles] = useState({
+    birthCert: null,
+    results: null,
+    photo: null,
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  // INPUT CHANGE
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // FILE CHANGE
+  const handleFileChange = (e) => {
+    setFiles({ ...files, [e.target.name]: e.target.files[0] });
+  };
+
+  // SUBMIT FORM
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Application submitted successfully!");
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const data = new FormData();
+
+      // text fields
+      data.append("name", formData.name);
+      data.append("dob", formData.dob);
+      data.append("index", formData.index);
+      data.append("parent", formData.parent);
+      data.append("phone", formData.phone);
+      data.append("email", formData.email);
+      data.append("type", formData.type);
+      data.append("notes", formData.notes);
+      data.append("curriculum", curriculum);
+
+      // files
+      data.append("birthCert", files.birthCert);
+      data.append("results", files.results);
+      data.append("photo", files.photo);
+
+      // SEND TO BACKEND
+      const res = await axios.post(
+        "http://localhost:5000/apply",
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setMessage(res.data.message || "Application submitted successfully!");
+
+      // RESET FORM
+      setFormData({
+        name: "",
+        dob: "",
+        index: "",
+        parent: "",
+        phone: "",
+        email: "",
+        type: "Day Scholar",
+        notes: "",
+      });
+
+      setFiles({
+        birthCert: null,
+        results: null,
+        photo: null,
+      });
+
+    } catch (error) {
+      console.log(error);
+      setMessage("❌ Submission failed. Check backend.");
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="container py-4">
 
-      <h1 className="text-success mb-3">Admissions - High School</h1>
+      <h1 className="text-success mb-3">Admissions</h1>
 
-      <p className="mb-4">
-        Admissions are open to qualified students who meet the required academic standards and demonstrate discipline and excellence in co-curricular activities.
-      </p>
+      {/* CURRICULUM SELECT */}
+      <select
+        className="form-select mb-3"
+        value={curriculum}
+        onChange={(e) => setCurriculum(e.target.value)}
+      >
+        <option value="8-4-4">8-4-4</option>
+        <option value="CBC">CBC</option>
+      </select>
 
-      {/* ================= 8-4-4 SECTION ================= */}
-      <div className="mb-5">
-        <h3 className="text-primary mb-3">8-4-4 Curriculum Students</h3>
+      {/* MESSAGE */}
+      {message && (
+        <div className="alert alert-info">{message}</div>
+      )}
 
-        <div className="row">
+      <form onSubmit={handleSubmit} className="card p-3 shadow">
 
-          {/* Requirements */}
-          <div className="col-md-6 mb-3">
-            <div className="card p-3 shadow-sm h-100">
-              <h5>Admission Requirements</h5>
-              <ul>
-                <li>KCPE results</li>
-                <li>Application form</li>
-                <li>Birth certificate</li>
-                <li>Passport photos</li>
-                <li>Interview (if required)</li>
-              </ul>
-            </div>
-          </div>
+        <input
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          className="form-control mb-2"
+          placeholder="Full Name"
+          required
+        />
 
-          {/* How to Apply */}
-          <div className="col-md-6 mb-3">
-            <div className="card p-3 shadow-sm h-100">
-              <h5>How to Apply</h5>
-              <p>
-                Visit school or download form → Fill form → Attach documents → Submit before deadline → Attend interview if selected.
-              </p>
-            </div>
-          </div>
+        <input
+          type="date"
+          name="dob"
+          value={formData.dob}
+          onChange={handleChange}
+          className="form-control mb-2"
+          required
+        />
 
-        </div>
+        <input
+          name="index"
+          value={formData.index}
+          onChange={handleChange}
+          className="form-control mb-2"
+          placeholder="KCPE / Index Number"
+          required
+        />
 
-        {/* FORM */}
-        <div className="card p-3 shadow-sm mb-3">
-          <h5>8-4-4 Application Form</h5>
+        <input
+          name="parent"
+          value={formData.parent}
+          onChange={handleChange}
+          className="form-control mb-2"
+          placeholder="Parent Name"
+          required
+        />
 
-          <form onSubmit={handleSubmit}>
+        <input
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          className="form-control mb-2"
+          placeholder="Phone Number"
+          required
+        />
 
-            <input className="form-control mb-2" placeholder="Full Name" required />
-            <input type="date" className="form-control mb-2" required />
-            <input className="form-control mb-2" placeholder="KCPE Index Number" required />
-            <input className="form-control mb-2" placeholder="Parent/Guardian Name" required />
-            <input className="form-control mb-2" placeholder="Phone Number" required />
-            <input type="email" className="form-control mb-2" placeholder="Email" />
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          className="form-control mb-2"
+          placeholder="Email"
+        />
 
-            <select className="form-select mb-2">
-              <option>Day Scholar</option>
-              <option>Boarding</option>
-            </select>
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          className="form-select mb-2"
+        >
+          <option>Day Scholar</option>
+          <option>Boarding</option>
+        </select>
 
-            <textarea className="form-control mb-3" placeholder="Additional Notes"></textarea>
+        {/* FILES */}
+        <label>Birth Certificate</label>
+        <input
+          type="file"
+          name="birthCert"
+          onChange={handleFileChange}
+          className="form-control mb-2"
+          required
+        />
 
-            <button className="btn btn-success w-100">
-              Submit Application
-            </button>
+        <label>Results Slip</label>
+        <input
+          type="file"
+          name="results"
+          onChange={handleFileChange}
+          className="form-control mb-2"
+          required
+        />
 
-          </form>
-        </div>
+        <label>Passport Photo</label>
+        <input
+          type="file"
+          name="photo"
+          onChange={handleFileChange}
+          className="form-control mb-2"
+          required
+        />
 
-        <div className="alert alert-warning">
-          Application Fee: <strong>KES 1,000</strong> (Mpesa Till: 323253)
-        </div>
+        <textarea
+          name="notes"
+          value={formData.notes}
+          onChange={handleChange}
+          className="form-control mb-3"
+          placeholder="Additional Notes"
+        />
 
-      </div>
+        <button
+          type="submit"
+          className="btn btn-success w-100"
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Submit Application"}
+        </button>
 
-      {/* ================= CBC SECTION ================= */}
-      <div className="mb-5">
-
-        <h3 className="text-success mb-3">CBC Students</h3>
-
-        <div className="row">
-
-          <div className="col-md-6 mb-3">
-            <div className="card p-3 shadow-sm h-100">
-              <h5>Requirements</h5>
-              <ul>
-                <li>CBC/KCPE results</li>
-                <li>Birth certificate</li>
-                <li>Passport photos</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <div className="card p-3 shadow-sm h-100">
-              <h5>How to Apply</h5>
-              <p>
-                Fill CBC form → Attach documents → Submit → Interview if needed.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        {/* CBC FORM */}
-        <div className="card p-3 shadow-sm mb-3">
-          <h5>CBC Application Form</h5>
-
-          <form onSubmit={handleSubmit}>
-
-            <input className="form-control mb-2" placeholder="Full Name" required />
-            <input type="date" className="form-control mb-2" required />
-            <input className="form-control mb-2" placeholder="Index Number" required />
-            <input className="form-control mb-2" placeholder="Parent Name" required />
-            <input className="form-control mb-2" placeholder="Phone Number" required />
-            <input type="email" className="form-control mb-2" placeholder="Email" />
-
-            <select className="form-select mb-2">
-              <option>Day Scholar</option>
-              <option>Boarding</option>
-            </select>
-
-            <textarea className="form-control mb-3" placeholder="Notes"></textarea>
-
-            <button className="btn btn-success w-100">
-              Submit CBC Application
-            </button>
-
-          </form>
-        </div>
-
-        <div className="alert alert-warning">
-          Application Fee: <strong>KES 1,000</strong> (Mpesa Till: 323253)
-        </div>
-
-      </div>
-
+      </form>
     </div>
   );
 };

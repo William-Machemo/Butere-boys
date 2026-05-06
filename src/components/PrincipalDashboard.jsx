@@ -154,6 +154,10 @@ const deleteMessage = async (id) => {
         </Link>
       </div>
 
+      <Link to="/AdmissionsAdmin" className="btn btn-info">
+  Manage Admissions
+</Link>
+
       <div className="row g-4 mt-3">
         <div className="col-md-4">
           <div

@@ -303,12 +303,140 @@ def upload_file():
     conn.close()
 
     return jsonify({"message": "Uploaded", "file_url": file_url})
-# upload folder
-UPLOAD_FOLDER = "uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-UPLOAD_FOLDER = "static/images"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+@app.route("/apply", methods=["POST"])
+def apply():
+    try:
+        data = request.form
+
+        full_name = data.get("name")
+        date_of_birth = data.get("dob")
+        index_number = data.get("index")
+        parent_name = data.get("parent")
+        phone = data.get("phone")
+        email = data.get("email")
+        curriculum = data.get("curriculum")
+        student_type = data.get("type")
+        notes = data.get("notes")
+
+        files = request.files
+
+        birth = files.get("birthCert")
+        results = files.get("results")
+        photo = files.get("photo")
+
+        # SAVE FILES
+        birth_path = save_file(birth)
+        results_path = save_file(results)
+        photo_path = save_file(photo)
+
+        conn = get_connection()   # ✅ USE THIS (NOT get_db)
+        cursor = conn.cursor()
+
+        sql = """
+        INSERT INTO applications
+        (full_name, date_of_birth, index_number, parent_name, phone, email,
+         curriculum, student_type, birth_certificate, results_slip,           passport_photo, notes, status)  
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Pending')
+        """
+
+        cursor.execute(sql, (
+            full_name,
+            date_of_birth,
+            index_number,
+            parent_name,
+            phone,
+            email,
+            curriculum,
+            student_type,
+            birth_path,
+            results_path,
+            photo_path,
+            notes
+        ))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Application submitted successfully"})
+
+    except Exception as e:
+        print("❌ APPLY ERROR:", e)
+        return jsonify({"error": str(e)}), 500
+    
+def save_file(file):
+    if file:
+        filename = secure_filename(file.filename)
+
+        # make filename unique
+        unique_name = f"{int(time.time())}_{filename}"
+
+        filepath = os.path.join(ADMISSION_UPLOAD_FOLDER, unique_name)
+        file.save(filepath)
+
+        return f"uploads/admissions/{unique_name}"
+
+    return None
+
+
+@app.route("/admin/applications", methods=["GET"])
+def get_all_applications():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM applications ORDER BY id DESC")
+        data = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(data)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/admin/message/<int:id>", methods=["PUT"])
+def update_application_status(id):
+    try:
+        data = request.json
+
+        message = data.get("message")
+        status = data.get("status")
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE applications
+            SET message=%s, status=%s
+            WHERE id=%s
+        """, (message, status, id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"message": "Application updated successfully"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ================= UPLOAD FOLDERS =================
+
+CHAT_UPLOAD_FOLDER = "uploads"
+ASSIGNMENT_UPLOAD_FOLDER = "static/images"
+ADMISSION_UPLOAD_FOLDER = "uploads/admissions"
+
+os.makedirs(CHAT_UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(ASSIGNMENT_UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(ADMISSION_UPLOAD_FOLDER, exist_ok=True)
+
+# set default (used by chat if needed)
+app.config["UPLOAD_FOLDER"] = CHAT_UPLOAD_FOLDER
 
 PRINCIPAL_PASSWORD = "1234"
 TEACHER_UPLOAD_PASSWORD = "butere123"

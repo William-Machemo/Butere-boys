@@ -12,6 +12,7 @@ import NetBall from './components/NetBall';
 import Hockey from './components/Hockey';
 import HandBall from './components/HandBall';
 import Chat from './components/Chat';
+import AdmissionsAdmin from './components/AdmissionsAdmin';
 import FootBall from './components/FootBall';
 import BasketBall from './components/BasketBall';
 import Badminton from './components/Badminton';
@@ -153,6 +154,7 @@ const [message, setMessage] = useState("");
 <Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
 <Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
 <Link className="nav-link text-white px-3" to="/signup">Signup</Link>
+<Link className="nav-link text-white px-3" to="/AdmissionsAdmin">Admin</Link>
 <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
 <Link className="nav-link text-white px-3" to="/news">News</Link>
 <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
@@ -247,6 +249,7 @@ const [message, setMessage] = useState("");
             <Route path="/ict" element={<Ict />} />
             <Route path="/MpesaPayment" element={<MpesaPayment />} />
             <Route path="/openingrequirements" element={<OpeningRequirements />} />
+            <Route path="/admissionsadmin" element={<AdmissionsAdmin/>} />
             <Route path="/kcsepredictions" element={<KcsePredictions />} />
             <Route path="/newfacilities" element={<NewFacilities />} />
 
