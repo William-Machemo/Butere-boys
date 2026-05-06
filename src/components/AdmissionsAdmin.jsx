@@ -5,31 +5,29 @@ const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
 const AdmissionsAdmin = () => {
   const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState({});
-
-  // ================= FETCH DATA =================
-  const fetchApplications = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/admin/applications`);
-      setApplications(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
-    }
-  };
+  const [visibleCount, setVisibleCount] = useState(8);
 
   useEffect(() => {
     fetchApplications();
   }, []);
 
-  // ================= HANDLE MESSAGE =================
-  const handleMessageChange = (id, value) => {
-    setMessages({ ...messages, [id]: value });
+  const fetchApplications = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/admin/applications`);
+      setApplications(res.data || []);
+    } catch (err) {
+      console.log("Fetch error:", err);
+    }
   };
 
-  // ================= SEND DECISION =================
+  const handleMessageChange = (id, value) => {
+    setMessages((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
   const sendDecision = async (id, status) => {
     try {
       await axios.put(`${API_BASE_URL}/admin/message/${id}`, {
@@ -39,134 +37,169 @@ const AdmissionsAdmin = () => {
 
       alert("Updated successfully");
       fetchApplications();
-
     } catch (err) {
       console.log(err);
       alert("Failed to update");
     }
   };
 
-  // ================= FILE URL =================
   const getFile = (path) => {
-    if (!path) return null;
+    if (!path) return "";
     return `${API_BASE_URL}/${path}`;
   };
 
-  if (loading) {
-    return <h4 className="text-center mt-5">Loading applications...</h4>;
-  }
+  const isPDF = (file) =>
+    typeof file === "string" && file.toLowerCase().includes(".pdf");
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-3">
 
-      <h2 className="text-center text-success mb-4">
+      {/* TITLE */}
+      <h4 className="text-center text-success mb-3">
         Admissions Management
-      </h2>
+      </h4>
 
-      {applications.length === 0 ? (
-        <p className="text-center">No applications yet</p>
-      ) : (
-        applications.map((app) => (
-          <div key={app.id} className="card p-3 mb-4 shadow-sm">
+      <div className="row g-2">
 
-            {/* ================= DETAILS ================= */}
-            <h4 className="text-primary">{app.full_name}</h4>
+        {applications.slice(0, visibleCount).map((app) => (
+          <div key={app.id} className="col-6 col-sm-6 col-md-4 col-lg-3">
 
-            <p><b>DOB:</b> {app.date_of_birth}</p>
-            <p><b>Index:</b> {app.index_number}</p>
-            <p><b>Parent:</b> {app.parent_name}</p>
-            <p><b>Phone:</b> {app.phone}</p>
-            <p><b>Email:</b> {app.email}</p>
-            <p><b>Curriculum:</b> {app.curriculum}</p>
-            <p><b>Type:</b> {app.student_type}</p>
-            <p><b>Status:</b> {app.status}</p>
+            <div className="card shadow-sm p-2 h-100 admission-card">
 
-            {/* ================= FILES ================= */}
-            <div className="row mt-3">
+              {/* NAME */}
+              <h6 className="text-primary mb-1">
+                {app.full_name}
+              </h6>
 
-              {/* Birth Certificate */}
-         <div className="col-md-4">
-  <h6>Birth Certificate</h6>
+              <p className="mb-1 small">
+                <b>Phone:</b> {app.phone}
+              </p>
 
-  {app.birth_certificate ? (
-    app.birth_certificate.includes(".pdf") ? (
-      <a
-        href={getFile(app.birth_certificate)}
-        target="_blank"
-        rel="noreferrer"
-      >
-        View PDF
-      </a>
-    ) : (
-      <img
-        src={getFile(app.birth_certificate)}
-        alt="Birth Certificate"
-        className="img-fluid rounded"
-      />
-    )
-  ) : (
-    <p className="text-muted">No file</p>
-  )}
-</div>
-   <div className="col-md-4">
-  <h6>Results</h6>
+              <p className="mb-1 small">
+                <b>Parent:</b> {app.parent_name}
+              </p>
 
-  {app.results_slip ? (
-    app.results_slip.includes(".pdf") ? (
-      <a
-        href={getFile(app.results_slip)}
-        target="_blank"
-        rel="noreferrer"
-      >
-        View PDF
-      </a>
-    ) : (
-      <img
-        src={getFile(app.results_slip)}
-        alt="Results Slip"
-        className="img-fluid rounded"
-      />
-    )
-  ) : (
-    <p className="text-muted">No results uploaded</p>
-  )}
-</div>
-              {/* Results */}
-              {/* Passport */}
-        
+              <p className="mb-1 small">
+                <b>Status:</b> {app.status}
+              </p>
+
+              {/* FILES SECTION */}
+              <div className="mb-2">
+
+                {/* Birth Certificate */}
+                {app.birth_certificate && (
+                  isPDF(app.birth_certificate) ? (
+                    <a
+                      href={getFile(app.birth_certificate)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="small"
+                    >
+                      View Birth Cert PDF
+                    </a>
+                  ) : (
+                    <img
+                      src={getFile(app.birth_certificate)}
+                      alt="birth"
+                      className="img-fluid rounded mb-1"
+                      style={{ height: "80px", width: "100%", objectFit: "cover" }}
+                    />
+                  )
+                )}
+
+                {/* Results Slip */}
+                {app.results_slip && (
+                  isPDF(app.results_slip) ? (
+                    <a
+                      href={getFile(app.results_slip)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="small"
+                    >
+                      View Results PDF
+                    </a>
+                  ) : (
+                    <img
+                      src={getFile(app.results_slip)}
+                      alt="results"
+                      className="img-fluid rounded mb-1"
+                      style={{ height: "80px", width: "100%", objectFit: "cover" }}
+                    />
+                  )
+                )}
+
+                {/* Passport Photo */}
+                {app.passport_photo ? (
+                  <img
+                    src={getFile(app.passport_photo)}
+                    alt="passport"
+                    className="img-fluid rounded"
+                    style={{
+                      height: "80px",
+                      width: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <p className="text-muted small">No photo</p>
+                )}
+
+              </div>
+
+              {/* MESSAGE */}
+              <textarea
+                className="form-control form-control-sm"
+                placeholder="Message..."
+                value={messages[app.id] || ""}
+                onChange={(e) =>
+                  handleMessageChange(app.id, e.target.value)
+                }
+              />
+
+              {/* BUTTONS */}
+              <div className="d-flex gap-1 mt-2">
+
+                <button
+                  className="btn btn-success btn-sm w-50"
+                  onClick={() => sendDecision(app.id, "Accepted")}
+                >
+                  Approve
+                </button>
+
+                <button
+                  className="btn btn-danger btn-sm w-50"
+                  onClick={() => sendDecision(app.id, "Rejected")}
+                >
+                  Reject
+                </button>
+
+              </div>
+
             </div>
-
-            {/* ================= NOTES ================= */}
-            <p className="mt-3"><b>Notes:</b> {app.notes}</p>
-
-            {/* ================= MESSAGE ================= */}
-            <textarea
-              className="form-control mt-2"
-              placeholder="Message to parent..."
-              value={messages[app.id] || ""}
-              onChange={(e) => handleMessageChange(app.id, e.target.value)}
-            />
-
-            {/* ================= ACTION BUTTONS ================= */}
-            <div className="mt-2">
-              <button
-                className="btn btn-success me-2"
-                onClick={() => sendDecision(app.id, "Accepted")}
-              >
-                Approve
-              </button>
-
-              <button
-                className="btn btn-danger"
-                onClick={() => sendDecision(app.id, "Rejected")}
-              >
-                Reject
-              </button>
-            </div>
-
           </div>
-        ))
+        ))}
+
+      </div>
+
+      {/* SHOW MORE */}
+      {visibleCount < applications.length && (
+        <div className="text-center mt-3">
+          <button
+            className="btn btn-outline-primary btn-sm"
+            onClick={() => setVisibleCount((prev) => prev + 8)}
+          >
+            Show More
+          </button>
+        </div>
       )}
+
+      {/* RESPONSIVE CARD FIX (important for mobile) */}
+      <style>{`
+        .admission-card {
+          font-size: 12px;
+          border-radius: 10px;
+        }
+      `}</style>
 
     </div>
   );

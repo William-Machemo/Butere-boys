@@ -304,6 +304,7 @@ def upload_file():
 
     return jsonify({"message": "Uploaded", "file_url": file_url})
 
+# post route
 @app.route("/apply", methods=["POST"])
 def apply():
     try:
@@ -325,22 +326,20 @@ def apply():
         results = files.get("results")
         photo = files.get("photo")
 
-        # SAVE FILES
         birth_path = save_file(birth)
         results_path = save_file(results)
         photo_path = save_file(photo)
 
-        conn = get_connection()   # ✅ USE THIS (NOT get_db)
+        conn = get_connection()
         cursor = conn.cursor()
 
-        sql = """
-        INSERT INTO applications
-        (full_name, date_of_birth, index_number, parent_name, phone, email,
-         curriculum, student_type, birth_certificate, results_slip,           passport_photo, notes, status)  
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Pending')
-        """
-
-        cursor.execute(sql, (
+        cursor.execute("""
+            INSERT INTO applications
+            (full_name, date_of_birth, index_number, parent_name, phone, email,
+             curriculum, student_type, birth_certificate, results_slip,
+             passport_photo, notes, status)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Pending')
+        """, (
             full_name,
             date_of_birth,
             index_number,
@@ -362,23 +361,26 @@ def apply():
         return jsonify({"message": "Application submitted successfully"})
 
     except Exception as e:
-        print("❌ APPLY ERROR:", e)
+        print("APPLY ERROR:", e)
         return jsonify({"error": str(e)}), 500
     
 def save_file(file):
     if file:
         filename = secure_filename(file.filename)
 
-        # make filename unique
         unique_name = f"{int(time.time())}_{filename}"
-
         filepath = os.path.join(ADMISSION_UPLOAD_FOLDER, unique_name)
+
         file.save(filepath)
 
+        # IMPORTANT: return correct URL path
         return f"uploads/admissions/{unique_name}"
 
     return None
 
+@app.route("/uploads/admissions/<filename>")
+def serve_admission_file(filename):
+    return send_from_directory("uploads/admissions", filename)
 
 @app.route("/admin/applications", methods=["GET"])
 def get_all_applications():
@@ -396,8 +398,7 @@ def get_all_applications():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
+# update message
 @app.route("/admin/message/<int:id>", methods=["PUT"])
 def update_application_status(id):
     try:
@@ -419,7 +420,7 @@ def update_application_status(id):
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "Application updated successfully"})
+        return jsonify({"message": "Updated successfully"})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -430,10 +431,11 @@ def update_application_status(id):
 CHAT_UPLOAD_FOLDER = "uploads"
 ASSIGNMENT_UPLOAD_FOLDER = "static/images"
 ADMISSION_UPLOAD_FOLDER = "uploads/admissions"
+os.makedirs(ADMISSION_UPLOAD_FOLDER, exist_ok=True)
 
 os.makedirs(CHAT_UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(ASSIGNMENT_UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(ADMISSION_UPLOAD_FOLDER, exist_ok=True)
+
 
 # set default (used by chat if needed)
 app.config["UPLOAD_FOLDER"] = CHAT_UPLOAD_FOLDER
