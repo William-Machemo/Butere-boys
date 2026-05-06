@@ -153,6 +153,30 @@ const StudentChat = () => {
     startX.current = e.touches[0].clientX;
   };
 
+  // ================= LOGOUT =================
+const handleLogout = () => {
+  localStorage.removeItem("chatUser");
+  setIsLoggedIn(false);
+  setUsername("");
+  setMessages([]);
+  setUnreadCount(0);
+  setOnlineUsers([]);
+};
+
+<button
+  onClick={handleLogout}
+  style={{
+    background: "red",
+    color: "white",
+    border: "none",
+    padding: "5px 10px",
+    borderRadius: 5,
+    cursor: "pointer"
+  }}
+>
+  Logout
+</button>
+
   const handleTouchEnd = (e, msg) => {
     const diff = e.changedTouches[0].clientX - startX.current;
 

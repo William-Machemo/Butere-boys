@@ -102,8 +102,12 @@ const res = await axios.post(
   return (
     <div className="container py-4">
 
-      <h1 className="text-success mb-3">Admissions</h1>
-<h5 className="text-danger">Kindly use a valid Whatsapp Number For Application</h5>
+      <h3 className="text-center">
+  <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+    Admission Form
+  </span>
+</h3>
+<h6 className="text-success">Kindly use a valid Whatsapp Number For Application starting with 254...</h6>
       {/* CURRICULUM SELECT */}
       <select
         className="form-select mb-3"
