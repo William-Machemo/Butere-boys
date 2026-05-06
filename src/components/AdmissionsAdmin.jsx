@@ -7,6 +7,9 @@ const AdmissionsAdmin = () => {
   const [applications, setApplications] = useState([]);
   const [messages, setMessages] = useState({});
   const [visibleCount, setVisibleCount] = useState(8);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [search, setSearch] = useState("");
+  const [zoomImage, setZoomImage] = useState(null);
 
   useEffect(() => {
     fetchApplications();
@@ -17,15 +20,12 @@ const AdmissionsAdmin = () => {
       const res = await axios.get(`${API_BASE_URL}/admin/applications`);
       setApplications(res.data || []);
     } catch (err) {
-      console.log("Fetch error:", err);
+      console.log(err);
     }
   };
 
   const handleMessageChange = (id, value) => {
-    setMessages((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+    setMessages((prev) => ({ ...prev, [id]: value }));
   };
 
   const sendDecision = async (id, status) => {
@@ -35,10 +35,20 @@ const AdmissionsAdmin = () => {
         status,
       });
 
+      // WhatsApp send
+      if (selectedApp?.phone) {
+        const msg = messages[id] || `Your admission has been ${status}`;
+        const phone = selectedApp.phone.replace(/\D/g, "");
+        window.open(
+          `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,
+          "_blank"
+        );
+      }
+
       alert("Updated successfully");
       fetchApplications();
+      setSelectedApp(null);
     } catch (err) {
-      console.log(err);
       alert("Failed to update");
     }
   };
@@ -51,129 +61,64 @@ const AdmissionsAdmin = () => {
   const isPDF = (file) =>
     typeof file === "string" && file.toLowerCase().includes(".pdf");
 
+  const downloadFile = (file) => {
+    const link = document.createElement("a");
+    link.href = getFile(file);
+    link.download = "document";
+    link.click();
+  };
+
+  const filtered = applications.filter((a) =>
+    `${a.full_name} ${a.phone}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
     <div className="container mt-3">
 
-      {/* TITLE */}
+      {/* SEARCH */}
+      <input
+        className="form-control mb-3"
+        placeholder="Search student..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       <h4 className="text-center text-success mb-3">
         Admissions Management
       </h4>
 
+      {/* CARDS */}
       <div className="row g-2">
 
-        {applications.slice(0, visibleCount).map((app) => (
-          <div key={app.id} className="col-6 col-sm-6 col-md-4 col-lg-3">
+        {filtered.slice(0, visibleCount).map((app) => (
+          <div key={app.id} className="col-6 col-md-3">
 
-            <div className="card shadow-sm p-2 h-100 admission-card">
+            <div
+              className="card p-2 shadow-sm"
+              style={{ cursor: "pointer", fontSize: "12px" }}
+              onClick={() => setSelectedApp(app)}
+            >
 
-              {/* NAME */}
-              <h6 className="text-primary mb-1">
-                {app.full_name}
-              </h6>
+              <b className="text-primary">{app.full_name}</b>
+              <small>{app.phone}</small>
+              <small>Status: {app.status}</small>
 
-              <p className="mb-1 small">
-                <b>Phone:</b> {app.phone}
-              </p>
+              {app.passport_photo && (
+                <img
+                  src={getFile(app.passport_photo)}
+                  alt=""
+                  style={{
+                    height: "60px",
+                    width: "100%",
+                    objectFit: "cover",
+                    borderRadius: "5px",
+                  }}
+                />
+              )}
 
-              <p className="mb-1 small">
-                <b>Parent:</b> {app.parent_name}
-              </p>
-
-              <p className="mb-1 small">
-                <b>Status:</b> {app.status}
-              </p>
-
-              {/* FILES SECTION */}
-              <div className="mb-2">
-
-                {/* Birth Certificate */}
-                {app.birth_certificate && (
-                  isPDF(app.birth_certificate) ? (
-                    <a
-                      href={getFile(app.birth_certificate)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="small"
-                    >
-                      View Birth Cert PDF
-                    </a>
-                  ) : (
-                    <img
-                      src={getFile(app.birth_certificate)}
-                      alt="birth"
-                      className="img-fluid rounded mb-1"
-                      style={{ height: "80px", width: "100%", objectFit: "cover" }}
-                    />
-                  )
-                )}
-
-                {/* Results Slip */}
-                {app.results_slip && (
-                  isPDF(app.results_slip) ? (
-                    <a
-                      href={getFile(app.results_slip)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="small"
-                    >
-                      View Results PDF
-                    </a>
-                  ) : (
-                    <img
-                      src={getFile(app.results_slip)}
-                      alt="results"
-                      className="img-fluid rounded mb-1"
-                      style={{ height: "80px", width: "100%", objectFit: "cover" }}
-                    />
-                  )
-                )}
-
-                {/* Passport Photo */}
-                {app.passport_photo ? (
-                  <img
-                    src={getFile(app.passport_photo)}
-                    alt="passport"
-                    className="img-fluid rounded"
-                    style={{
-                      height: "80px",
-                      width: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                ) : (
-                  <p className="text-muted small">No photo</p>
-                )}
-
-              </div>
-
-              {/* MESSAGE */}
-              <textarea
-                className="form-control form-control-sm"
-                placeholder="Message..."
-                value={messages[app.id] || ""}
-                onChange={(e) =>
-                  handleMessageChange(app.id, e.target.value)
-                }
-              />
-
-              {/* BUTTONS */}
-              <div className="d-flex gap-1 mt-2">
-
-                <button
-                  className="btn btn-success btn-sm w-50"
-                  onClick={() => sendDecision(app.id, "Accepted")}
-                >
-                  Approve
-                </button>
-
-                <button
-                  className="btn btn-danger btn-sm w-50"
-                  onClick={() => sendDecision(app.id, "Rejected")}
-                >
-                  Reject
-                </button>
-
-              </div>
+              <small className="text-muted">Click to open</small>
 
             </div>
           </div>
@@ -182,24 +127,169 @@ const AdmissionsAdmin = () => {
       </div>
 
       {/* SHOW MORE */}
-      {visibleCount < applications.length && (
+      {visibleCount < filtered.length && (
         <div className="text-center mt-3">
           <button
             className="btn btn-outline-primary btn-sm"
-            onClick={() => setVisibleCount((prev) => prev + 8)}
+            onClick={() => setVisibleCount((p) => p + 8)}
           >
             Show More
           </button>
         </div>
       )}
 
-      {/* RESPONSIVE CARD FIX (important for mobile) */}
-      <style>{`
-        .admission-card {
-          font-size: 12px;
-          border-radius: 10px;
-        }
-      `}</style>
+      {/* ================= MODAL ================= */}
+      {selectedApp && (
+        <div className="modal d-block" style={{ background: "#0008" }}>
+
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content p-3">
+
+              <div className="d-flex justify-content-between">
+                <h5>{selectedApp.full_name}</h5>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => setSelectedApp(null)}
+                >
+                  X
+                </button>
+              </div>
+
+              <hr />
+
+              {/* DETAILS */}
+              <p><b>Phone:</b> {selectedApp.phone}</p>
+              <p><b>Parent:</b> {selectedApp.parent_name}</p>
+              <p><b>Status:</b> {selectedApp.status}</p>
+              <p><b>Email:</b> {selectedApp.email}</p>
+
+              {/* FILES */}
+              <div className="row">
+
+                {/* Birth Cert */}
+                <div className="col-md-4">
+                  <h6>Birth Certificate</h6>
+                  {selectedApp.birth_certificate &&
+                    (isPDF(selectedApp.birth_certificate) ? (
+                      <div>
+                    <a
+  href={getFile(selectedApp.birth_certificate)}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  View PDF
+</a>
+        
+                        <button
+                          className="btn btn-sm btn-secondary ms-2"
+                          onClick={() => downloadFile(selectedApp.birth_certificate)}
+                        >
+                          Download
+                        </button>
+                      </div>
+                    ) : (
+                      <img
+                        src={getFile(selectedApp.birth_certificate)}
+                        className="img-fluid rounded"
+                        onClick={() => setZoomImage(getFile(selectedApp.birth_certificate))}
+                        alt=""
+                      />
+                    ))}
+                </div>
+
+                {/* Results */}
+                <div className="col-md-4">
+                  <h6>Results</h6>
+                  {selectedApp.results_slip &&
+                    (isPDF(selectedApp.results_slip) ? (
+                      <div>
+      <a
+  href={getFile(selectedApp.results_slip)}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  View PDF
+</a>
+                        <button
+                          className="btn btn-sm btn-secondary ms-2"
+                          onClick={() => downloadFile(selectedApp.results_slip)}
+                        >
+                          Download
+                        </button>
+                      </div>
+                    ) : (
+                      <img
+                        src={getFile(selectedApp.results_slip)}
+                        className="img-fluid rounded"
+                        onClick={() => setZoomImage(getFile(selectedApp.results_slip))}
+                        alt=""
+                      />
+                    ))}
+                </div>
+
+                {/* Passport Photo */}
+                <div className="col-md-4">
+                  <h6>Passport Photo</h6>
+                  {selectedApp.passport_photo ? (
+                    <img
+                      src={getFile(selectedApp.passport_photo)}
+                      className="img-fluid rounded"
+                      onClick={() => setZoomImage(getFile(selectedApp.passport_photo))}
+                      alt=""
+                    />
+                  ) : (
+                    <p>No photo</p>
+                  )}
+                </div>
+
+              </div>
+
+              {/* MESSAGE */}
+              <textarea
+                className="form-control mt-3"
+                placeholder="Message..."
+                value={messages[selectedApp.id] || ""}
+                onChange={(e) =>
+                  handleMessageChange(selectedApp.id, e.target.value)
+                }
+              />
+
+              {/* ACTIONS */}
+              <div className="d-flex gap-2 mt-2">
+
+                <button
+                  className="btn btn-success w-50"
+                  onClick={() => sendDecision(selectedApp.id, "Accepted")}
+                >
+                  Approve
+                </button>
+
+                <button
+                  className="btn btn-danger w-50"
+                  onClick={() => sendDecision(selectedApp.id, "Rejected")}
+                >
+                  Reject
+                </button>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* IMAGE ZOOM MODAL */}
+      {zoomImage && (
+        <div className="modal d-block" onClick={() => setZoomImage(null)}>
+          <div className="modal-dialog modal-lg">
+            <img
+              src={zoomImage}
+              style={{ width: "100%" }}
+              alt="zoom"
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -305,6 +305,7 @@ def upload_file():
     return jsonify({"message": "Uploaded", "file_url": file_url})
 
 # post route
+# ================= APPLY =================
 @app.route("/apply", methods=["POST"])
 def apply():
     try:
@@ -326,20 +327,35 @@ def apply():
         results = files.get("results")
         photo = files.get("photo")
 
+        # ================= SAFE FILE SAVE =================
+        def save_file(file):
+            if file:
+                filename = secure_filename(file.filename)
+                unique_name = f"{int(time.time())}_{filename}"
+                filepath = os.path.join(ADMISSION_UPLOAD_FOLDER, unique_name)
+                file.save(filepath)
+                return f"uploads/admissions/{unique_name}"
+            return None
+
         birth_path = save_file(birth)
         results_path = save_file(results)
         photo_path = save_file(photo)
 
+        # ================= DB CONNECTION =================
         conn = get_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
         cursor = conn.cursor()
 
-        cursor.execute("""
-            INSERT INTO applications
-            (full_name, date_of_birth, index_number, parent_name, phone, email,
-             curriculum, student_type, birth_certificate, results_slip,
-             passport_photo, notes, status)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Pending')
-        """, (
+        sql = """
+        INSERT INTO applications
+        (full_name, date_of_birth, index_number, parent_name, phone, email,
+         curriculum, student_type, birth_certificate, results_slip, passport_photo, notes, status)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Pending')
+        """
+
+        cursor.execute(sql, (
             full_name,
             date_of_birth,
             index_number,
@@ -358,12 +374,11 @@ def apply():
         cursor.close()
         conn.close()
 
-        return jsonify({"message": "Application submitted successfully"})
+        return jsonify({"message": "Application submitted successfully"}), 200
 
     except Exception as e:
-        print("APPLY ERROR:", e)
+        print("❌ APPLY ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
-    
 def save_file(file):
     if file:
         filename = secure_filename(file.filename)
