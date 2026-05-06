@@ -103,7 +103,7 @@ const Admissions = () => {
     <div className="container py-4">
 
       <h1 className="text-success mb-3">Admissions</h1>
-
+<h3 className="text-danger">Kindly use a valid Whatsapp Number For Application</h3>
       {/* CURRICULUM SELECT */}
       <select
         className="form-select mb-3"
