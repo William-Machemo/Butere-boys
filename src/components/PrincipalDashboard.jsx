@@ -107,6 +107,7 @@ const fetchMessages = async () => {
 
         <input
           type="password"
+          placeholder="Enter your password"
           className="form-control mb-3"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

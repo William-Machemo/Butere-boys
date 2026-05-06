@@ -107,7 +107,8 @@ const res = await axios.post(
     Admission Form
   </span>
 </h3>
-<h6 className="text-success">Kindly use a valid Whatsapp Number For Application starting with 254...</h6>
+<br />
+<h6 className="text-success">Kindly use a valid Whatsapp Number For Application starting with <h6 className="text-danger" >254......</h6></h6>
       {/* CURRICULUM SELECT */}
       <select
         className="form-select mb-3"
@@ -137,6 +138,7 @@ const res = await axios.post(
         <input
           type="date"
           name="dob"
+          placeholder="Enter your Date of Birth"
           value={formData.dob}
           onChange={handleChange}
           className="form-control mb-2"
@@ -166,7 +168,7 @@ const res = await axios.post(
           value={formData.phone}
           onChange={handleChange}
           className="form-control mb-2"
-          placeholder="Phone Number"
+          placeholder="Phone Number starting with 254..."
           required
         />
 

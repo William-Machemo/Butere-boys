@@ -235,7 +235,7 @@ const handleLogout = () => {
         background: "#9c05e2",
         color: "white"
       }}>
-        <div>🟢 Online: {onlineUsers.length}</div>
+        <div>🟢 Members: {onlineUsers.length}</div>
 
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           {avatar && (
