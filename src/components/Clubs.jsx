@@ -39,7 +39,7 @@ const clubs = [
     link: "/clubs/environment",
   },
 
-  // 🔥 NEW CLUBS ADDED
+  //  NEW CLUBS ADDED
 
   {
     title: "Mathematics Club",

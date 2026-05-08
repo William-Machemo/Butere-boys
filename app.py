@@ -22,7 +22,7 @@ def get_connection():
             autocommit=True
         )
     except pymysql.MySQLError as e:
-        print("❌ DATABASE CONNECTION ERROR:", e)
+        print(" DATABASE CONNECTION ERROR:", e)
         return None
 
 
@@ -105,51 +105,51 @@ def ask_ai():
     nav = detect_navigation(msg)
     if nav:
         return jsonify({
-            "reply": "📍 Navigating...",
+            "reply": " Navigating...",
             "redirect": nav
         })
 
     # ================= COUNTS =================
     if "how many assignments" in msg:
-        return jsonify({"reply": f"📊 {assignments_count} assignments uploaded."})
+        return jsonify({"reply": f" {assignments_count} assignments uploaded."})
 
     if "how many students" in msg:
-        return jsonify({"reply": f"👨‍🎓 {students_count} students registered."})
+        return jsonify({"reply": f" {students_count} students registered."})
 
     if "how many teachers" in msg:
-        return jsonify({"reply": f"👩‍🏫 {teachers_count} teachers registered."})
+        return jsonify({"reply": f" {teachers_count} teachers registered."})
 
     # ================= FIXTURES =================
     if any(x in msg for x in ["fixture", "fixtures", "match", "games"]):
-        text = "⚽ Upcoming Fixtures:\n\n"
+        text = "Upcoming Fixtures:\n\n"
         for f in fixtures:
             text += f"{f['sport']} - {f['match']} on {f['date']}\n"
         return jsonify({"reply": text})
 
     # ================= SPORTS RESULTS =================
     if any(x in msg for x in ["sports results", "results of sports"]):
-        text = "🏆 Sports Results:\n\n"
+        text = " Sports Results:\n\n"
         for r in sports_results:
             text += f"{r['sport']} → {r['result']}\n"
         return jsonify({"reply": text})
 
     # ================= KCSE =================
     if "kcse" in msg:
-        text = "🎓 KCSE Results:\n\n"
+        text = " KCSE Results:\n\n"
         for r in kcse_results:
             text += f"{r['year']} → Mean Score: {r['mean']}\n"
         return jsonify({"reply": text})
 
     # ================= ANNOUNCEMENTS =================
     if "announcement" in msg:
-        text = "📢 Announcements:\n\n"
+        text = " Announcements:\n\n"
         for a in announcements:
             text += f"{a['title']} → {a['message']}\n"
         return jsonify({"reply": text})
 
     # ================= DEFAULT =================
     return jsonify({
-        "reply": "🤖 Ask about assignments, students, sports, KCSE, announcements or navigation."
+        "reply": " Ask about assignments, students, sports, KCSE, announcements or navigation."
     })
 @app.route("/api/delete_message/<int:id>", methods=["DELETE"])
 def delete_message(id):

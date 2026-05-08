@@ -4,7 +4,7 @@ export default function BandFestivalPage() {
   return (
     <div className="container-fluid p-0">
 
-      {/* 🔥 HERO SECTION WITH OVERLAY */}
+      {/*  HERO SECTION WITH OVERLAY */}
       <section
         style={{
           backgroundImage: "url('images/Band5.jpg')",
@@ -27,13 +27,13 @@ export default function BandFestivalPage() {
         }}></div>
 
         <h1 className="fw-bold text-white position-relative">
-          🎺 School Band Festival
+           School Band Festival
         </h1>
       </section>
 
       <div className="container my-5">
 
-        {/* 📅 ABOUT */}
+        {/*  ABOUT */}
         <section className="mb-5 text-center">
           <h2 className="mb-3">About the Festival</h2>
           <p>
@@ -49,7 +49,7 @@ export default function BandFestivalPage() {
           </p>
         </section>
 
-        {/* 🏆 ACHIEVEMENTS */}
+        {/*  ACHIEVEMENTS */}
         <section className="mb-5">
           <h3 className="text-center mb-4">Achievements</h3>
 
@@ -84,7 +84,7 @@ export default function BandFestivalPage() {
           </div>
         </section>
 
-        {/* 🖼️ BIG IMAGE GALLERY */}
+        {/*  BIG IMAGE GALLERY */}
         <section className="mb-5">
           <h3 className="text-center mb-4">Gallery</h3>
 

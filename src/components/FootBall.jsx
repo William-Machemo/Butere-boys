@@ -53,7 +53,7 @@ function Football() {
 
       {/* HEADER */}
       <div className="text-center mb-5">
-        <h1 className="text-success fw-bold">⚽ Football at Butere Boys</h1>
+        <h1 className="text-success fw-bold"> Football at Butere Boys</h1>
         <p className="lead">Passion • Discipline • Excellence</p>
       </div>
 
@@ -130,7 +130,7 @@ function Football() {
 
       {/* MATCHES */}
       <section className="mb-5">
-        <h3 className="text-success mb-4">🎥 Match Highlights</h3>
+        <h3 className="text-success mb-4"> Match Highlights</h3>
         <div className="row">
           {matchVideos.map((video, i) => (
             <VideoCard key={i} id={video.id} title={video.title} />

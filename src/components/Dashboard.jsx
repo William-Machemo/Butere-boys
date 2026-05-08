@@ -10,32 +10,39 @@ export default function AIDashboard() {
 
   
 
-  // ---------------- TEXT TO SPEECH ----------------
+  // ---------------- converts AI responses to spoken audio ----------------
   const speak = (text) => {
-    if (!text) return;
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US";
-    window.speechSynthesis.speak(speech);
+  if (!text) return;
+  // uses browser text to speech technology
+  const speech = new SpeechSynthesisUtterance(text);
+  // sets the language for speech recognition and output
+  speech.lang = "en-US";
+  // makes window to read AI responses aloud
+  window.speechSynthesis.speak(speech);
   };
 
-  // ---------------- VOICE INPUT ----------------
+  // ---------------- allows users to speak instead of typing ----------------
   const startVoiceInput = () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
-      alert("Voice input not supported in this browser");
-      return;
-    }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.start();
+// checks the language used by the user if supported or not
+  if (!SpeechRecognition) {
+  alert("Voice input not supported in this browser");
+  return;
+  }
 
-    recognition.onresult = (event) => {
-      const voiceText = event.results[0][0].transcript;
-      setMessage(voiceText);
-    };
+  // activates microphone
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.start();
+
+  // converts voice into text
+  recognition.onresult = (event) => {
+  const voiceText = event.results[0][0].transcript;
+  setMessage(voiceText);
+  };
   };
   <div
   className="ai-container"
@@ -44,143 +51,132 @@ export default function AIDashboard() {
 
   // ---------------- SEND MESSAGE ----------------
   const sendMessage = async (customMessage = null) => {
-    const msgToSend = customMessage || message;
-    if (!msgToSend.trim()) return;
+  const msgToSend = customMessage || message;
+  if (!msgToSend.trim()) return;
 
-    setChat((prev) => [...prev, { role: "user", text: msgToSend }]);
-    setMessage("");
-    setLoading(true);
+  setChat((prev) => [...prev, { role: "user", text: msgToSend }]);
+  setMessage("");
+  setLoading(true);
 
-    try {
-      const res = await fetch(
-        "https://butere-boys-flask-j2x3.onrender.com/ask-ai",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: msgToSend }),
-        }
-      );
+  try {
+  const res = await fetch(
+  "https://butere-boys-flask-j2x3.onrender.com/ask-ai",
+  {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message: msgToSend }),
+  }
+  );
 
-      const data = await res.json();
+  const data = await res.json();
 
-      // ---------------- NAVIGATION ----------------
-      if (data.redirect) {
-        navigate(data.redirect);
-      }
+   // ---------------- NAVIGATION ----------------
+  if (data.redirect) {
+  navigate(data.redirect);
+  }
 
-      // ---------------- FORMAT RESPONSE ----------------
-      let output = "";
+  // ---------------- FORMAT RESPONSE ----------------
+  let output = "";
 
-      if (data.type === "list") {
-        output = data.reply
-          .map((item) => `📌 ${item.title} - ${item.message}`)
-          .join("\n");
-      } else if (Array.isArray(data.reply)) {
-        output = data.reply
-          .map((item) => Object.values(item).join(" - "))
-          .join("\n");
-      } else if (typeof data.reply === "object") {
-        output = Object.entries(data.reply)
-          .map(([k, v]) => `${k}: ${v}`)
-          .join("\n");
-      } else {
-        output = data.reply;
-      }
+  if (data.type === "list") {
+  output = data.reply
+  .map((item) => `📌 ${item.title} - ${item.message}`)
+  .join("\n");
+  } else if (Array.isArray(data.reply)) {
+  output = data.reply
+  .map((item) => Object.values(item).join(" - "))
+  .join("\n");
+  } else if (typeof data.reply === "object") {
+  output = Object.entries(data.reply)
+  .map(([k, v]) => `${k}: ${v}`)
+  .join("\n");
+  } else {
+  output = data.reply;
+  }
 
-      setChat((prev) => [
-        ...prev,
-        { role: "ai", text: output || "No response from AI" },
-      ]);
+  setChat((prev) => [
+  ...prev,
+  { role: "ai", text: output || "No response from AI" },
+  ]);
 
-      // 🔊 speak response (optional)
-      speak(output);
+  // speak response (optional)
+  speak(output);
 
-    } catch (error) {
-      setChat((prev) => [
-        ...prev,
-        { role: "ai", text: "❌ Cannot connect to server." },
-      ]);
-    }
+  } catch (error) {
+  setChat((prev) => [
+  ...prev,
+  { role: "ai", text: "Cannot connect to server." },
+  ]);
+  }
 
-    setLoading(false);
+  setLoading(false);
   };
 
   return (
-    <div className="ai-container">
+  <div className="ai-container">
 
       
 
-      {/* TITLE */}
+  {/* TITLE */}
       
-      <h3 className="text-center">
+  <h3 className="text-center">
   <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
-    🤖 AI Student Assistant
+  🤖 AI Student Assistant
   </span>
 </h3>
 
-      <p className="subtitle"><i>Ask anything about your school system</i></p>
+  <p className="subtitle"><i>Ask anything about your school system</i></p>
 
-      {/* CHAT BOX */}
-      <div className="chat-box">
-        {chat.map((c, i) => (
-          <div
-            key={i}
-            className={c.role === "user" ? "chat user" : "chat ai"}
-          >
-            <b>{c.role === "user" ? "You" : "AI"}:</b>
+  {/* CHAT BOX */}
+  <div className="chat-box">
+  {chat.map((c, i) => (
+  <div key={i} className={c.role === "user" ? "chat user" : "chat ai"}>
+  <b>{c.role === "user" ? "You" : "AI"}:</b>
 
-            <div style={{ whiteSpace: "pre-wrap" }}>
-              {c.text}
-            </div>
-          </div>
-        ))}
-      </div>
+  <div style={{ whiteSpace: "pre-wrap" }}>{c.text}
+  </div>
+  </div>
+  ))}
+  </div>
 
-      {/* INPUT AREA */}
-      <div className="input-area">
+  {/* INPUT AREA */}
+  <div className="input-area">
 
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Ask something..."
-        />
+  <input value={message} onChange={(e) => setMessage(e.target.value)}
+  placeholder="Ask something..."/>
 
-        <button onClick={() => sendMessage()} disabled={loading}>
-          {loading ? "Sending..." : "Send"}
-        </button>
+  <button onClick={() => sendMessage()} disabled={loading}>
+  {loading ? "Sending..." : "Send"}
+  </button>
 
-        <button onClick={startVoiceInput}>
-          🎤 Speak
-        </button>
+  <button onClick={startVoiceInput}>
+  🎤 Speak
+  </button>
 
-      </div>
+  </div>
 
-      {/* FAQ BUTTONS */}
-      <div className="faq-container">
-            <h3 className="text-center">
+  {/* FAQ BUTTONS */}
+  <div className="faq-container">
+  <h3 className="text-center">
   <span className="bg-danger text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
     Frequently asked questions
   </span>
 </h3>
-        {[
-          "How many assignments have been uploaded?",
-          "Show announcements",
-          "Show KCSE results",
-          "Show me sports results",
-          "How many students have signed up?",
-          "How many teachers have signed up?",
-          "Take me to academics page",
-        ].map((q, i) => (
-          <div
-            key={i}
-            className="faq-card"
-            onClick={() => sendMessage(q)}
-          >
-            {q}
-          </div>
-        ))}
-      </div>
+  {[
+  "How many assignments have been uploaded?",
+  "Show announcements",
+  "Show KCSE results",
+  "Show me sports results",
+  "How many students have signed up?",
+  "How many teachers have signed up?",
+  "Take me to academics page",
+  ].map((q, i) => (
+  <div key={i} className="faq-card" onClick={() => sendMessage(q)}>
+  {q}
+  </div>
+  ))}
+  </div>
 
-    </div>
+  </div>
   );
 }

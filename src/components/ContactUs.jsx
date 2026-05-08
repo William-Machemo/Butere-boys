@@ -29,14 +29,14 @@ export default function ContactUs() {
     }
 
     try {
-      console.log("📤 Sending:", formData);
+      console.log(" Sending:", formData);
 
       const res = await axios.post(
         `${API_BASE_URL}/api/contact`,
-        formData   // ✅ Axios already sends JSON automatically
+        formData   // Axios already sends JSON automatically
       );
 
-      console.log("✅ Response:", res.data);
+      console.log(" Response:", res.data);
 
       setStatus("Message sent successfully!");
 
@@ -46,7 +46,7 @@ export default function ContactUs() {
       });
 
     } catch (error) {
-      console.error("❌ Error:", error.response?.data || error.message);
+      console.error(" Error:", error.response?.data || error.message);
       setStatus("Failed to send message. Try again.");
     }
   };

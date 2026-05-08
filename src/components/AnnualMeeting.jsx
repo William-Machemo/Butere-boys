@@ -69,7 +69,7 @@ export default function AGMPage() {
     <div className="agm-container">
 
       {/* TITLE */}
-      <h1 className="title">📢 School (AGM) Meeting</h1>
+      <h1 className="title"> School (AGM) Meeting</h1>
 
       {/* SIMPLE IMAGE SECTION */}
       <div className="image-section">
@@ -80,7 +80,7 @@ export default function AGMPage() {
 
       {/* EVENT DETAILS */}
       <div className="card">
-        <h2>📅 Event Details</h2>
+        <h2> Event Details</h2>
         <p>Date: 20th June 2026</p>
         <p>Time: 10:00 AM</p>
         <p>Venue: School Hall</p>
@@ -88,7 +88,7 @@ export default function AGMPage() {
 
       {/* SPEAKERS SECTION */}
       <div className="card">
-        <h2>🎤 AGM Speakers</h2>
+        <h2> AGM Speakers</h2>
 
         <div className="speakers-grid">
           {speakers.map((sp, i) => (

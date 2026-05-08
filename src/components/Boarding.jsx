@@ -46,7 +46,7 @@ const Boarding = () => {
   return (
     <div className="container my-4">
 
-      {/* 🔥 HEADER */}
+      {/*  HEADER */}
       <div className="text-center mb-4">
         <h1 className="fw-bold text-danger">Boarding Life</h1>
         <p className="text-muted">
@@ -54,7 +54,7 @@ const Boarding = () => {
         </p>
       </div>
 
-      {/* 👨‍🏫 BOARDING MASTERS SECTION */}
+      {/*  BOARDING MASTERS SECTION */}
       <h3 className="text-center fw-bold text-danger mb-4">
         Boarding Masters
       </h3>
@@ -81,7 +81,7 @@ const Boarding = () => {
 
       </div>
 
-      {/* 🏫 OVERVIEW */}
+      {/* OVERVIEW */}
       <div className="card shadow-sm border-0 mb-5">
         <div className="card-body">
           <h4 className="text-danger">Overview</h4>
@@ -92,7 +92,7 @@ const Boarding = () => {
         </div>
       </div>
 
-      {/* 🛏️ DORMITORIES TITLE */}
+      {/*  DORMITORIES TITLE */}
       <h3 className="text-center fw-bold text-danger mb-4">
         School Dormitories
       </h3>

@@ -94,61 +94,48 @@ function App() {
 
 const [username, setUsername] = useState("");
 const [message, setMessage] = useState("");
+const sendContactMessage = async (e) => {
+e.preventDefault();
 
+try {
+await axios.post(`${API_BASE_URL}/api/contact`, {
+username: username,
+message: message
+});
 
-  const sendContactMessage = async (e) => {
-    e.preventDefault();
-
-    try {
-      await axios.post(`${API_BASE_URL}/api/contact`, {
-        username: username,
-        message: message
-      });
-
-      setMessage("");
-      alert("Message sent!");
-    } catch {
-      alert("Failed to send message");
-    }
+setMessage("");
+alert("Message sent!");
+} catch {
+alert("Failed to send message");
+}
   
-  };
+};
 
 
-  return (
-    <Router>
-     <div className="App d-flex flex-column min-vh-100 container-fluid p-0">
+return (
+<Router>
+<div className="App d-flex flex-column min-vh-100 container-fluid p-0">
 <header className="bg-danger text-success">
-  <nav className="navbar navbar-expand-lg navbar-dark container py-2">
+<nav className="navbar navbar-expand-lg navbar-dark container py-2">
 
-    {/* Brand */}
-    <Link className="navbar-brand d-flex align-items-center" to="/homepage">
-      <img
-        src="/images/Logo.jpg"
-        alt="Logo"
-        style={{ height: "40px", width: "60px" }}
-        className="me-2"
-      />
-      Butere Boys
-    </Link>
+{/* Brand */}
+<Link className="navbar-brand d-flex align-items-center" to="/homepage">
+<img src="/images/Logo.jpg" alt="Logo" style={{ height: "40px", width: "60px" }}
+className="me-2"/>Butere Boys</Link>
 
-    {/* Toggler */}
-    <button
-      className="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#mainNavbar"
-    >
-      <span className="navbar-toggler-icon"></span>
-    </button>
+{/* Toggler */}
+<button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+<span className="navbar-toggler-icon"></span>
+</button>
 
-    {/* COLLAPSIBLE MENU */}
-    <div className="collapse navbar-collapse" id="mainNavbar">
+{/* COLLAPSIBLE MENU */}
+<div className="collapse navbar-collapse" id="mainNavbar">
 
-      {/* Wrapper to hide overflow */}
-      <div className="overflow-hidden w-100">
+{/* Wrapper to hide overflow */}
+<div className="overflow-hidden w-100">
 
-        {/* Auto scrolling nav */}
-        <div className="navbar-nav flex-row auto-scroll">
+{/* Auto scrolling nav */}
+<div className="navbar-nav flex-row auto-scroll">
 
 <Link className="nav-link text-white px-3" to="/homepage">Home</Link>
 <Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
@@ -184,150 +171,122 @@ const [message, setMessage] = useState("");
 <Link className="nav-link text-white px-3" to="/SchoolVideos">School Videos</Link>
 <Link className="nav-link text-white px-3" to="/Chat">Chatboard</Link>
 
+</div>
+</div>
+</div>
 
-        </div>
-
-      </div>
-    </div>
-
-  </nav>
+</nav>
 </header>
 <br></br>
 <h3 className="text-center">
-  <span className="bg-success text-white px-4 py-2 rounded-pill shadow-sm fw-semibold">
+  <span className="bg-success text-white px-4 py-2 rounded-pill shadow-smfw-semibold">
     Welcome to Butere Boys School
   </span>
 </h3>
 
+{/* ROUTES (🔥 ALL YOUR ORIGINAL ROUTES KEPT) */}
+<div className="container-fluid mt-4 flex-grow-1 px-0">
+<Routes>
+<Route path="/" element={<Navigate to="/homepage" />} />
+<Route path="/homepage" element={<HomePage />} />
+<Route path="/signup" element={<SignUp />} />
+<Route path="/signin" element={<SignIn />} />
+<Route path="/news" element={<News />} />
+<Route path="/gallery" element={<Gallery />} />
+<Route path="/boarding" element={<Boarding />} />
+<Route path="/scouts" element={<Scouts/>} />
+<Route path="/clubs" element={<Clubs/>} />
+<Route path="/classes" element={<Classes />} />
+<Route path="/band" element={<Band />} />
+<Route path="/contactus" element={<ContactUs />} />
+<Route path="/curriculum" element={<Curriculum />} />
+<Route path="/services" element={<Services />} />
+<Route path="/sports" element={<Sports />} />
+<Route path="/studentdashboard" element={<StudentDashboard />} />
+<Route path="/studentlife" element={<StudentLife />} />
+<Route path="/admissions" element={<Admissions />} />
+<Route path="/alumni" element={<Alumni />} />
+<Route path="/dashboard" element={<Dashboard />} />
+<Route path="/annualmeeting" element={<AnnualMeeting />} />
+<Route path="/rugby" element={<Rugby/>} />
+<Route path="/football" element={<FootBall />} />
+<Route path="/handball" element={<HandBall/>} />
+<Route path="/hockey" element={<Hockey/>} />
+<Route path="/netball" element={<NetBall />} />
+<Route path="/tabletennis" element={<TableTennis />} />
+<Route path="/volleyball" element={<VolleyBall />} />
+<Route path="/basketball" element={<BasketBall />} />
+<Route path="/athletics" element={<Athletics/>} />
+<Route path="/badminton" element={<Badminton/>} />
+<Route path="/academics" element={<Academics />} />
+<Route path="/schoolvideos" element={<SchoolVideos />} />
+<Route path="/teachers" element={<Teachers />} />
+<Route path="/newsletter" element={<NewsLetter />} />
+<Route path="/upcomingevents" element={<UpcomingEvents />} />
+<Route path="/schoolevents" element={<SchoolEvents />} />
+<Route path="/parents" element={<Parents />} />
+<Route path="/ict" element={<Ict />} />
+<Route path="/MpesaPayment" element={<MpesaPayment />} />
+<Route path="/openingrequirements" element={<OpeningRequirements />} />
+<Route path="/admissionsadmin" element={<AdmissionsAdmin/>} />
+<Route path="/kcsepredictions" element={<KcsePredictions />} />
+<Route path="/newfacilities" element={<NewFacilities />} />
+<Route path="/holidayassignment" element={ <ProtectedRoute>
+ <HolidayAssignment /> </ProtectedRoute>}/>
+<Route path="/mainmenu" element={<MainMenu />} />
+<Route path="/getfiles" element={<GetFiles />} />
+<Route path="/addfiles" element={<AddFiles />} />
+<Route path="/navbar" element={<Navbar />} />
+<Route path="/sidebar" element={<Sidebar />} />
+<Route path="/layout" element={<Layout />} />
+<Route path="/teacherdashboard" element={<TeacherDashboard />} />
+<Route path="/teachersignup" element={<TeacherSignUp />} />
+<Route path="/principaldashboard" element={<PrincipalDashboard />} />
+<Route path="/physics" element={<PhysicsPage />} />
+<Route path="/chemistry" element={<Chemistry />} />
+<Route path="/generalscience" element={<GeneralScience />} />
+<Route path="/wood-technology" element={<WoodTechnology />} />
+<Route path="/theatre-film" element={<TheatreFilm />} />
+<Route path="/power-mechanics" element={<PowerMechanics />} />
+<Route path="/sports-recreation" element={<SportsRecreation />} />
+<Route path="/physical-education" element={<PhysicalEducation />} />
+<Route path="/music-dance" element={<MusicDance />} />
+<Route path="/media-technology" element={<MediaTechnology />} />
+<Route path="/marine-technology" element={<MarineTechnology />} />
+<Route path="/mandarine" element={<Mandarine />} />
+<Route path="/kiswahili" element={<Kiswahili />} />
+<Route path="/french" element={<FrenchPage />} />
+<Route path="/english" element={<English />} />
+<Route path="/home-science" element={<HomeScience />} />
+<Route path="/history-citizenship" element={<HistoryCitizenship />} />
+<Route path="/geography" element={<GeographyPage />} />
+<Route path="/fine-arts" element={<FineArts />} />
+<Route path="/mathematics" element={<Mathematics />} />
+<Route path="/chat" element={<Chat />} />
 
+</Routes>
+{/* FOOTER (UNCHANGED FULL SECTION) */}
+<section className="row bg-success p-3 mt-4">
+<div className="col-md-4 text-center text-white">
+<h3>About Us</h3>
+<p className="text-dark">We are committed to excellence in education and student development.</p>
+</div>
+<div className="col-md-4 text-center text-white">
+<h3>Contact Us</h3>
 
-        {/* ROUTES (🔥 ALL YOUR ORIGINAL ROUTES KEPT) */}
-       <div className="container-fluid mt-4 flex-grow-1 px-0">
-          <Routes>
-            <Route path="/" element={<Navigate to="/homepage" />} />
+<form onSubmit={sendContactMessage}>
+<input className="form-control mb-2" value={username}
+onChange={(e) => setUsername(e.target.value)} placeholder="Your username" />
+ <textarea className="form-control mb-2" value={message}
+onChange={(e) => setMessage(e.target.value)} placeholder="Type message..." />
 
-            <Route path="/homepage" element={<HomePage />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/boarding" element={<Boarding />} />
-              <Route path="/scouts" element={<Scouts/>} />
-               <Route path="/clubs" element={<Clubs/>} />
-            <Route path="/classes" element={<Classes />} />
-            <Route path="/band" element={<Band />} />
-            <Route path="/contactus" element={<ContactUs />} />
-            <Route path="/curriculum" element={<Curriculum />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/sports" element={<Sports />} />
-            <Route path="/studentdashboard" element={<StudentDashboard />} />
-            <Route path="/studentlife" element={<StudentLife />} />
-            <Route path="/admissions" element={<Admissions />} />
-            <Route path="/alumni" element={<Alumni />} />
-             <Route path="/dashboard" element={<Dashboard />} />
-             <Route path="/annualmeeting" element={<AnnualMeeting />} />
+<button className="btn btn-dark w-100">Send</button>
+</form>
+</div>
 
-             <Route path="/rugby" element={<Rugby/>} />
-               <Route path="/football" element={<FootBall />} />
-                 <Route path="/handball" element={<HandBall/>} />
-               <Route path="/hockey" element={<Hockey/>} />
-               <Route path="/netball" element={<NetBall />} />
-                 <Route path="/tabletennis" element={<TableTennis />} />
-                   <Route path="/volleyball" element={<VolleyBall />} />
-                   <Route path="/basketball" element={<BasketBall />} />
-                 <Route path="/athletics" element={<Athletics/>} />
-               <Route path="/badminton" element={<Badminton/>} />
-
-
-            <Route path="/academics" element={<Academics />} />
-             <Route path="/schoolvideos" element={<SchoolVideos />} />
-            <Route path="/teachers" element={<Teachers />} />
-            <Route path="/newsletter" element={<NewsLetter />} />
-            <Route path="/upcomingevents" element={<UpcomingEvents />} />
-            <Route path="/schoolevents" element={<SchoolEvents />} />
-            <Route path="/parents" element={<Parents />} />
-            <Route path="/ict" element={<Ict />} />
-            <Route path="/MpesaPayment" element={<MpesaPayment />} />
-            <Route path="/openingrequirements" element={<OpeningRequirements />} />
-            <Route path="/admissionsadmin" element={<AdmissionsAdmin/>} />
-            <Route path="/kcsepredictions" element={<KcsePredictions />} />
-            <Route path="/newfacilities" element={<NewFacilities />} />
-
-           <Route
-  path="/holidayassignment"
-  element={
-    <ProtectedRoute>
-      <HolidayAssignment />
-    </ProtectedRoute>
-  }
-/>
-            <Route path="/mainmenu" element={<MainMenu />} />
-            <Route path="/getfiles" element={<GetFiles />} />
-            <Route path="/addfiles" element={<AddFiles />} />
-            <Route path="/navbar" element={<Navbar />} />
-            <Route path="/sidebar" element={<Sidebar />} />
-            <Route path="/layout" element={<Layout />} />
-            <Route path="/teacherdashboard" element={<TeacherDashboard />} />
-            <Route path="/teachersignup" element={<TeacherSignUp />} />
-            <Route path="/principaldashboard" element={<PrincipalDashboard />} />
-            <Route path="/physics" element={<PhysicsPage />} />
-            <Route path="/chemistry" element={<Chemistry />} />
-            <Route path="/generalscience" element={<GeneralScience />} />
-            <Route path="/wood-technology" element={<WoodTechnology />} />
-            <Route path="/theatre-film" element={<TheatreFilm />} />
-            <Route path="/power-mechanics" element={<PowerMechanics />} />
-            <Route path="/sports-recreation" element={<SportsRecreation />} />
-            <Route path="/physical-education" element={<PhysicalEducation />} />
-            <Route path="/music-dance" element={<MusicDance />} />
-            <Route path="/media-technology" element={<MediaTechnology />} />
-            <Route path="/marine-technology" element={<MarineTechnology />} />
-            <Route path="/mandarine" element={<Mandarine />} />
-            <Route path="/kiswahili" element={<Kiswahili />} />
-            <Route path="/french" element={<FrenchPage />} />
-            <Route path="/english" element={<English />} />
-            <Route path="/home-science" element={<HomeScience />} />
-            <Route path="/history-citizenship" element={<HistoryCitizenship />} />
-            <Route path="/geography" element={<GeographyPage />} />
-            <Route path="/fine-arts" element={<FineArts />} />
-            <Route path="/mathematics" element={<Mathematics />} />
-             <Route path="/chat" element={<Chat />} />
-
-
-     
-
-          </Routes>
-
-        
-    
-
-        {/* FOOTER (UNCHANGED FULL SECTION) */}
-        <section className="row bg-success p-3 mt-4">
-          <div className="col-md-4 text-center text-white">
-            <h3>About Us</h3>
-            <p className="text-dark">
-              We are committed to excellence in education and student development.
-            </p>
-          </div>
-
-          <div className="col-md-4 text-center text-white">
-            <h3>Contact Us</h3>
-
-            <form onSubmit={sendContactMessage}>
-              <input className="form-control mb-2" value={username}
-                onChange={(e) => setUsername(e.target.value)} placeholder="Your username"
-              />
-
-              <textarea className="form-control mb-2" value={message}
-                onChange={(e) => setMessage(e.target.value)} placeholder="Type message..."
-              />
-
-              <button className="btn btn-dark w-100">Send</button>
-            </form>
-          </div>
-
-          <div className="col-md-4 text-center text-white">
-            <h3>Stay Connected</h3>
-            <h4>Visit our websites @</h4>
+<div className="col-md-4 text-center text-white">
+<h3>Stay Connected</h3>
+<h4>Visit our websites @</h4>
 
 <div className="d-flex justify-content-center gap-3 flex-wrap mt-3">
   <a href="https://www.facebook.com" target="_blank" rel="noreferrer noopener">
@@ -346,15 +305,14 @@ const [message, setMessage] = useState("");
     <img src="/images/utube.webp" alt="YouTube" width="40" height="40" />
   </a>
 </div>
-          </div>
-        </section>
+</div>
+ </section>
 
-        <footer className="bg-dark text-white text-center p-3">
-          Developed by William @ Sanny Jones © 2026
-        </footer>
-      </div>
-      </div>
-    </Router>
+<footer className="bg-dark text-white text-center p-3">
+Developed by William @ Sanny Jones © 2026</footer>
+</div>
+</div>
+</Router>
 
   );
 }
