@@ -439,21 +439,24 @@ def update_application_status(id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+import os
+from flask import send_from_directory
 
 # ================= UPLOAD FOLDERS =================
 
-CHAT_UPLOAD_FOLDER = "uploads"
-ASSIGNMENT_UPLOAD_FOLDER = "static/images"
+CHAT_UPLOAD_FOLDER = "uploads/chat"
+ASSIGNMENT_UPLOAD_FOLDER = "uploads/assignments"
 ADMISSION_UPLOAD_FOLDER = "uploads/admissions"
-os.makedirs(ADMISSION_UPLOAD_FOLDER, exist_ok=True)
 
+# Create folders
 os.makedirs(CHAT_UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(ASSIGNMENT_UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(ADMISSION_UPLOAD_FOLDER, exist_ok=True)
 
-
-# set default (used by chat if needed)
-app.config["UPLOAD_FOLDER"] = CHAT_UPLOAD_FOLDER
+# Configs
+app.config["CHAT_UPLOAD_FOLDER"] = CHAT_UPLOAD_FOLDER
+app.config["ASSIGNMENT_UPLOAD_FOLDER"] = ASSIGNMENT_UPLOAD_FOLDER
+app.config["ADMISSION_UPLOAD_FOLDER"] = ADMISSION_UPLOAD_FOLDER
 
 PRINCIPAL_PASSWORD = "1234"
 TEACHER_UPLOAD_PASSWORD = "butere123"

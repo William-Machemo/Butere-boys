@@ -147,8 +147,6 @@ className="me-2"/>Butere Boys</Link>
 <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
 <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
 <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
-
-
 <Link className="nav-link text-white px-3" to="/AnnualMeeting">AGM Meeting</Link>
 <Link className="nav-link text-white px-3" to="/Admissions">Admission</Link>
 <Link className="nav-link text-white px-3" to="/gallery">Gallery</Link>

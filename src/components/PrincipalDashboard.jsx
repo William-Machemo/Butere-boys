@@ -67,12 +67,14 @@ console.error(error);
 }
 };
 
+// authentication
 const handleLogin = async () => {
 if (!password.trim()) {
 setError("Enter password");
 return;
 }
 
+// sends principal password to backend
 try {
 await axios.post(`${API_BASE_URL}/api/principal_login`, {
 password,});
@@ -110,6 +112,8 @@ onChange={(e) => setPassword(e.target.value)}/>
 </div>
 );
 }
+
+// allows principal to delete contact messages
 const deleteMessage = async (id) => {
 if (!window.confirm("Delete this message permanently?")) return;
 

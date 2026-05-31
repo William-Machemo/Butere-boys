@@ -9,138 +9,218 @@ const GetFiles = () => {
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  // SEARCH STATE
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
 
   // LOGIN PROTECTION + FETCH FILES
   useEffect(() => {
-  const user = localStorage.getItem("user");
+    const user = localStorage.getItem("user");
 
-  if (!user) {
-  alert("Please login first");
-  navigate("/signin");
-  } else {
-  fetchFiles();
-  }
-  }, [navigate]); 
+    if (!user) {
+      alert("Please login first");
+      navigate("/signin");
+    } else {
+      fetchFiles();
+    }
+  }, [navigate]);
 
   // FETCH FILES FROM SERVER
   const fetchFiles = async () => {
-  try {
-  const res = await axios.get(`${API_BASE_URL}/api/getfiles`);
-  setFiles(Array.isArray(res.data) ? res.data : []);
-  } catch (err) {
- console.error("Error fetching files:", err);
-  setFiles([]);
-  }
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/getfiles`);
+      setFiles(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("Error fetching files:", err);
+      setFiles([]);
+    }
   };
 
-  //  VIEW FILE 
+  // VIEW FILE
   const openFile = (file) => setSelectedFile(file);
   const closeFile = () => setSelectedFile(null);
 
-  //  DOWNLOAD 
+  // DOWNLOAD
   const downloadFile = async (filename) => {
-  try {
-  const res = await axios.get(
-  `${API_BASE_URL}/download/${filename}`,
-  { responseType: "blob" }
-  );
-// opens download window
-  const url = window.URL.createObjectURL(new Blob([res.data]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  } catch (err) {
-  console.error("Download failed:", err);
-  }
+    try {
+      const res = await axios.get(
+        `${API_BASE_URL}/download/${filename}`,
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.setAttribute("download", filename);
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
   };
 
-  // ---------------- GROUP FILES ----------------
-  const grouped = files.reduce((acc, file) => {
-  if (!file.grade || !file.subject) return acc;
+  // ================= SEARCH FILTER =================
+  const filteredFiles = files.filter((file) => {
+    const term = searchTerm.toLowerCase();
 
-  if (!acc[file.grade]) acc[file.grade] = {};
-  if (!acc[file.grade][file.subject]) acc[file.grade][file.subject] = [];
+    return (
+      file.grade?.toLowerCase().includes(term) ||
+      file.subject?.toLowerCase().includes(term) ||
+      file.file_name?.toLowerCase().includes(term)
+    );
+  });
 
-  acc[file.grade][file.subject].push(file);
+  // ================= GROUP FILES =================
+  const grouped = filteredFiles.reduce((acc, file) => {
+    if (!file.grade || !file.subject) return acc;
 
-  return acc;
+    if (!acc[file.grade]) acc[file.grade] = {};
+    if (!acc[file.grade][file.subject])
+      acc[file.grade][file.subject] = [];
+
+    acc[file.grade][file.subject].push(file);
+
+    return acc;
   }, {});
 
   return (
-  <div className="container mt-4">
-  <h2>Assignments</h2>
+    <div className="container mt-4">
+      <h2 className="mb-4">Assignments</h2>
 
-    {/* ---------------- FILE VIEW ---------------- */}
-{selectedFile ? (
-<div>
-<button className="btn btn-secondary mb-3" onClick={closeFile}> ← Back</button>
+      {/* ================= SEARCH BAR ================= */}
+      {!selectedFile && (
+        <div className="mb-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by grade, subject or assignment name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      )}
 
- <button  className="btn btn-success mb-3 ms-2"  onClick={() => downloadFile(selectedFile.file_photo)} > Download File</button>
+      {/* ================= FILE VIEW ================= */}
+      {selectedFile ? (
+        <div>
+          <button
+            className="btn btn-secondary mb-3"
+            onClick={closeFile}
+          >
+            ← Back
+          </button>
 
-<h3>{selectedFile.file_name}</h3>
-<p><strong>Grade:</strong> {selectedFile.grade}</p>
-<p><strong>Subject:</strong> {selectedFile.subject}</p>
-<p>{selectedFile.file_description}</p>
+          <button
+            className="btn btn-success mb-3 ms-2"
+            onClick={() => downloadFile(selectedFile.file_photo)}
+          >
+            Download File
+          </button>
 
-          {/* File Preview */}
-{selectedFile.file_photo?.toLowerCase().endsWith("pdf") ? (<iframe
- src={`${API_BASE_URL}/static/images/${selectedFile.file_photo}`} width="100%"
- height="600px" title={selectedFile.file_name} style={{ border: "1px solid #ccc" }} /> ) : ( <img src={`${API_BASE_URL}/static/images/${selectedFile.file_photo}`} alt={selectedFile.file_name} className="img-fluid" /> )}
- </div>
- ) : (
-     //  Grouped files in grades and subjects
-Object.keys(grouped).sort().map((grade) => (
- <div key={grade} className="mb-4">
- <h3>Grade {grade}</h3>
+          <h3>{selectedFile.file_name}</h3>
 
-{Object.keys(grouped[grade]).sort().map((subject) => (
-<div key={subject} className="mb-4">
-<h5>{subject}</h5>
+          <p>
+            <strong>Grade:</strong> {selectedFile.grade}
+          </p>
 
-<div className="row g-4">
-{grouped[grade][subject].map((file) => (
+          <p>
+            <strong>Subject:</strong> {selectedFile.subject}
+          </p>
 
-<div
- key={file.id || file.file_name}
-className="col-12 col-sm-6 col-md-4 col-lg-3" style={{ cursor: "pointer" }}
- onClick={() => openFile(file)} >
-<div className="card h-100 shadow-sm">
+          <p>{selectedFile.file_description}</p>
 
-   {/* FILE PREVIEW IMAGE / PDF   */}
-{file.file_photo?.toLowerCase().endsWith("pdf") ? (
-<div
-className="card-body d-flex align-items-center justify-content-center"
- style={{ height: "150px", fontWeight: "bold" }}>PDF File</div>
- ) : (
-<img src={`${API_BASE_URL}/static/images/${file.file_photo}`}
-alt={file.file_name} className="card-img-top"
-style={{ height: "150px", objectFit: "cover" }}/>
-   )}
+          {/* FILE PREVIEW */}
+          {selectedFile.file_photo?.toLowerCase().endsWith("pdf") ? (
+            <iframe
+              src={`${API_BASE_URL}/static/images/${selectedFile.file_photo}`}
+              width="100%"
+              height="600px"
+              title={selectedFile.file_name}
+              style={{ border: "1px solid #ccc" }}
+            />
+          ) : (
+            <img
+              src={`${API_BASE_URL}/static/images/${selectedFile.file_photo}`}
+              alt={selectedFile.file_name}
+              className="img-fluid"
+            />
+          )}
+        </div>
+      ) : (
+        // ================= GROUPED FILES =================
+        Object.keys(grouped)
+          .sort()
+          .map((grade) => (
+            <div key={grade} className="mb-4">
+              <h3>Grade {grade}</h3>
 
-<div className="card-body">
-<h6 className="card-title">
-{file.file_name}
-</h6>
+              {Object.keys(grouped[grade])
+                .sort()
+                .map((subject) => (
+                  <div key={subject} className="mb-4">
+                    <h5>{subject}</h5>
 
-<p className="card-text">
-{file.file_description?.substring(0, 50)}...
-</p>
-</div>
-</div>
-</div>
-))}
-</div>
-</div>
-))}
-</div>
-))
-)}
-</div>
-);
+                    <div className="row g-4">
+                      {grouped[grade][subject].map((file) => (
+                        <div
+                          key={file.id || file.file_name}
+                          className="col-12 col-sm-6 col-md-4 col-lg-3"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => openFile(file)}
+                        >
+                          <div className="card h-100 shadow-sm">
+
+                            {/* FILE PREVIEW */}
+                            {file.file_photo
+                              ?.toLowerCase()
+                              .endsWith("pdf") ? (
+                              <div
+                                className="card-body d-flex align-items-center justify-content-center"
+                                style={{
+                                  height: "150px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                PDF File
+                              </div>
+                            ) : (
+                              <img
+                                src={`${API_BASE_URL}/static/images/${file.file_photo}`}
+                                alt={file.file_name}
+                                className="card-img-top"
+                                style={{
+                                  height: "150px",
+                                  objectFit: "cover",
+                                }}
+                              />
+                            )}
+
+                            <div className="card-body">
+                              <h6 className="card-title">
+                                {file.file_name}
+                              </h6>
+
+                              <p className="card-text">
+                                {file.file_description?.substring(0, 50)}
+                                ...
+                              </p>
+                            </div>
+
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          ))
+      )}
+    </div>
+  );
 };
 
 export default GetFiles;

@@ -91,7 +91,7 @@ const AddFiles = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Upload Assignment</h2>
+      <h2>Upload Assignments</h2>
 
       {loading && <p className="text-warning">Uploading...</p>}
       {success && <p className="text-success">{success}</p>}
