@@ -277,7 +277,7 @@ def upload_file():
         return jsonify({"error": "No file name"}), 400
 
     filename = secure_filename(file.filename)
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    filepath = os.path.join(app.config["CHAT_UPLOAD_FOLDER"], filename)
     file.save(filepath)
 
     file_url = f"/uploads/{filename}"
@@ -439,8 +439,6 @@ def update_application_status(id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-import os
-from flask import send_from_directory
 
 # ================= UPLOAD FOLDERS =================
 
@@ -704,6 +702,10 @@ def verify_user():
 def add_files():
     try:
         file_photo = request.files.get("file_photo")
+
+        if not file_photo:
+            return jsonify({"message": "No file selected"}), 400
+
         file_name = request.form.get("file_name")
         file_description = request.form.get("file_description")
         grade = request.form.get("grade")
@@ -713,24 +715,33 @@ def add_files():
         if password != TEACHER_UPLOAD_PASSWORD:
             return jsonify({"message": "Wrong teacher password"}), 403
 
-        filename = file_photo.filename
-        file_photo.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        filename = secure_filename(file_photo.filename)
+
+        filepath = os.path.join(
+            app.config['ASSIGNMENT_UPLOAD_FOLDER'],
+            filename
+        )
+
+        file_photo.save(filepath)
 
         conn = get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO file_details(file_name, file_description, grade, subject, file_photo)
+            INSERT INTO file_details
+            (file_name, file_description, grade, subject, file_photo)
             VALUES(%s,%s,%s,%s,%s)
         """, (file_name, file_description, grade, subject, filename))
 
         conn.commit()
+
         cursor.close()
         conn.close()
 
         return jsonify({"message": "File uploaded successfully"})
 
     except Exception as e:
+        print("UPLOAD ERROR:", str(e))
         return jsonify({"message": str(e)}), 500
 
 
@@ -755,7 +766,7 @@ def get_files():
 def download_file(filename):
     try:
         return send_from_directory(
-            app.config["UPLOAD_FOLDER"],
+            app.config['ASSIGNMENT_UPLOAD_FOLDER'],
             filename,
             as_attachment=True
         )
