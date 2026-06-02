@@ -12,7 +12,7 @@ function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get protected page user wanted before login
+  // Page user tried to access
   const from = location.state?.from;
 
   const handleLogin = async (e) => {
@@ -34,40 +34,40 @@ function SignIn() {
 
       const data = res.data;
 
-      alert(data?.message || "Login successful");
-
-      // Save session
+      // Save user
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("role", data.role);
 
-      // Return to protected page if it exists
+      alert(data?.message || "Login successful");
+
+      // IMPORTANT:
+      // If redirected from protected page,
+      // go back there and STOP execution
       if (from) {
         navigate(from, { replace: true });
         return;
       }
 
-      // Redirect based on role
+      // Otherwise normal dashboard redirect
       const role = data?.role;
 
       if (role === "student") {
-        navigate("/studentdashboard");
+        navigate("/studentdashboard", { replace: true });
       } else if (role === "teacher") {
-        navigate("/teacherdashboard");
+        navigate("/teacherdashboard", { replace: true });
       } else if (role === "principal") {
-        navigate("/principaldashboard");
+        navigate("/principaldashboard", { replace: true });
       } else {
-        alert("Unknown role returned from server");
+        navigate("/", { replace: true });
       }
 
     } catch (err) {
-      console.log("Login error:", err);
+      console.log(err);
 
       if (err.response) {
         alert(err.response.data?.message || "Login failed");
-      } else if (err.code === "ECONNABORTED") {
-        alert("Server is taking too long. Try again.");
       } else {
-        alert("Network error or server not reachable");
+        alert("Server error");
       }
 
     } finally {
@@ -87,9 +87,7 @@ function SignIn() {
         background: "#fff",
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
-        Login
-      </h2>
+      <h2 style={{ textAlign: "center" }}>Login</h2>
 
       <form onSubmit={handleLogin}>
         <input
@@ -100,7 +98,7 @@ function SignIn() {
           style={{
             width: "100%",
             padding: 10,
-            marginBottom: 15,
+            marginBottom: 10,
           }}
         />
 
@@ -112,7 +110,7 @@ function SignIn() {
           style={{
             width: "100%",
             padding: 10,
-            marginBottom: 15,
+            marginBottom: 10,
           }}
         />
 
@@ -121,36 +119,20 @@ function SignIn() {
           disabled={loading}
           style={{
             width: "100%",
-            padding: 12,
+            padding: 10,
             background: loading ? "gray" : "green",
             color: "white",
             border: "none",
             cursor: "pointer",
-            borderRadius: 5,
           }}
         >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
-      {/* SIGN UP LINK */}
-      <p
-        style={{
-          textAlign: "center",
-          marginTop: 20,
-        }}
-      >
+      <p style={{ textAlign: "center", marginTop: 20 }}>
         Don't have an account?{" "}
-        <Link
-          to="/signup"
-          style={{
-            color: "blue",
-            textDecoration: "none",
-            fontWeight: "bold",
-          }}
-        >
-          Sign Up
-        </Link>
+        <Link to="/signup">Sign Up</Link>
       </p>
     </div>
   );

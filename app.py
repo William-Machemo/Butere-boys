@@ -3,6 +3,8 @@ from flask_cors import CORS
 import pymysql
 import time
 import os
+import cloudinary
+import cloudinary.uploader
 from werkzeug.utils import secure_filename
 
 
@@ -25,7 +27,11 @@ def get_connection():
         print(" DATABASE CONNECTION ERROR:", e)
         return None
 
-
+cloudinary.config(
+    cloud_name="du8unlrcg",
+    api_key="987865927659714",
+    api_secret="v7os6OAwmY62rzFQQge6FLBb56s"
+)
 # ================= HARDCODED DATA =================
 
 fixtures = [
@@ -313,18 +319,12 @@ def uploaded_chat_file(filename):
 # ================= SAVE FILE FUNCTION =================
 def save_file(file):
     if file:
-        filename = secure_filename(file.filename)
-
-        unique_name = f"{int(time.time())}_{filename}"
-
-        filepath = os.path.join(
-            ADMISSION_UPLOAD_FOLDER,
-            unique_name
+        result = cloudinary.uploader.upload(
+            file,
+            resource_type="auto"
         )
 
-        file.save(filepath)
-
-        return f"/uploads/admissions/{unique_name}"
+        return result["secure_url"]
 
     return None
 
@@ -450,17 +450,17 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 CHAT_UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads/chat")
 ASSIGNMENT_UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads/assignments")
-ADMISSION_UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads/admissions")
+
 
 # Create folders
 os.makedirs(CHAT_UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(ASSIGNMENT_UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(ADMISSION_UPLOAD_FOLDER, exist_ok=True)
+
 
 # Configs
 app.config["CHAT_UPLOAD_FOLDER"] = CHAT_UPLOAD_FOLDER
 app.config["ASSIGNMENT_UPLOAD_FOLDER"] = ASSIGNMENT_UPLOAD_FOLDER
-app.config["ADMISSION_UPLOAD_FOLDER"] = ADMISSION_UPLOAD_FOLDER
+
 
 PRINCIPAL_PASSWORD = "1234"
 TEACHER_UPLOAD_PASSWORD = "butere123"
