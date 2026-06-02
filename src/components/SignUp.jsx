@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import {  Link } from "react-router-dom";
 
 // ✅ LOCALHOST (change port if your Flask runs on different one)
 const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
@@ -112,7 +113,21 @@ cursor: "pointer",
 {loading ? "Signing up..." : "Sign Up"}
 </button>
 </form>
-  );
-}
 
+  );
+  
+}
+<p style={{ textAlign: "center", marginTop: 20 }}>
+  Already have an account?{" "}
+  <Link
+    to="/signin"
+    style={{
+      color: "green",
+      textDecoration: "none",
+      fontWeight: "bold",
+    }}
+  >
+    Now Login
+  </Link>
+</p>
 export default SignUp;

@@ -210,7 +210,7 @@ const AdmissionsAdmin = () => {
   </div>
 
   {/* MESSAGE */}
-  <textare className="form-control mt-3" placeholder="Message..."
+  <textarea className="form-control mt-3" placeholder="Message..."
    value={messages[selectedApp.id] || ""}
   onChange={(e) =>
   handleMessageChange(selectedApp.id, e.target.value)

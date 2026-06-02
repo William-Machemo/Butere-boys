@@ -12,7 +12,7 @@ const Admissions = () => {
     parent: "",
     phone: "",
     email: "",
-    type: "Day Scholar",
+    type: "Boarding",
     notes: "",
   });
 // stores uploaded files
@@ -83,7 +83,7 @@ const Admissions = () => {
   parent: "",
   phone: "",
   email: "",
-  type: "Day Scholar",
+  type: "Boarding",
   notes: "",
   });
 

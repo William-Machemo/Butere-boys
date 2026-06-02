@@ -1,102 +1,159 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
 function SignIn() {
-const [username, setUsername] = useState("");
-const [password, setPassword] = useState("");
-const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-const handleLogin = async (e) => {
-e.preventDefault();
+  // Get protected page user wanted before login
+  const from = location.state?.from;
 
-if (!username.trim() || !password.trim()) {
-alert("Please enter username and password");
-return;
-}
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-setLoading(true);
+    if (!username.trim() || !password.trim()) {
+      alert("Please enter username and password");
+      return;
+    }
 
-try {
-const res = await axios.post(
-`${API_BASE_URL}/api/signin`,
-{ username, password },
-{ timeout: 15000 }
-);
+    setLoading(true);
 
-const data = res.data;
+    try {
+      const res = await axios.post(
+        `${API_BASE_URL}/api/signin`,
+        { username, password },
+        { timeout: 15000 }
+      );
 
-alert(data?.message || "Login successful");
+      const data = res.data;
 
-      //  IMPORTANT FIX: SAVE USER SESSION
-localStorage.setItem("user", JSON.stringify(data.user));
-localStorage.setItem("role", data.role);
+      alert(data?.message || "Login successful");
 
-const role = data?.role;
+      // Save session
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("role", data.role);
+
+      // Return to protected page if it exists
+      if (from) {
+        navigate(from, { replace: true });
+        return;
+      }
 
       // Redirect based on role
-if (role === "student") {
-navigate("/studentdashboard");
-} else if (role === "teacher") {
-navigate("/teacherdashboard");
-} else if (role === "principal") {
-navigate("/principaldashboard");
-} else {
-alert("Unknown role returned from server");
-}
+      const role = data?.role;
 
-} catch (err) {
-console.log("Login error:", err);
+      if (role === "student") {
+        navigate("/studentdashboard");
+      } else if (role === "teacher") {
+        navigate("/teacherdashboard");
+      } else if (role === "principal") {
+        navigate("/principaldashboard");
+      } else {
+        alert("Unknown role returned from server");
+      }
 
-if (err.response) {
-alert(err.response.data?.message || "Login failed");
-} else if (err.code === "ECONNABORTED") {
-alert("Server is taking too long. Try again.");
-} else {
-alert("Network error or server not reachable");
-}
+    } catch (err) {
+      console.log("Login error:", err);
 
-} finally {
-setLoading(false);
-}
-};
+      if (err.response) {
+        alert(err.response.data?.message || "Login failed");
+      } else if (err.code === "ECONNABORTED") {
+        alert("Server is taking too long. Try again.");
+      } else {
+        alert("Network error or server not reachable");
+      }
 
-return (
-<form onSubmit={handleLogin} style={{
-width: 320,
-margin: "auto",
-marginTop: 50,
-padding: 20,
-border: "1px solid #ccc",
-borderRadius: 10,
-background: "#fff",
-}}>
-<h2 style={{ textAlign: "center" }}>Login</h2>
+    } finally {
+      setLoading(false);
+    }
+  };
 
-<input type="text" placeholder="Username" value={username}
-onChange={(e) => setUsername(e.target.value)}
-style={{ width: "100%", padding: 10, marginBottom: 10 }}/>
+  return (
+    <div
+      style={{
+        width: 350,
+        margin: "auto",
+        marginTop: 50,
+        padding: 20,
+        border: "1px solid #ccc",
+        borderRadius: 10,
+        background: "#fff",
+      }}
+    >
+      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
+        Login
+      </h2>
 
-<input type="password" placeholder="Password" value={password}
-onChange={(e) => setPassword(e.target.value)}
-style={{ width: "100%", padding: 10, marginBottom: 10 }}/>
+      <form onSubmit={handleLogin}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            marginBottom: 15,
+          }}
+        />
 
-<button type="submit" disabled={loading} style={{
-width: "100%",
-padding: 10,
-background: loading ? "gray" : "green",
-color: "white",
-border: "none",
-cursor: "pointer",
-}}>
-{loading ? "Logging in..." : "Login"}
-</button>
-</form>
- );
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            marginBottom: 15,
+          }}
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: "100%",
+            padding: 12,
+            background: loading ? "gray" : "green",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            borderRadius: 5,
+          }}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
+
+      {/* SIGN UP LINK */}
+      <p
+        style={{
+          textAlign: "center",
+          marginTop: 20,
+        }}
+      >
+        Don't have an account?{" "}
+        <Link
+          to="/signup"
+          style={{
+            color: "blue",
+            textDecoration: "none",
+            fontWeight: "bold",
+          }}
+        >
+          Sign Up
+        </Link>
+      </p>
+    </div>
+  );
 }
 
 export default SignIn;

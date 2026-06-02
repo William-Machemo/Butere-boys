@@ -141,7 +141,6 @@ className="me-2"/>Butere Boys</Link>
 <Link className="nav-link text-white px-3" to="/AddFiles">Upload</Link>
 <Link className="nav-link text-white px-3" to="/PrincipalDashboard">Principal</Link>
 <Link className="nav-link text-white px-3" to="/signup">Signup</Link>
-<Link className="nav-link text-white px-3" to="/AdmissionsAdmin">Admin</Link>
 <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
 <Link className="nav-link text-white px-3" to="/news">News</Link>
 <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
