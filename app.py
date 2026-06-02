@@ -280,7 +280,7 @@ def upload_file():
     filepath = os.path.join(app.config["CHAT_UPLOAD_FOLDER"], filename)
     file.save(filepath)
 
-    file_url = f"/uploads/{filename}"
+    file_url = f"/uploads/chat/{filename}"
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -303,6 +303,30 @@ def upload_file():
     conn.close()
 
     return jsonify({"message": "Uploaded", "file_url": file_url})
+
+
+@app.route("/uploads/chat/<filename>")
+def uploaded_chat_file(filename):
+    return send_from_directory(CHAT_UPLOAD_FOLDER, filename)
+
+# save function
+# ================= SAVE FILE FUNCTION =================
+def save_file(file):
+    if file:
+        filename = secure_filename(file.filename)
+
+        unique_name = f"{int(time.time())}_{filename}"
+
+        filepath = os.path.join(
+            ADMISSION_UPLOAD_FOLDER,
+            unique_name
+        )
+
+        file.save(filepath)
+
+        return f"/uploads/admissions/{unique_name}"
+
+    return None
 
 # post route
 # ================= APPLY =================
@@ -327,15 +351,6 @@ def apply():
         results = files.get("results")
         photo = files.get("photo")
 
-        # ================= SAFE FILE SAVE =================
-        def save_file(file):
-            if file:
-                filename = secure_filename(file.filename)
-                unique_name = f"{int(time.time())}_{filename}"
-                filepath = os.path.join(ADMISSION_UPLOAD_FOLDER, unique_name)
-                file.save(filepath)
-                return f"uploads/admissions/{unique_name}"
-            return None
 
         birth_path = save_file(birth)
         results_path = save_file(results)
@@ -379,19 +394,8 @@ def apply():
     except Exception as e:
         print("❌ APPLY ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
-def save_file(file):
-    if file:
-        filename = secure_filename(file.filename)
 
-        unique_name = f"{int(time.time())}_{filename}"
-        filepath = os.path.join(ADMISSION_UPLOAD_FOLDER, unique_name)
 
-        file.save(filepath)
-
-        # IMPORTANT: return correct URL path
-        return f"uploads/admissions/{unique_name}"
-
-    return None
 
 @app.route("/uploads/admissions/<filename>")
 def serve_admission_file(filename):
@@ -442,9 +446,11 @@ def update_application_status(id):
 
 # ================= UPLOAD FOLDERS =================
 
-CHAT_UPLOAD_FOLDER = "uploads/chat"
-ASSIGNMENT_UPLOAD_FOLDER = "uploads/assignments"
-ADMISSION_UPLOAD_FOLDER = "uploads/admissions"
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+CHAT_UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads/chat")
+ASSIGNMENT_UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads/assignments")
+ADMISSION_UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads/admissions")
 
 # Create folders
 os.makedirs(CHAT_UPLOAD_FOLDER, exist_ok=True)
