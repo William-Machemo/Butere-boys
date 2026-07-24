@@ -55,9 +55,9 @@ The KCSE 2025 results with a mean score of 8.2 (B) up from 6.4454(C), and an imp
           <p>
             This commitment is reflected in the consistent improvement in academic performance since 2023, as well as our continued participation and success in co-curricular activities at the highest levels. To ensure that discipline is upheld at all times, the school has established a disciplinary committee that works closely with parents to guide and correct learners who may display deviant behaviour. We also have vibrant Guidance and counseling Department staffed with trained teachers who provide psychological support, mentorship, and counseling services to students in need. In addition, each class has peer counsellors who help bridge the generational gap and offer first-line support to fellow students on guidance and counseling matters. 
             <br />
-            <i><b>Mr. Chimakati Charlly</b></i>
+            <i><b>Mr. Nashon Opilo</b></i>
             <br />
-            <b>Deputy Principal-Administration</b>
+            <b>HOD Dean of Studies</b>
           </p>
 
         {/* Buttons */}
@@ -83,13 +83,13 @@ The KCSE 2025 results with a mean score of 8.2 (B) up from 6.4454(C), and an imp
           <div className="image-card">
 
             <img
-              src="/images/chief-editor.jpg"
+              src="/images/Deputy academics.jpg"
               alt="Chief Editor"
             />
 
             <div className="card-caption">
-              <h3>Chief Editor</h3>
-              <p>Wanyama Masika</p>
+              <h3>Mr. Wanzetse Okumu</h3>
+              <p>Deputy Principal Academics</p>
             </div>
 
           </div>

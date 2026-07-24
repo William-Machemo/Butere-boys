@@ -33,8 +33,8 @@ Lesson evaluations, and analysis of learners' performance. these activities  hav
 
           
           <p>
-            <strong><em>Mr. Wanzetse Okumu</em></strong><br />
-            <b>Deputy Principal-Academics</b>
+            <strong><em>Ms. Mabuka Immaculate</em></strong><br />
+            <b>QASO</b>
           </p>
 
           <br />
@@ -70,9 +70,9 @@ There is no substitute for dedication and consistent effort. Success requires di
           <p>
  
             <br />
-            <i><b>Mr. Chimakati Charlly</b></i>
+            <i><b>Mr. John Natembeya</b></i>
             <br />
-            <b>Deputy Principal-Administration</b>
+            <b>HOD Examinations</b>
           </p>
 
         

@@ -53,7 +53,7 @@ i also extent my heartfelt appreciation to our parents and guardian for their un
           <div className="image-card">
 
             <img
-              src="/images/deputy.jpg"
+              src="/images/principal.pg.jpg"
               alt="Deputy Principal"
             />
 
