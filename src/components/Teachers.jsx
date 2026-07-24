@@ -79,10 +79,10 @@ export default function TeachersPage() {
               src="images/principal.pg.jpg"
               className="card-img-top"
               alt="Principal"
-              style={{ height: "280px", objectFit: "cover" }}
+              style={{ height: "350px", objectFit: "cover" }}
             />
             <div className="card-body d-flex flex-column">
-              <h5>Principal</h5>
+              <h5>Chief Principal</h5>
               <p className="text-muted">Head of Institution</p>
               <p className="mt-auto">
                 Provides overall leadership and ensures academic excellence and discipline.
@@ -95,10 +95,10 @@ export default function TeachersPage() {
         <div className="col-lg-4 col-md-6">
           <div className="card shadow h-100">
             <img
-              src="images/Wanzetse.jpg"
+              src="images/Deputy academics.jpg"
               className="card-img-top"
               alt="Deputy Academics"
-              style={{ height: "280px", objectFit: "cover" }}
+              style={{ height: "350px", objectFit: "cover" }}
             />
             <div className="card-body d-flex flex-column">
               <h5>Deputy Principal (Academics)</h5>
@@ -117,7 +117,7 @@ export default function TeachersPage() {
               src="images/muhati.jpg"
               className="card-img-top"
               alt="Deputy Administration"
-              style={{ height: "280px", objectFit: "cover" }}
+              style={{ height: "350px", objectFit: "cover" }}
             />
             <div className="card-body d-flex flex-column">
               <h5>Deputy Principal (Administration)</h5>

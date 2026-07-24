@@ -103,6 +103,7 @@ style={{ height: "300px", objectFit: "cover" }} />
 <Link to="/Band" className="btn btn-danger">Band Festival</Link>
            
 <Link to="/Dashboard" className="btn btn-danger">AI Assistant</Link>
+<Link to="/ Magazine" className="btn btn-danger">Magazine</Link>
 <Link to="/Chat" className="btn btn-danger">Chatboard</Link>
 <Link to="/Teachers" className="btn btn-danger">Teachers</Link>
 <Link to="/Boarding" className="btn btn-danger">Boarding</Link>

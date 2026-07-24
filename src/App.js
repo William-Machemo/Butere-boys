@@ -7,9 +7,12 @@ import VolleyBall from './components/VolleyBall';
 import TableTennis from './components/TableTennis';
 import Rugby from './components/Rugby';
 import AnnualMeeting from './components/AnnualMeeting';
+import FirstPage from './components/FirstPage';
 import SchoolVideos from './components/SchoolVideos';
 import NetBall from './components/NetBall';
 import Hockey from './components/Hockey';
+import TableOfContents from './components/TableOfContents';
+import  Magazine from './components/Magazine';
 import HandBall from './components/HandBall';
 import Chat from './components/Chat';
 import AdmissionsAdmin from './components/AdmissionsAdmin';
@@ -22,6 +25,19 @@ import Scouts from './components/Scouts';
 import Clubs from './components/Clubs';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './components/Dashboard';
+import SecondPage from './components/SecondPage';
+import ThirdPage from './components/ThirdPage';
+import FourthPage from './components/FourthPage';
+import FifthPage from './components/FifthPage';
+import SixthPage from './components/SixthPage';
+import SeventhPage from './components/SeventhPage';
+import EighthPage from './components/EighthPage';
+import NinethPage from './components/NinethPage';
+import TenthPage from './components/TenthPage';
+import ElevenPage from './components/ElevenPage';
+import TwelvePage from './components/TwelvePage';
+
+
 
 
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
@@ -87,6 +103,7 @@ import Mathematics from "./components/Mathematics";
 import English from "./components/English";
 import GeneralScience from "./components/GeneralScience";
 
+
 /* ================= API ================= */
 const API_BASE_URL = "https://butere-boys-flask-j2x3.onrender.com";
 
@@ -144,6 +161,7 @@ className="me-2"/>Butere Boys</Link>
 <Link className="nav-link text-white px-3" to="/classes">Classes</Link>
 <Link className="nav-link text-white px-3" to="/news">News</Link>
 <Link className="nav-link text-white px-3" to="/GetFiles">Assignments</Link>
+<Link className="nav-link text-white px-3" to="/Magazine">Magazine</Link>
 <Link className="nav-link text-white px-3" to="/Sports">Sports</Link>
 <Link className="nav-link text-white px-3" to="/StudentDashboard">Students</Link>
 <Link className="nav-link text-white px-3" to="/AnnualMeeting">AGM Meeting</Link>
@@ -199,17 +217,27 @@ className="me-2"/>Butere Boys</Link>
 <Route path="/curriculum" element={<Curriculum />} />
 <Route path="/services" element={<Services />} />
 <Route path="/sports" element={<Sports />} />
+<Route path="/twelvepage" element={<TwelvePage />} />
+<Route path="/elevenpage" element={<ElevenPage />} />
+<Route path="/tenthpage" element={<TenthPage />} />
+<Route path="/seventhpage" element={<SeventhPage />} />
 <Route path="/studentdashboard" element={<StudentDashboard />} />
 <Route path="/studentlife" element={<StudentLife />} />
+<Route path="/firstpage" element={<FirstPage />} />
 <Route path="/admissions" element={<Admissions />} />
 <Route path="/alumni" element={<Alumni />} />
 <Route path="/dashboard" element={<Dashboard />} />
+<Route path="/secondpage" element={<SecondPage />} />
 <Route path="/annualmeeting" element={<AnnualMeeting />} />
 <Route path="/rugby" element={<Rugby/>} />
 <Route path="/football" element={<FootBall />} />
 <Route path="/handball" element={<HandBall/>} />
 <Route path="/hockey" element={<Hockey/>} />
+<Route path="/fifthpage" element={<FifthPage/>} />
 <Route path="/netball" element={<NetBall />} />
+<Route path="/eighthpage" element={<EighthPage />} />
+<Route path="/sixthPage" element={<SixthPage />} />
+<Route path="/ninethPage" element={<NinethPage />} />
 <Route path="/tabletennis" element={<TableTennis />} />
 <Route path="/volleyball" element={<VolleyBall />} />
 <Route path="/basketball" element={<BasketBall />} />
@@ -223,6 +251,8 @@ className="me-2"/>Butere Boys</Link>
 <Route path="/schoolevents" element={<SchoolEvents />} />
 <Route path="/parents" element={<Parents />} />
 <Route path="/ict" element={<Ict />} />
+<Route path="/fourthpage" element={<FourthPage />} />
+<Route path="/thirdpage" element={<ThirdPage />} />
 <Route path="/MpesaPayment" element={<MpesaPayment />} />
 <Route path="/openingrequirements" element={<OpeningRequirements />} />
 <Route path="/admissionsadmin" element={<AdmissionsAdmin/>} />
@@ -250,11 +280,13 @@ className="me-2"/>Butere Boys</Link>
 <Route path="/music-dance" element={<MusicDance />} />
 <Route path="/media-technology" element={<MediaTechnology />} />
 <Route path="/marine-technology" element={<MarineTechnology />} />
+<Route path="/tableofcontents" element={<TableOfContents />} />
 <Route path="/mandarine" element={<Mandarine />} />
 <Route path="/kiswahili" element={<Kiswahili />} />
 <Route path="/french" element={<FrenchPage />} />
 <Route path="/english" element={<English />} />
 <Route path="/home-science" element={<HomeScience />} />
+<Route path="/magazine" element={<Magazine />} />
 <Route path="/history-citizenship" element={<HistoryCitizenship />} />
 <Route path="/geography" element={<GeographyPage />} />
 <Route path="/fine-arts" element={<FineArts />} />
